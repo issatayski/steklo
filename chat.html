@@ -28,8 +28,8 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{
-  font-family:'Golos Text',-apple-system,system-ui,sans-serif;
-  background:#0e1a19;color:var(--ink);
+  font-family:'Golos Text','Helvetica Neue',-apple-system,system-ui,Arial,sans-serif;
+  background:#16211f;color:var(--ink);
   display:flex;align-items:center;justify-content:center;
   overscroll-behavior:none;
 }
@@ -38,7 +38,7 @@ body{
 
 /* корпус телефона на десктопе, полный экран на телефоне */
 .phone{
-  width:100%;max-width:430px;height:100vh;max-height:920px;
+  width:100%;max-width:430px;height:100vh;height:100dvh;max-height:920px;
   background:var(--wash);position:relative;overflow:hidden;
   display:flex;flex-direction:column;
 }
@@ -52,14 +52,17 @@ body{
   padding:14px 14px 12px;display:flex;align-items:center;gap:12px;
   padding-top:max(14px,env(safe-area-inset-top));
 }
-.top h1{font-size:1.12rem;font-weight:700;letter-spacing:-.01em;line-height:1.15}
-.top .sub{font-size:.74rem;opacity:.72;font-weight:400;margin-top:1px}
+.top h1{font-size:1.12rem;font-weight:700;letter-spacing:-.01em;line-height:1.15;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sub{font-size:.74rem;opacity:.72;font-weight:400;margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .hbox{min-width:0;flex:1}
 .back{background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:0 2px;line-height:1;display:none}
 .top.deep .back{display:block}
 .role-chip{
   margin-left:auto;background:rgba(255,255,255,.16);border:none;color:#fff;
-  padding:7px 12px;border-radius:999px;font:600 .74rem/'Golos Text';cursor:pointer;
-  font-family:'Golos Text';display:flex;align-items:center;gap:5px;flex-shrink:0;
+  padding:7px 12px;border-radius:999px;font-size:.74rem;font-weight:600;cursor:pointer;
+  font-family:inherit;display:flex;align-items:center;gap:5px;flex-shrink:0;white-space:nowrap;
 }
 .avat{
   width:42px;height:42px;border-radius:12px;flex-shrink:0;
@@ -136,17 +139,21 @@ body{
 .pack{margin:8px 0 4px}
 .pack-strip{display:flex;height:62px;border-radius:6px;overflow:hidden;
   background:#eef2f1;border:1px solid var(--line)}
-.ly{position:relative;flex-shrink:0}
-.ly.g{background:linear-gradient(90deg,#a9cfc4,#cfe5dd 40%,#a9cfc4);
-  border-left:2px solid #3f8f7c;border-right:2px solid #3f8f7c}
-.ly.a{background:repeating-linear-gradient(90deg,#f7faf9 0 5px,#eef3f1 5px 6px)}
+.ly{position:relative}
+.ly.g{flex:0 0 auto;background:linear-gradient(90deg,#5ea896,#bfded4 45%,#5ea896);
+  border-left:2px solid #2e7a67;border-right:2px solid #2e7a67}
+.ly.a{flex:1 1 auto;min-width:28px;
+  background:repeating-linear-gradient(90deg,#f7faf9 0 5px,#eef3f1 5px 6px)}
 .ly.a:after{content:attr(data-l);position:absolute;inset:0;display:flex;align-items:center;
   justify-content:center;font:600 .6rem var(--mono);color:#8c9a98;letter-spacing:-.02em}
 .ly.lowe:before{content:"";position:absolute;top:0;bottom:0;width:3px;
   background:repeating-linear-gradient(180deg,#c98a12 0 3px,transparent 3px 6px)}
 .ly.lowe.r:before{right:2px}.ly.lowe.l:before{left:2px}
-.pack-lbl{display:flex;margin-top:5px;font:500 .64rem var(--mono);color:var(--mute)}
-.pack-lbl div{text-align:center;flex-shrink:0}
+.pack-lbl{display:flex;margin-top:5px;font-family:var(--mono);font-size:.64rem;
+  font-weight:500;color:var(--mute)}
+.pack-lbl div{text-align:center}
+.pack-lbl .g{flex:0 0 auto;color:var(--edge-d);font-weight:600}
+.pack-lbl .a{flex:1 1 auto;min-width:28px}
 .pack-note{font-size:.75rem;color:var(--mute);margin-top:7px;line-height:1.4}
 .pack-note b{color:#c98a12}
 
@@ -223,7 +230,7 @@ body{
   <div class="top" id="top">
     <button class="back" onclick="pop()" aria-label="Назад">‹</button>
     <div class="avat" id="top-av" style="display:none"></div>
-    <div style="min-width:0">
+    <div class="hbox">
       <h1 id="top-t">Заказы</h1>
       <div class="sub" id="top-s">Цех «Ай-Стекло» · смена 2</div>
     </div>
@@ -269,7 +276,8 @@ body{
           <div id="c-out"></div>
         </div>
       </div>
-      <div class="actions">
+      <div id="c-sum" style="flex-shrink:0;padding:0 12px 10px;background:#fff;border-top:1px solid var(--line)"></div>
+      <div class="actions" style="border-top:none">
         <button class="act" onclick="toOrder()">Отправить в заказ</button>
       </div>
     </div>
@@ -393,23 +401,25 @@ function parseF(s){
 function packHTML(f){
   const L=parseF(f); if(!L.length) return '';
   const tot=L.reduce((s,l)=>s+l.th,0);
+  // масштаб намеренно нелинейный: при честных пропорциях стекло 4 мм
+  // превращается в волосок и картинка перестаёт объяснять
   let strip='',lbl='',surf=0,lowe=[];
   L.forEach((l,i)=>{
-    const w=Math.max(l.t==='g'?7:4, l.th/tot*100)+'%';
     if(l.t==='g'){
+      const px=16+l.th*2.2;
       const s1=++surf,s2=++surf, G=GLASS[l.mk];
       let cls='ly g';
       if(G.lowE){ const inner=(i===0)?s2:s1; lowe.push(inner); cls+=' lowe '+((i===0)?'r':'l'); }
-      strip+=`<div class="${cls}" style="width:${w}"></div>`;
-      lbl+=`<div style="width:${w}">${l.th}${l.mk!=='M1'?l.mk:''}</div>`;
+      strip+=`<div class="${cls}" style="width:${px}px"></div>`;
+      lbl+=`<div class="g" style="width:${px}px">${l.th}${l.mk!=='M1'?l.mk:''}</div>`;
     }else{
-      strip+=`<div class="ly a" data-l="${l.ar?'Ar':''}" style="width:${w}"></div>`;
-      lbl+=`<div style="width:${w}">${l.th}</div>`;
+      strip+=`<div class="ly a" data-l="${l.ar?'Ar':''}"></div>`;
+      lbl+=`<div class="a">${l.th}</div>`;
     }
   });
   const note = lowe.length
-    ? `Толщина ${tot} мм. <b>Жёлтым — сторона покрытия Low-E</b>: поверхност${lowe.length>1?'и':'ь'} ${lowe.join(' и ')}, всегда внутрь камеры. Развернёшь — стекло в брак.`
-    : `Толщина ${tot} мм. Покрытий нет, стекло можно разворачивать при раскрое.`;
+    ? `Зелёное — стекло, полосатое — камера. Толщина пакета ${tot} мм.<br><b>Жёлтым — сторона покрытия Low-E</b>: поверхност${lowe.length>1?'и':'ь'} ${lowe.join(' и ')}, всегда внутрь камеры. Развернёшь — стекло в брак.`
+    : `Зелёное — стекло, полосатое — камера. Толщина пакета ${tot} мм. Покрытий нет, стекло можно разворачивать при раскрое.`;
   return `<div class="pack"><div class="pack-strip">${strip}</div><div class="pack-lbl">${lbl}</div>
     <div class="pack-note">${note}</div></div>`;
 }
@@ -469,7 +479,7 @@ function pop(){
 }
 function renderThread(){
   $('feed').innerHTML=cur.msgs.map(m=>msgHTML(m,cur.f)).join('');
-  $('feed').scrollTop=$('feed').scrollHeight;
+  requestAnimationFrame(()=>{ $('feed').scrollTop=$('feed').scrollHeight; });
 }
 function renderActs(){
   const R=ROLES[role];
@@ -573,15 +583,18 @@ function calc(){
       <div class="kv"><span>Рамка</span><b>${f2(spacerM)} м</b></div>
       <div class="kv"><span>Аргон с потерями ×${N.argonLoss}</span><b>${argonL?f2(argonL)+' л':'—'}</b></div>
       <div class="kv"><span>Вес 1 шт</span><b>${f2(G.reduce((s,l)=>s+area*l.th*2.5,0))} кг</b></div>
-    </div>` + warn + `
-    <div class="total money${ROLES[role].money?'':' money-off'}">
-      <div class="sm">Итого за ${q} шт</div>
-      <div class="big">${fmt(price*q)} ₸</div>
-      <div class="sp"><span>за 1 шт</span><b>${fmt(price)} ₸</b></div>
-      <div class="sp" style="border:none;padding-top:4px"><span>за м²</span><b>${fmt(price/bill)} ₸</b></div>
-      <div class="sp" style="border:none;padding-top:4px"><span>себестоимость 1 шт</span><b>${fmt(cost)} ₸</b></div>
-    </div>
-    ${ROLES[role].money?'':'<div class="pack-note" style="margin-top:10px">Цену видят мастер и владелец. У резчика и сборщика на экране только размеры и требования.</div>'}`;
+    </div>` + warn;
+
+  $('c-sum').innerHTML = ROLES[role].money
+    ? `<div class="total" style="margin-top:10px">
+        <div class="sm">Итого за ${q} шт</div>
+        <div class="big">${fmt(price*q)} ₸</div>
+        <div class="sp"><span>за 1 шт</span><b>${fmt(price)} ₸</b></div>
+        <div class="sp" style="border:none;padding-top:4px"><span>за м² · себестоимость</span>
+          <b>${fmt(price/bill)} · ${fmt(cost)} ₸</b></div>
+      </div>`
+    : `<div class="pack-note" style="padding-top:12px">Цену видят мастер и владелец.
+        У резчика и сборщика на экране только размеры и требования — чтобы прайс не ушёл в цех.</div>`;
 }
 function toOrder(){
   const o=ORDERS[0];
