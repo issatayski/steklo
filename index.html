@@ -1,0 +1,1015 @@
+
+Gemini
+Новый чат
+Поиск по чатам
+Видео
+Библиотека
+Новый блокнот
+Продажа оборудовании
+ERP
+Все блокноты
+CRM/ERP для производителей стеклопакетов
+Три стаканчика, три характера, одна миссия
+Анализ спецификации Visa CRM
+CRM для визового менеджера: улучшения
+Сәулетке оқуға түскенге құттықтау
+Разработка лендинга для виз и приглашений
+Выбор домена для визового сервиса РК
+Определение цели работы с документом
+Профессиональная обработка и улучшение фото
+Имена для CRM по визам в Казахстан
+Опасность высоковольтных линий электропередачи
+Нормативные документы для виз РК
+Нормативные документы по визам Казахстана
+Гармония рояля и жизни: принятие несовершенства
+Инвестиционное Предложение ClinicOS AI
+Проект AI-CEO: Структура и База Данных
+AI.ЦЕХ: Практика внедрения AI
+Расчет дохода по упрощенной декларации
+Документация API авторизации TTN
+Оптимизация затрат на бизнес-процессы
+Уточнение ТЗ для CRM-системы
+Анализ Маркдаун Файла: Советы
+План действий Claude в amoCRM
+Инновационная GDS система для автовокзалов
+Оценка бизнеса: выручка и прибыль
+Логотип на основе изображений
+Логотип WayO: Автобус и Буква О
+Чат с Gemini
+нужно сделать для производителей стеклопакетов срм/ерп систему водном лице
+
+Архитектура единой CRM/ERP-системы для производства стеклопакетов строится вокруг сквозного цикла: Заявка → Параметрический расчёт → Производственная очередь ( раскрой/сборка ) → Склад/Спецификация → Отгрузка.
+
+Ниже представлена структура модулей и готовая схема базы данных (ER-диаграмма), оптимизированная под задачи стеклянной отрасли (учёт размеров, камерности, рамки, герметиков и раскроя).
+
+1. Ключевые модули системы
+CRM & Парк заказов
+
+Расчёт площади (S=W×H), периметра и массы изделий.
+
+Учёт формулатур (например, 4M1-16Ar-4M1, 4I-14Pro-4-14Pro-4I).
+
+Интеграция с оконным ПО (Optima, SuperOkna, Klaes) через Импорт XML/CSV/JSON.
+
+ERP & Производственное планирование
+
+Формирование партий на резку (оптимизация раскроя монолитного/ламинированного стекла).
+
+Очередь участков: Стол резки → Мойка/Сборка → Заполнение газом → Вторичная герметизация → Пирамиды сушки/готовой продукции.  
+Фирма «1С»
+
+Печать штрихкодов / QR-кодов на каждую стеклоединицу и пирамиду.
+
+Склад и материальный баланс (MRP)
+
+Учёт стекла в квадратных метрах и листах (джамбо / DLF).
+
+Автоматическое списание бутила, полиуретана/тиокола, осушителя, дистанционной рамки (в метрах) и уголка (в штуках) под каждый заказ.
+
+Учёт делового обрези (деловой отход стекла) с уникальным ID.
+
+Логистика и Пирамиды  
+Фирма «1С»
+
+Учёт движения пирамид (возвратная тара у клиентов).
+
+Формирование рейсов по направлениям и габаритам.  
+Фирма «1С»
+
+2. Архитектура БД (PostgreSQL / MySQL)
+Основные таблицы  
+Фирма «1С»
+SQL
+-- Справочник номенклатуры (стекло, рамка, герметик, комплектующие)
+CREATE TABLE items (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL, -- 'glass', 'spacer', 'sealant', 'desiccant', 'corner'
+    unit VARCHAR(20) NOT NULL, -- 'sqm', 'meter', 'kg', 'pcs'
+    thickness NUMERIC(5,2) DEFAULT 0, -- Толщина для стекла/ширина для рамки
+    cost_price NUMERIC(12,2) NOT NULL
+);
+
+-- Заказы клиентов
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    client_name VARCHAR(255) NOT NULL,
+    status VARCHAR(50) DEFAULT 'draft', -- 'draft', 'in_production', 'ready', 'shipped'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    delivery_date DATE
+);
+
+-- Позиции заказа (Стеклопакеты)
+CREATE TABLE order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INT REFERENCES orders(id) ON DELETE CASCADE,
+    width INT NOT NULL,  -- в мм
+    height INT NOT NULL, -- в мм
+    quantity INT NOT NULL DEFAULT 1,
+    formula VARCHAR(100) NOT NULL, -- e.g., '4M1-16-4M1'
+    area_sqm NUMERIC(8,4) GENERATED ALWAYS AS ((width * height)::numeric / 1000000) STORED,
+    perimeter_m NUMERIC(8,4) GENERATED ALWAYS AS (((width + height) * 2)::numeric / 1000) STORED
+);
+
+-- Структура формулы стеклопакета (слои)
+CREATE TABLE glass_unit_components (
+    id SERIAL PRIMARY KEY,
+    order_item_id INT REFERENCES order_items(id) ON DELETE CASCADE,
+    layer_order INT NOT NULL, -- 1, 2, 3...
+    item_id INT REFERENCES items(id), -- Ссылка на стекло или рамку
+    component_type VARCHAR(20) NOT NULL -- 'glass' или 'spacer'
+);
+
+-- Производственные партии (Оптимизация резки)
+CREATE TABLE production_batches (
+    id SERIAL PRIMARY KEY,
+    status VARCHAR(50) DEFAULT 'planned',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Идентификация каждого стеклопакета на производстве (для QR-кодов)
+CREATE TABLE unit_barcodes (
+    id SERIAL PRIMARY KEY,
+    order_item_id INT REFERENCES order_items(id),
+    batch_id INT REFERENCES production_batches(id),
+    barcode VARCHAR(100) UNIQUE NOT NULL,
+    current_stage VARCHAR(50) DEFAULT 'cutting', -- 'cutting', 'washing', 'assembly', 'sealing', 'done'
+    pyramid_id INT
+);
+3. Алгоритм списания материалов (Бизнес-логика)
+Для автоматического расчёта себестоимости и списания материалов со склада используется следующий математический базовый модуль:
+
+Площадь стекла (M 
+2
+ )= 
+1000000
+W×H
+​
+ ×(1+% отхода)
+Длина рамки (M)= 
+1000
+(W+H)×2
+​
+ 
+Объём вторичного герметика (литры/кг)=Периметр (м)×Глубина заливки (м)×Ширина рамки (м)×Плотность
+4. Этапы разработки и стек технологий
+Для системы "все-в-одному" (Monolith / Modular Monolith):
+
+Backend: PHP 8.x (Laravel / Symfony) или Python (FastAPI / Django) — подходят для быстрого построения сложной бизнес-логики и REST API.
+
+Frontend: Vue.js или React (с поддержкой WebSocket для обновления статусов на мониторах в цеху в реальном времени).
+
+Database: PostgreSQL (отлично справляется с геом/параметрическими расчётами и транзакционностью).
+
+Интеграция цеха: Node.js / Python сервис для работы со сканерами штрихкодов, принтерами этикеток (Zebra/TSPL) и выгрузки файлов раскроя на ЧПУ-столы резки (Bystronic, Bottero, Lisec и др.).
+
+Хотите спроектировать формулу автоматического расчёта норм расхода герметика и рамки для базы данных?
+
+Да
+нужно некоторый моменты сделать возможным так, чтобы можно было отключит/включить. Так как у некоторых производст некоторые моменты делается в ручную
+
+Для гибкой настройки под особенности конкретного производства (где часть операций выполняется вручную или пропускается) применяется гибкая архитектура флаг-конфигураций (Feature Toggles) на двух уровнях: на уровне параметров компании/цеха и на уровне технологической карты конкретного заказа.
+
+Ниже представлена структура реализации такой гибкости.
+
+1. Схема базы данных для настроек (Feature Flags)
+Для хранения глобальных или цеховых настроек добавляется таблица конфигурации технологического процесса.
+
+SQL
+-- Настройки производственных модулей и этапов
+CREATE TABLE production_settings (
+    id SERIAL PRIMARY KEY,
+    setting_key VARCHAR(100) UNIQUE NOT NULL, -- Ключ настройки
+    setting_name VARCHAR(255) NOT NULL,        -- Человекочитаемое название
+    is_enabled BOOLEAN DEFAULT TRUE,           -- Включен/Выключен модуль
+    category VARCHAR(50) DEFAULT 'general'     -- Категория (cutting, assembly, stock, etc.)
+);
+
+-- Заполнение базовыми флагами гибридного производства
+INSERT INTO production_settings (setting_key, setting_name, is_enabled, category) VALUES
+('track_manual_cutting', 'Ручная резка (без загрузки на ЧПУ)', TRUE, 'cutting'),
+('auto_deduct_sealant', 'Авто-списание герметика (без весового контроля)', TRUE, 'stock'),
+('enable_desiccant_filling_stage', 'Отдельный этап засыпки осушителя', FALSE, 'assembly'),
+('use_pyramid_tracking', 'Учёт движения и баланса пирамид', TRUE, 'logistics'),
+('require_barcode_scan_assembly', 'Обязательное сканирование ШК на сборке', FALSE, 'assembly'),
+('enable_gas_filling_stage', 'Этап газонаполнения (Аргон)', FALSE, 'assembly');
+2. Адаптивная технологическая карта (Routing)
+Если этап отключён в настройках, система исключает его из цепочки статусов стеклопакета, и изделие сразу переходит на следующий рабочий стол.
+
+Пример бизнес-логики на PHP (Laravel / Pure PHP)
+PHP
+class ProductionWorkflowService 
+{
+    // Динамическое получение списка этапов для конкретного заказа
+    public function getActiveStages(): array 
+    {
+        // Базовый обязательный маршрут
+        $stages = ['cutting']; 
+
+        // Проверяем включен ли этап автоматической мойки/сборки
+        if ($this->isFeatureEnabled('require_barcode_scan_assembly')) {
+            $stages[] = 'washing_assembly';
+        }
+
+        // Ручной или автоматический этап вторичной герметизации
+        if ($this->isFeatureEnabled('enable_gas_filling_stage')) {
+            $stages[] = 'gas_filling';
+        }
+
+        $stages[] = 'sealing'; // Герметизация
+        
+        if ($this->isFeatureEnabled('use_pyramid_tracking')) {
+            $stages[] = 'pyramid_loading'; // Погрузка на пирамиду
+        }
+
+        $stages[] = 'ready'; // Готово к отгрузке
+
+        return $stages;
+    }
+
+    private function isFeatureEnabled(string $key): bool 
+    {
+        // В реальном приложении результат кэшируется в Redis/Memcached
+        return \DB::table('production_settings')
+            ->where('setting_key', $key)
+            ->value('is_enabled') ?? false;
+    }
+}
+3. Гибкая логика списания со склада (Авто / Вручную)
+На цехах с ручным нанесением герметика или ручной засыпкой молекулярного сита точно отслеживать вес на каждый стеклопакет сложнее. Поэтому списание регулируется флагом:
+
+Режим «Автоматический (по нормативу)»: При переходе стеклопакета в статус Done система рассчитывает теорию по формуле и автоматически списывает рамку, бутил, герметик и осушитель.
+
+Режим «Ручной / Партионный»: Система не списывает сырьё на каждый единичный пакет, а даёт возможность мастеру цеха в конце смены списать единым документом фактически потраченные бочки герметика или коробки рамки (инвентаризация по остаткам).
+
+PHP
+public function processItemCompletion($orderItemId) 
+{
+    $autoDeduct = $this->isFeatureEnabled('auto_deduct_sealant');
+
+    if ($autoDeduct) {
+        // Списание по теоретической формуле на единицу продукции
+        $this->deductMaterialsByFormula($orderItemId);
+    } else {
+        // Пропускаем авто-списание. Материалы списываются актом расхода за смену
+        $this->logManualPendingDeduction($orderItemId);
+    }
+}
+4. Как это выглядит в интерфейсе (UI/UX)
+Панель администратора (Настройки процессов): Таблица с чекбоксами (тумблерами ON / OFF), где управляющий может за 1 клик отключить ненужные сканирования, если поломался сканер или на участке работает один человек вместо трёх.
+
+Экран оператора в цеху:
+
+Если require_barcode_scan_assembly = FALSE, у оператора появляется кнопка «Отметить партию готовой вручную» (без необходимости сканировать каждый стеклопакет).
+
+Если тумблер ON, кнопка блокируется, и система ждёт сигнал от USB/Bluetooth-сканера штрихкодов.
+
+Хотите добавить распределение настроек (флагов) отдельно для каждого цеха или филиала?
+
+Да
+пока нужно сделать так чтобы можно было закинуть на гит и расшарить как домен/сайт. Ты сделай так чтобы внутренние блоки и разделы были кликабельными и интерактивными, это для того чтобы можно было согласовать
+
+Готов интерактивный веб-прототип (HTML/CSS/JS) CRM/ERP системы, разработанный для согласования с руководством и цеховыми мастерами.
+
+Вы можете скачать готовый единый файл или залить готовый проект из папки сразу на GitHub Pages / Vercel / Netlify, чтобы расшарить ссылку как готовый сайт.
+
+Что умеет этот интерактивный прототип:
+Кликабельное меню сайдбара: Все 5 ключевых разделов (Обзор, Настройки режимов, Расчёт, Заказы, Склад) мгновенно переключаются прямо в браузере.
+
+Раздел с тумблерами (Feature Flags / Ручной режим):
+
+Включает/отключает этапы: Ручная резка без ЧПУ, Авто-списание герметика, Контроль пирамид, Сканирование ШК на мойке, Газонаполнение (Аргон).
+
+При переключении тумблеров интерактивно обновляется счетчик активных производственных модулей.
+
+Встроенный калькулятор расчёта стеклопакета:
+
+Автоматически пересчитывает площадь (M 
+2
+ ), периметр (м), суммарный расход дистанционной рамки и ориентировочный вес конструкции при изменении ширины, высоты или камерности.
+
+Готовая вёрстка и адаптивный дизайн: Выполнена в современной палитре интерфейсов производственного ПО (с цветовой кодировкой статусов заказов).
+
+Инструкция: Как запустить это как сайт бесплатно за 2 минуты (GitHub Pages)
+Создайте репозиторий на GitHub (например, glass-crm-demo).
+
+Сохраните готовый код из файла ниже с именем index.html и загрузите его в репозиторий (git add ., git commit -m "Init demo", git push).
+
+В настройках репозитория на GitHub перейдите в Settings → Pages:
+
+В поле Source выберите ветку main (или master) и папку / (root).
+
+Нажмите Save.
+
+Через 1 минуту у вас появится готовая прямая ссылка вида:
+
+https://<ваш-логин>.github.io/glass-crm-demo/
+
+Вы сможете отправить эту ссылку коллегам и заказчикам для согласования механики переключения ручного/автоматического режимов.
+
+Значок HTML-файла
+glass-erp-demo/index
+ HTML 
+Открыть
+
+
+
+Gemini – это ИИ. Он может ошибаться.
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassERP / CRM — Интерактивный прототип системы</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --sidebar-bg: #0f172a;
+            --sidebar-text: #94a3b8;
+            --sidebar-active: #38bdf8;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        aside {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            padding: 20px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #f8fafc;
+        }
+
+        .brand-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #38bdf8, #0284c7);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 15px 10px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: var(--sidebar-text);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background-color: #1e293b;
+            color: #f1f5f9;
+        }
+
+        .nav-item.active {
+            background-color: #0284c7;
+            color: #ffffff;
+        }
+
+        .nav-item .badge {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        /* Main Area */
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            height: 64px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+        }
+
+        .header-title h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .header-title p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .content-area {
+            flex-grow: 1;
+            padding: 28px;
+            overflow-y: auto;
+        }
+
+        /* Content Sections */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Toggle & Settings Cards */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        /* Toggle Switch UI */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Interactive Tables */
+        .table-container {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            padding: 12px 16px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-draft { background-color: #f1f5f9; color: #475569; }
+        .status-production { background-color: #fef3c7; color: #d97706; }
+        .status-ready { background-color: #d1fae5; color: #059669; }
+
+        /* Formula Calc Tester */
+        .calc-box {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .input-group input, .input-group select {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .result-panel {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            display: flex;
+            gap: 24px;
+        }
+
+        .result-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-item span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .result-item strong {
+            font-size: 1.1rem;
+            color: #0369a1;
+        }
+
+        /* Banner info for Agreement */
+        .agreement-banner {
+            background: linear-gradient(90deg, #1e293b, #0f172a);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .agreement-banner p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .agreement-banner strong {
+            color: #38bdf8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside>
+        <div class="brand">
+            <div class="brand-icon">G</div>
+            GlassERP
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="switchTab('dashboard', this)">
+                📊 Обзор & Статусы
+            </li>
+            <li class="nav-item" onclick="switchTab('toggle-settings', this)">
+                ⚙️ Настройки ручного/авто режима
+            </li>
+            <li class="nav-item" onclick="switchTab('calculator', this)">
+                📐 Расчёт стеклопакета
+            </li>
+            <li class="nav-item" onclick="switchTab('orders', this)">
+                📦 Заказы в работе
+                <span class="badge">3</span>
+            </li>
+            <li class="nav-item" onclick="switchTab('warehouse', this)">
+                🏭 Склад & Остатки
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main>
+        <header>
+            <div class="header-title">
+                <h1 id="page-title">Интерактивный Прототип согласования</h1>
+                <p>Проверьте кликабельность модулей и переключатели бизнес-логики</p>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">АД</div>
+                <div>
+                    <div style="font-size: 0.85rem; font-weight: 600;">Администратор</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Завод стеклопакетов</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <div class="agreement-banner">
+                <div>
+                    <strong>Интерактивный макет для согласования архитектуры</strong>
+                    <p>Переключайте тумблеры «Ручной/Автоматический режим» и проверяйте реакцию рабочей области.</p>
+                </div>
+                <button class="btn" onclick="alert('Все текущие настройки сохранены в виртуальном контексте проекта.')">Сохранить согласование</button>
+            </div>
+
+            <!-- TAB 1: DASHBOARD -->
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="settings-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Заказы в производстве</span>
+                        </div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--accent);">142 м²</div>
+                        <p class="card-desc">Всего 18 партий на резку на сегодня</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Активные цеховые флаги</span>
+                        </div>
+                        <div style="font-size: 1.5rem; font-weight: 600; color: var(--success);" id="active-flags-count">4 из 6 включено</div>
+                        <p class="card-desc">Часть операций переведена в ручной режим</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 style="font-size: 1.1rem; margin-bottom: 16px;">Текущие заказы и статус обработки</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>№ Заказа</th>
+                                    <th>Клиент</th>
+                                    <th>Формула</th>
+                                    <th>Размеры (мм)</th>
+                                    <th>Статус цеха</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#ORD-2026-081</td>
+                                    <td>ООО "Оконный Стиль"</td>
+                                    <td>4M1-16Ar-4M1</td>
+                                    <td>1400 x 850 (2 шт)</td>
+                                    <td><span class="status-tag status-production">В резке</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-2026-082</td>
+                                    <td>ИП Бейсенов</td>
+                                    <td>4I-14Pro-4-14Pro-4I</td>
+                                    <td>2100 x 1200 (5 шт)</td>
+                                    <td><span class="status-tag status-draft">Ожидает раскроя</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-2026-083</td>
+                                    <td>Фасад-Строй</td>
+                                    <td>6M1-18-6M1</td>
+                                    <td>1800 x 1500 (10 шт)</td>
+                                    <td><span class="status-tag status-ready">Готов на пирамиде №4</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: TOGGLE SETTINGS (FEATURE FLAGS) -->
+            <div id="tab-toggle-settings" class="tab-content">
+                <h2 style="font-size: 1.2rem; margin-bottom: 12px;">Гибкие настройки технологического процесса (Feature Flags)</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+                    Здесь вы можете включать и отключать этапы. Если у конкретного завода/смены нет оборудования или операция делается вручную — просто выключите тумблер.
+                </p>
+
+                <div class="settings-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Ручная резка (Без ЧПУ)</span>
+                            <label class="switch">
+                                <input type="checkbox" checked id="toggle-cutting" onchange="updateFlagStats()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <p class="card-desc">Разрешает мастеру передавать партию на мойку без выгрузки файлов оптимизации резки на ЧПУ-стол.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Авто-списание герметика</span>
+                            <label class="switch">
+                                <input type="checkbox" checked id="toggle-sealant" onchange="updateFlagStats()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <p class="card-desc">Автоматическое списание бутила и тиокола по формуле при готовности стеклопакета. Если выключено — списание идет актом смены.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Этап засыпки сита (Осушителя)</span>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-desiccant" onchange="updateFlagStats()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <p class="card-desc">Отдельный контроль засыпки молекулярного сита со сканированием рамки.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Контроль и учёт пирамид</span>
+                            <label class="switch">
+                                <input type="checkbox" checked id="toggle-pyramids" onchange="updateFlagStats()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <p class="card-desc">Привязка готовых стеклопакетов к конкретным номерам пирамид для логистики и возврата тары от клиентов.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Обязательный ШК на мойке</span>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-barcode" onchange="updateFlagStats()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <p class="card-desc">Требовать сканирование этикетки каждого стекла перед входом в моечную машину.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Газонаполнение (Аргон)</span>
+                            <label class="switch">
+                                <input type="checkbox" checked id="toggle-argon" onchange="updateFlagStats()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <p class="card-desc">Включает этап и учёт расхода газа Аргон в камерах стеклопакета.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: CALCULATOR -->
+            <div id="tab-calculator" class="tab-content">
+                <div class="card">
+                    <h2 style="font-size: 1.1rem; margin-bottom: 8px;">Параметрический расчёт стеклопакета</h2>
+                    <p class="card-desc">Тест автоматического расчета площади, периметра и расхода материалов под формулу.</p>
+                    
+                    <div class="calc-box">
+                        <div class="input-group">
+                            <label>Ширина (мм)</label>
+                            <input type="number" id="calc-w" value="1400" oninput="runCalculation()">
+                        </div>
+                        <div class="input-group">
+                            <label>Высота (мм)</label>
+                            <input type="number" id="calc-h" value="850" oninput="runCalculation()">
+                        </div>
+                        <div class="input-group">
+                            <label>Камерность</label>
+                            <select id="calc-chambers" onchange="runCalculation()">
+                                <option value="1">Однокамерный (2 стекла)</option>
+                                <option value="2" selected>Двухкамерный (3 стекла)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="result-panel">
+                        <div class="result-item">
+                            <span>Площадь (м²)</span>
+                            <strong id="res-area">1.19 м²</strong>
+                        </div>
+                        <div class="result-item">
+                            <span>Периметр (рамка, м)</span>
+                            <strong id="res-perimeter">4.50 м</strong>
+                        </div>
+                        <div class="result-item">
+                            <span>Расход рамки (двухкамерный)</span>
+                            <strong id="res-spacer">9.00 м</strong>
+                        </div>
+                        <div class="result-item">
+                            <span>Ориентировочный вес</span>
+                            <strong id="res-weight">35.7 кг</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4 & 5 PLACEHOLDERS -->
+            <div id="tab-orders" class="tab-content">
+                <div class="card">
+                    <h2>Управление заказами (CRM)</h2>
+                    <p class="card-desc">Интерактивный список спецификаций и импорта из SuperOkna / Optima.</p>
+                </div>
+            </div>
+
+            <div id="tab-warehouse" class="tab-content">
+                <div class="card">
+                    <h2>Складской учёт и деловой обрез</h2>
+                    <p class="card-desc">Мониторинг остатков джамбо-листов и учет деловых отходов стекла.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        function switchTab(tabId, element) {
+            // Update active menu
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(element) element.classList.add('active');
+
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+
+            // Show selected tab
+            const activeTab = document.getElementById('tab-' + tabId);
+            if(activeTab) activeTab.classList.add('active');
+
+            // Update title
+            const titles = {
+                'dashboard': 'Обзор & Статусы',
+                'toggle-settings': 'Настройки ручного/авто режима',
+                'calculator': 'Параметрический расчёт стеклопакета',
+                'orders': 'Заказы в работе',
+                'warehouse': 'Склад & Остатки'
+            };
+            document.getElementById('page-title').innerText = titles[tabId] || 'Раздел системы';
+        }
+
+        function updateFlagStats() {
+            const checkboxes = document.querySelectorAll('#tab-toggle-settings input[type="checkbox"]');
+            let checkedCount = 0;
+            checkboxes.forEach(cb => { if(cb.checked) checkedCount++; });
+            document.getElementById('active-flags-count').innerText = `${checkedCount} из ${checkboxes.length} включено`;
+        }
+
+        function runCalculation() {
+            const w = parseFloat(document.getElementById('calc-w').value) || 0;
+            const h = parseFloat(document.getElementById('calc-h').value) || 0;
+            const chambers = parseInt(document.getElementById('calc-chambers').value) || 1;
+
+            const area = (w * h) / 1000000;
+            const perimeter = ((w + h) * 2) / 1000;
+            const spacerMeter = perimeter * chambers;
+            
+            // Расчет веса (приблизительно 2.5 кг на 1 мм толщины 1 кв.м стекла, берем 4мм стекла)
+            const glassThickness = (chambers + 1) * 4; // 2 стекла = 8мм, 3 стекла = 12мм
+            const weight = area * glassThickness * 2.5;
+
+            document.getElementById('res-area').innerText = area.toFixed(2) + ' м²';
+            document.getElementById('res-perimeter').innerText = perimeter.toFixed(2) + ' м';
+            document.getElementById('res-spacer').innerText = spacerMeter.toFixed(2) + ' м';
+            document.getElementById('res-weight').innerText = weight.toFixed(1) + ' кг';
+        }
+    </script>
+</body>
+</html>
+glass-erp-demo/index.html
+Показан объект "glass-erp-demo/index.html".
