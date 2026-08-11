@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GlassERP / CRM — Интерактивный прототип системы</title>
+    <title>GlassERP Pro — Профессиональная ERP/CRM для производства стеклопакетов</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
             --sidebar-bg: #0f172a;
-            --sidebar-text: #94a3b8;
-            --sidebar-active: #38bdf8;
-            --accent: #0284c7;
-            --accent-hover: #0369a1;
-            --text-main: #0f172a;
+            --sidebar-hover: #1e293b;
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --text-dark: #0f172a;
             --text-muted: #64748b;
-            --border: #e2e8f0;
+            --border: #cbd5e1;
+            --border-light: #e2e8f0;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
+            --info: #3b82f6;
         }
 
         * {
@@ -30,86 +31,96 @@
         }
 
         body {
-            background-color: var(--bg-primary);
-            color: var(--text-main);
+            background-color: var(--bg-main);
+            color: var(--text-dark);
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Sidebar Styles */
+        /* Sidebar */
         aside {
-            width: 260px;
+            width: 280px;
             background-color: var(--sidebar-bg);
-            color: white;
+            color: #f8fafc;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            border-right: 1px solid #1e293b;
         }
 
         .brand {
             padding: 20px;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
             border-bottom: 1px solid #1e293b;
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: #f8fafc;
+            gap: 12px;
         }
 
-        .brand-icon {
-            width: 28px;
-            height: 28px;
+        .brand-logo {
+            width: 32px;
+            height: 32px;
             background: linear-gradient(135deg, #38bdf8, #0284c7);
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
+            font-weight: 800;
+            color: white;
+            font-size: 16px;
         }
 
-        .nav-menu {
+        .nav-list {
             list-style: none;
-            padding: 15px 10px;
+            padding: 16px 12px;
             flex-grow: 1;
             overflow-y: auto;
         }
 
         .nav-item {
-            padding: 12px 16px;
+            padding: 12px 14px;
             margin-bottom: 4px;
             border-radius: 8px;
-            color: var(--sidebar-text);
+            color: #94a3b8;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 500;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
 
         .nav-item:hover {
-            background-color: #1e293b;
-            color: #f1f5f9;
+            background-color: var(--sidebar-hover);
+            color: #f8fafc;
         }
 
         .nav-item.active {
-            background-color: #0284c7;
-            color: #ffffff;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
         }
 
-        .nav-item .badge {
-            background-color: rgba(255, 255, 255, 0.2);
+        .badge-count {
+            background: rgba(255,255,255,0.2);
             padding: 2px 8px;
             border-radius: 12px;
             font-size: 0.75rem;
         }
 
-        /* Main Area */
+        .badge-danger {
+            background: var(--danger);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* Main Workspace */
         main {
             flex-grow: 1;
             display: flex;
@@ -119,114 +130,283 @@
 
         header {
             height: 64px;
-            background-color: var(--bg-secondary);
-            border-bottom: 1px solid var(--border);
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-light);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 28px;
         }
 
-        .header-title h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
+        .header-info h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
         }
 
-        .header-title p {
+        .header-info p {
             font-size: 0.8rem;
             color: var(--text-muted);
         }
 
-        .user-profile {
+        .header-actions {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
         }
 
-        .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
+        .role-badge {
             background-color: #e0f2fe;
             color: #0369a1;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.85rem;
+            gap: 6px;
         }
 
-        .content-area {
+        .content-body {
             flex-grow: 1;
-            padding: 28px;
+            padding: 24px 28px;
             overflow-y: auto;
         }
 
-        /* Content Sections */
-        .tab-content {
+        .tab-panel {
             display: none;
         }
 
-        .tab-content.active {
+        .tab-panel.active {
             display: block;
         }
 
-        /* Toggle & Settings Cards */
-        .settings-grid {
+        /* UI Components */
+        .grid-2 {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
             gap: 20px;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
         }
 
         .card {
-            background-color: var(--bg-secondary);
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
             border-radius: 12px;
-            border: 1px solid var(--border);
             padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 12px;
         }
 
         .card-title {
             font-size: 1rem;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .card-desc {
+        /* Form elements */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        /* Alerts & Banners */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
             font-size: 0.85rem;
-            color: var(--text-muted);
             margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
             line-height: 1.4;
         }
 
-        /* Toggle Switch UI */
+        .alert-warning {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+
+        .alert-info {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        .alert-danger {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        /* Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8fafc;
+            padding: 12px 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+
+        /* Status Pills */
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-new { background-color: #e2e8f0; color: #334155; }
+        .status-cutting { background-color: #fef3c7; color: #d97706; }
+        .status-assembly { background-color: #dbeafe; color: #1d4ed8; }
+        .status-hot { background-color: #fee2e2; color: #b91c1c; font-weight: 700; animation: pulse 1.5s infinite; }
+        .status-ready { background-color: #d1fae5; color: #047857; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* Toggle Switches */
+        .switch-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            width: 100%;
+        }
+
         .switch {
             position: relative;
             display: inline-block;
-            width: 48px;
-            height: 26px;
+            width: 44px;
+            height: 24px;
         }
 
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .switch input { opacity: 0; width: 0; height: 0; }
 
         .slider {
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
             background-color: #cbd5e1;
-            transition: .3s;
-            border-radius: 34px;
+            transition: .2s;
+            border-radius: 24px;
         }
 
         .slider:before {
@@ -234,157 +414,65 @@
             content: "";
             height: 18px;
             width: 18px;
-            left: 4px;
-            bottom: 4px;
+            left: 3px;
+            bottom: 3px;
             background-color: white;
-            transition: .3s;
+            transition: .2s;
             border-radius: 50%;
         }
 
-        input:checked + .slider {
-            background-color: var(--accent);
-        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
 
-        input:checked + .slider:before {
-            transform: translateX(22px);
-        }
-
-        /* Interactive Tables */
-        .table-container {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        th {
-            background-color: #f1f5f9;
-            padding: 12px 16px;
-            font-weight: 600;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border);
-        }
-
-        td {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        .status-tag {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .status-draft { background-color: #f1f5f9; color: #475569; }
-        .status-production { background-color: #fef3c7; color: #d97706; }
-        .status-ready { background-color: #d1fae5; color: #059669; }
-
-        /* Formula Calc Tester */
-        .calc-box {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-top: 16px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-            min-width: 140px;
-        }
-
-        .input-group label {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
-
-        .input-group input, .input-group select {
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        .btn {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: inline-flex;
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            z-index: 1000;
         }
 
-        .btn:hover {
-            background-color: var(--accent-hover);
-        }
-
-        .result-panel {
-            margin-top: 20px;
-            padding: 16px;
-            background-color: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 8px;
-            display: flex;
-            gap: 24px;
-        }
-
-        .result-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .result-item span {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .result-item strong {
-            font-size: 1.1rem;
-            color: #0369a1;
-        }
-
-        /* Banner info for Agreement */
-        .agreement-banner {
-            background: linear-gradient(90deg, #1e293b, #0f172a);
-            color: white;
-            padding: 16px 20px;
+        .modal {
+            background: white;
             border-radius: 12px;
-            margin-bottom: 24px;
+            width: 100%;
+            max-width: 520px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 12px;
         }
 
-        .agreement-banner p {
+        .modal-title { font-weight: 700; font-size: 1.1rem; color: var(--danger); }
+
+        /* Shop Floor Big Buttons */
+        .shop-unit-card {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .shop-layer {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
             font-size: 0.85rem;
-            color: #94a3b8;
-        }
-
-        .agreement-banner strong {
-            color: #38bdf8;
         }
     </style>
 </head>
@@ -393,108 +481,207 @@
     <!-- Sidebar Navigation -->
     <aside>
         <div class="brand">
-            <div class="brand-icon">G</div>
-            GlassERP
+            <div class="brand-logo">G</div>
+            <div>
+                <div>GlassERP Pro</div>
+                <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 400;">Версия 2.0 (Сквозная)</div>
+            </div>
         </div>
-        <ul class="nav-menu">
+
+        <ul class="nav-list">
             <li class="nav-item active" onclick="switchTab('dashboard', this)">
-                📊 Обзор & Статусы
+                <span>📊 Дашборд производства</span>
             </li>
-            <li class="nav-item" onclick="switchTab('toggle-settings', this)">
-                ⚙️ Настройки ручного/авто режима
+            <li class="nav-item" onclick="switchTab('crm', this)">
+                <span>💼 CRM / Заказы & Формула</span>
+                <span class="badge-count" id="badge-orders-count">3</span>
             </li>
-            <li class="nav-item" onclick="switchTab('calculator', this)">
-                📐 Расчёт стеклопакета
+            <li class="nav-item" onclick="switchTab('cutting', this)">
+                <span>✂️ Технолог / Раскрой & Обрез</span>
+                <span class="badge-count">2 обреза</span>
             </li>
-            <li class="nav-item" onclick="switchTab('orders', this)">
-                📦 Заказы в работе
-                <span class="badge">3</span>
+            <li class="nav-item" onclick="switchTab('shopfloor', this)">
+                <span>🖥️ Цеховой терминал (Touch)</span>
+                <span class="badge-danger" id="badge-hot-count">1 БРАК</span>
             </li>
-            <li class="nav-item" onclick="switchTab('warehouse', this)">
-                🏭 Склад & Остатки
+            <li class="nav-item" onclick="switchTab('pyramids', this)">
+                <span>🏗️ Пирамиды & Тара</span>
+                <span class="badge-count">4 у клиента</span>
+            </li>
+            <li class="nav-item" onclick="switchTab('settings', this)">
+                <span>⚙️ Настройки режимов (Flags)</span>
             </li>
         </ul>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main Workspace -->
     <main>
         <header>
-            <div class="header-title">
-                <h1 id="page-title">Интерактивный Прототип согласования</h1>
-                <p>Проверьте кликабельность модулей и переключатели бизнес-логики</p>
+            <div class="header-info">
+                <h1 id="tab-title">Дашборд производства стеклопакетов</h1>
+                <p id="tab-subtitle">Сквозной контроль: От заказа и снятия эмали до брака и логистики пирамид</p>
             </div>
-            <div class="user-profile">
-                <div class="avatar">АД</div>
-                <div>
-                    <div style="font-size: 0.85rem; font-weight: 600;">Администратор</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">Завод стеклопакетов</div>
+            <div class="header-actions">
+                <div class="role-badge">
+                    <span>👤 Инженер / Админ</span>
                 </div>
             </div>
         </header>
 
-        <div class="content-area">
-            
-            <div class="agreement-banner">
-                <div>
-                    <strong>Интерактивный макет для согласования архитектуры</strong>
-                    <p>Переключайте тумблеры «Ручной/Автоматический режим» и проверяйте реакцию рабочей области.</p>
-                </div>
-                <button class="btn" onclick="alert('Все текущие настройки сохранены в виртуальном контексте проекта.')">Сохранить согласование</button>
-            </div>
+        <div class="content-body">
 
             <!-- TAB 1: DASHBOARD -->
-            <div id="tab-dashboard" class="tab-content active">
-                <div class="settings-grid">
+            <div id="tab-dashboard" class="tab-panel active">
+                <div class="grid-3">
                     <div class="card">
-                        <div class="card-header">
-                            <span class="card-title">Заказы в производстве</span>
-                        </div>
-                        <div style="font-size: 2rem; font-weight: 700; color: var(--accent);">142 м²</div>
-                        <p class="card-desc">Всего 18 партий на резку на сегодня</p>
+                        <div class="card-header"><span class="card-title">Объем в производстве</span></div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">284.5 м²</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">42 стеклоединицы в суточной очереди</p>
                     </div>
                     <div class="card">
-                        <div class="card-header">
-                            <span class="card-title">Активные цеховые флаги</span>
-                        </div>
-                        <div style="font-size: 1.5rem; font-weight: 600; color: var(--success);" id="active-flags-count">4 из 6 включено</div>
-                        <p class="card-desc">Часть операций переведена в ручной режим</p>
+                        <div class="card-header"><span class="card-title">Горячая очередь (Брак)</span></div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--danger);" id="dash-hot-val">1 шт</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Переделка без изменения счета клиента</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Пирамиды у клиентов</span></div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--warning);">4 шт</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Залоговая стоимость: 320 000 ₸</p>
                     </div>
                 </div>
 
                 <div class="card">
-                    <h2 style="font-size: 1.1rem; margin-bottom: 16px;">Текущие заказы и статус обработки</h2>
-                    <div class="table-container">
+                    <div class="card-header">
+                        <span class="card-title">Сквозной статус текущих партий</span>
+                        <button class="btn btn-outline" onclick="switchTab('crm', document.querySelectorAll('.nav-item')[1])">+ Новый заказ</button>
+                    </div>
+                    <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>№ Заказа</th>
+                                    <th>ID Заказа</th>
                                     <th>Клиент</th>
                                     <th>Формула</th>
-                                    <th>Размеры (мм)</th>
-                                    <th>Статус цеха</th>
+                                    <th>Размер (мм)</th>
+                                    <th>Edge Deletion</th>
+                                    <th>Текущий этап</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="dash-orders-table">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: CRM & FORMULA ENGINE -->
+            <div id="tab-crm" class="tab-panel">
+                <div class="grid-2">
+                    <!-- Calculator / Formula Engine -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Конструктор формулы & Проверка ТЗ</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Синтаксис формулы стеклопакета</label>
+                            <input type="text" id="crm-formula" class="form-control" value="4i-14Ar-4M1-14Ar-4i" oninput="runFormulaValidation()">
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Пример: 4M1-16-4M1 или 6Solar-14Ar-4M1-14Ar-4i</span>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Ширина W (мм)</label>
+                                <input type="number" id="crm-w" class="form-control" value="1600" oninput="runFormulaValidation()">
+                            </div>
+                            <div class="form-group">
+                                <label>Высота H (мм)</label>
+                                <input type="number" id="crm-h" class="form-control" value="1100" oninput="runFormulaValidation()">
+                            </div>
+                            <div class="form-group">
+                                <label>Кол-во (шт)</label>
+                                <input type="number" id="crm-qty" class="form-control" value="4" oninput="runFormulaValidation()">
+                            </div>
+                        </div>
+
+                        <!-- Validation Warning Box -->
+                        <div id="crm-validation-box">
+                            <!-- Injected by JS -->
+                        </div>
+
+                        <!-- Calculations Box -->
+                        <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid var(--border-light); margin-top: 10px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem;">
+                                <div>Площадь 1 шт: <strong id="calc-area">1.76 м²</strong></div>
+                                <div>Периметр: <strong id="calc-perimeter">5.40 м</strong></div>
+                                <div>Расход рамки: <strong id="calc-spacer">10.80 м</strong></div>
+                                <div>Расчетный вес: <strong id="calc-weight">52.8 кг</strong></div>
+                                <div>Втор. герметик: <strong id="calc-sealant">~0.65 л</strong></div>
+                                <div>Аргон (Газ): <strong id="calc-argon">Да (~32 л)</strong></div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" style="margin-top: 16px; width: 100%; justify-content: center;" onclick="addNewOrder()">
+                            Запустить заказ в производство
+                        </button>
+                    </div>
+
+                    <!-- Integration & Import -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Импорт из оконного ПО (СуперОкна / Optima / Klaes)</span>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
+                            Загрузите файлы выгрузки XML/CSV/DBF для автоматического формирования спецификаций резки.
+                        </p>
+                        <div style="border: 2px dashed var(--border); padding: 24px; text-align: center; border-radius: 8px; background: #f8fafc;">
+                            <p style="font-size: 0.9rem; font-weight: 600;">Перетащите файл заказа сюда</p>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Поддерживается .xml, .csv, .dbf</p>
+                            <button class="btn btn-outline" style="margin-top: 12px;" onclick="simulateImport()">Эмулировать импорт файла "Optima_Order_99.xml"</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: CUTTING & OFFCUTS (ТЕХНОЛОГ) -->
+            <div id="tab-cutting" class="tab-panel">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Управление деловым обрезом (Деловой отход стекла)</span>
+                        <button class="btn btn-outline" onclick="addOffcut()">+ Зарегистрировать обрез вручную</button>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
+                        Куски стекла > 600х600 мм автоматически ставятся на учет с уникальным ID и приоритетно подставляются алгоритмом раскроя перед джамбо-листом.
+                    </p>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td>#ORD-2026-081</td>
-                                    <td>ООО "Оконный Стиль"</td>
-                                    <td>4M1-16Ar-4M1</td>
-                                    <td>1400 x 850 (2 шт)</td>
-                                    <td><span class="status-tag status-production">В резке</span></td>
+                                    <th>ID Обреза</th>
+                                    <th>Марка стекла</th>
+                                    <th>Толщина</th>
+                                    <th>Размеры (мм)</th>
+                                    <th>Ячейка стойки</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody id="offcuts-table-body">
+                                <tr>
+                                    <td><strong>OFF-8821</strong></td>
+                                    <td>4M1 Прозрачное</td>
+                                    <td>4 мм</td>
+                                    <td>1400 x 950</td>
+                                    <td>Стойка B-04</td>
+                                    <td><span class="status-pill status-ready">Доступен для раскроя</span></td>
                                 </tr>
                                 <tr>
-                                    <td>#ORD-2026-082</td>
-                                    <td>ИП Бейсенов</td>
-                                    <td>4I-14Pro-4-14Pro-4I</td>
-                                    <td>2100 x 1200 (5 шт)</td>
-                                    <td><span class="status-tag status-draft">Ожидает раскроя</span></td>
-                                </tr>
-                                <tr>
-                                    <td>#ORD-2026-083</td>
-                                    <td>Фасад-Строй</td>
-                                    <td>6M1-18-6M1</td>
-                                    <td>1800 x 1500 (10 шт)</td>
-                                    <td><span class="status-tag status-ready">Готов на пирамиде №4</span></td>
+                                    <td><strong>OFF-8822</strong></td>
+                                    <td>4i Энергосберегающее</td>
+                                    <td>4 мм</td>
+                                    <td>1200 x 700</td>
+                                    <td>Стойка A-01</td>
+                                    <td><span class="status-pill status-ready">Доступен для раскроя</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -502,194 +689,415 @@
                 </div>
             </div>
 
-            <!-- TAB 2: TOGGLE SETTINGS (FEATURE FLAGS) -->
-            <div id="tab-toggle-settings" class="tab-content">
-                <h2 style="font-size: 1.2rem; margin-bottom: 12px;">Гибкие настройки технологического процесса (Feature Flags)</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
-                    Здесь вы можете включать и отключать этапы. Если у конкретного завода/смены нет оборудования или операция делается вручную — просто выключите тумблер.
-                </p>
-
-                <div class="settings-grid">
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-title">Ручная резка (Без ЧПУ)</span>
-                            <label class="switch">
-                                <input type="checkbox" checked id="toggle-cutting" onchange="updateFlagStats()">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <p class="card-desc">Разрешает мастеру передавать партию на мойку без выгрузки файлов оптимизации резки на ЧПУ-стол.</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-title">Авто-списание герметика</span>
-                            <label class="switch">
-                                <input type="checkbox" checked id="toggle-sealant" onchange="updateFlagStats()">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <p class="card-desc">Автоматическое списание бутила и тиокола по формуле при готовности стеклопакета. Если выключено — списание идет актом смены.</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-title">Этап засыпки сита (Осушителя)</span>
-                            <label class="switch">
-                                <input type="checkbox" id="toggle-desiccant" onchange="updateFlagStats()">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <p class="card-desc">Отдельный контроль засыпки молекулярного сита со сканированием рамки.</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-title">Контроль и учёт пирамид</span>
-                            <label class="switch">
-                                <input type="checkbox" checked id="toggle-pyramids" onchange="updateFlagStats()">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <p class="card-desc">Привязка готовых стеклопакетов к конкретным номерам пирамид для логистики и возврата тары от клиентов.</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-title">Обязательный ШК на мойке</span>
-                            <label class="switch">
-                                <input type="checkbox" id="toggle-barcode" onchange="updateFlagStats()">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <p class="card-desc">Требовать сканирование этикетки каждого стекла перед входом в моечную машину.</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-title">Газонаполнение (Аргон)</span>
-                            <label class="switch">
-                                <input type="checkbox" checked id="toggle-argon" onchange="updateFlagStats()">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <p class="card-desc">Включает этап и учёт расхода газа Аргон в камерах стеклопакета.</p>
-                    </div>
+            <!-- TAB 4: SHOP FLOOR TERMINAL (TOUCH UI) -->
+            <div id="tab-shopfloor" class="tab-panel">
+                <div class="alert alert-warning">
+                    ⚠️ <strong>Режим цехового сенсорного терминала:</strong> Оператор сканирует ШК изделия или выбирает позицию. При браке нажатие кнопки «БРАК» мгновенно отправляет деталь в Горячую очередь резки без пересчета стоимости заказа.
                 </div>
-            </div>
 
-            <!-- TAB 3: CALCULATOR -->
-            <div id="tab-calculator" class="tab-content">
-                <div class="card">
-                    <h2 style="font-size: 1.1rem; margin-bottom: 8px;">Параметрический расчёт стеклопакета</h2>
-                    <p class="card-desc">Тест автоматического расчета площади, периметра и расхода материалов под формулу.</p>
-                    
-                    <div class="calc-box">
-                        <div class="input-group">
-                            <label>Ширина (мм)</label>
-                            <input type="number" id="calc-w" value="1400" oninput="runCalculation()">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Текущая позиция на сборке</span></div>
+                        
+                        <div class="shop-unit-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <strong>#ORD-2026-081 (Пакет 1 из 2)</strong>
+                                <span class="status-pill status-cutting">Участок: Мойка / Сборка</span>
+                            </div>
+                            <div style="margin-top: 8px; font-size: 1.1rem; font-weight: 700;">1600 х 1100 мм</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Формула: 4i-14Ar-4M1-14Ar-4i</div>
+
+                            <div style="margin-top: 12px; font-size: 0.8rem; font-weight: 600; color: #92400e;">
+                                ⚠️ ТРЕБОВАНИЕ: Зачистить край 12мм на стекле №1 и №3 (Edge Deletion)!
+                            </div>
+
+                            <div class="shop-layer">
+                                <span>Стекло 1: 4mm i-Glass (Энерго)</span>
+                                <span style="color: var(--success); font-weight: 600;">✓ Зачищено</span>
+                            </div>
+                            <div class="shop-layer">
+                                <span>Рамка 1: 14mm Ar (Газ)</span>
+                                <span style="color: var(--success); font-weight: 600;">✓ Засып сита ОК</span>
+                            </div>
+                            <div class="shop-layer">
+                                <span>Стекло 2: 4mm M1</span>
+                                <span style="color: var(--success); font-weight: 600;">✓ Вымыто</span>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label>Высота (мм)</label>
-                            <input type="number" id="calc-h" value="850" oninput="runCalculation()">
-                        </div>
-                        <div class="input-group">
-                            <label>Камерность</label>
-                            <select id="calc-chambers" onchange="runCalculation()">
-                                <option value="1">Однокамерный (2 стекла)</option>
-                                <option value="2" selected>Двухкамерный (3 стекла)</option>
-                            </select>
+
+                        <div style="display: flex; gap: 12px; margin-top: 16px;">
+                            <button class="btn btn-success" style="flex: 2; height: 50px; font-size: 1rem; justify-content: center;" onclick="passStage()">
+                                ✓ ЭТАП ПРОЙДЕН (Далее)
+                            </button>
+                            <button class="btn btn-danger" style="flex: 1; height: 50px; font-size: 1rem; justify-content: center;" onclick="openDefectModal('#ORD-2026-081', 'Стекло 1 (4i)')">
+                                ✖ БРАК / ПЕРЕДЕЛКА
+                            </button>
                         </div>
                     </div>
 
-                    <div class="result-panel">
-                        <div class="result-item">
-                            <span>Площадь (м²)</span>
-                            <strong id="res-area">1.19 м²</strong>
+                    <!-- Hot Queue / Defect Feed -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title" style="color: var(--danger);">🔥 Горячая очередь переделки (Hot Queue)</span>
                         </div>
-                        <div class="result-item">
-                            <span>Периметр (рамка, м)</span>
-                            <strong id="res-perimeter">4.50 м</strong>
-                        </div>
-                        <div class="result-item">
-                            <span>Расход рамки (двухкамерный)</span>
-                            <strong id="res-spacer">9.00 м</strong>
-                        </div>
-                        <div class="result-item">
-                            <span>Ориентировочный вес</span>
-                            <strong id="res-weight">35.7 кг</strong>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">
+                            Детали с браком идут на стол резки в первую очередь, минуя общую очередь.
+                        </p>
+                        <div id="hot-queue-list">
+                            <!-- Dynamic items -->
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 4 & 5 PLACEHOLDERS -->
-            <div id="tab-orders" class="tab-content">
+            <!-- TAB 5: PYRAMIDS & LOGISTICS -->
+            <div id="tab-pyramids" class="tab-panel">
                 <div class="card">
-                    <h2>Управление заказами (CRM)</h2>
-                    <p class="card-desc">Интерактивный список спецификаций и импорта из SuperOkna / Optima.</p>
+                    <div class="card-header">
+                        <span class="card-title">Учёт и возврат пирамид (Возвратная тара)</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>№ Пирамиды</th>
+                                    <th>Тип</th>
+                                    <th>Текущий клиент</th>
+                                    <th>Заказа на пирамиде</th>
+                                    <th>Дата отгрузки</th>
+                                    <th>Залог</th>
+                                    <th>Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>ПИР-12</strong></td>
+                                    <td>A-образная (Большая)</td>
+                                    <td>ООО "Оконный Стиль"</td>
+                                    <td>#ORD-2026-081</td>
+                                    <td>10.08.2026</td>
+                                    <td>80 000 ₸</td>
+                                    <td><button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick="returnPyramid('ПИР-12', this)">Отметить возврат</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ПИР-05</strong></td>
+                                    <td>L-образная</td>
+                                    <td>ИП Бейсенов</td>
+                                    <td>#ORD-2026-082</td>
+                                    <td>11.08.2026</td>
+                                    <td>80 000 ₸</td>
+                                    <td><button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick="returnPyramid('ПИР-05', this)">Отметить возврат</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div id="tab-warehouse" class="tab-content">
+            <!-- TAB 6: SETTINGS (FEATURE FLAGS) -->
+            <div id="tab-settings" class="tab-panel">
                 <div class="card">
-                    <h2>Складской учёт и деловой обрез</h2>
-                    <p class="card-desc">Мониторинг остатков джамбо-листов и учет деловых отходов стекла.</p>
+                    <div class="card-header">
+                        <span class="card-title">Гибкие флаги технологического процесса (Feature Flags)</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+                        Включайте и отключайте модули под реальное оснащение цеха. Если операция делается вручную — выключите соответствующий флаг.
+                    </p>
+
+                    <div class="grid-2">
+                        <div style="border: 1px solid var(--border-light); padding: 16px; border-radius: 8px;">
+                            <label class="switch-label">
+                                <div>
+                                    <strong style="font-size: 0.9rem;">Авто-выгрузка на ЧПУ резку</strong>
+                                    <p style="font-size: 0.78rem; color: var(--text-muted);">Генерировать G-code для стола резки. Если выключено — печать бумажной карты.</p>
+                                </div>
+                                <div class="switch">
+                                    <input type="checkbox" checked id="flag-cnc" onchange="toggleFlagNotification('ЧПУ Резка')">
+                                    <span class="slider"></span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div style="border: 1px solid var(--border-light); padding: 16px; border-radius: 8px;">
+                            <label class="switch-label">
+                                <div>
+                                    <strong style="font-size: 0.9rem;">Авто-списание герметика</strong>
+                                    <p style="font-size: 0.78rem; color: var(--text-muted);">Списывать бутил/тиокол по теоретической формуле при закрытии пакета.</p>
+                                </div>
+                                <div class="switch">
+                                    <input type="checkbox" checked id="flag-sealant" onchange="toggleFlagNotification('Авто-списание герметика')">
+                                    <span class="slider"></span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div style="border: 1px solid var(--border-light); padding: 16px; border-radius: 8px;">
+                            <label class="switch-label">
+                                <div>
+                                    <strong style="font-size: 0.9rem;">Обязательное сканирование ШК на мойке</strong>
+                                    <p style="font-size: 0.78rem; color: var(--text-muted);">Блокировать передачу на сборку без сигнала сканера ШК.</p>
+                                </div>
+                                <div class="switch">
+                                    <input type="checkbox" id="flag-barcode" onchange="toggleFlagNotification('Сканирование ШК')">
+                                    <span class="slider"></span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div style="border: 1px solid var(--border-light); padding: 16px; border-radius: 8px;">
+                            <label class="switch-label">
+                                <div>
+                                    <strong style="font-size: 0.9rem;">Учёт залога и возврата пирамид</strong>
+                                    <p style="font-size: 0.78rem; color: var(--text-muted);">Контролировать баланс возвратной тары на логистике.</p>
+                                </div>
+                                <div class="switch">
+                                    <input type="checkbox" checked id="flag-pyramids" onchange="toggleFlagNotification('Учёт пирамид')">
+                                    <span class="slider"></span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
 
         </div>
     </main>
 
+    <!-- DEFECT MODAL -->
+    <div class="modal-backdrop" id="defectModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">✖ Фиксация брака / Переделка</span>
+                <button style="border:none; background:none; font-size:1.2rem; cursor:pointer;" onclick="closeDefectModal()">✕</button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
+                Выбранная деталь будет немедленно отправлена в <strong style="color: var(--danger);">Горячую очередь резки</strong>. Финансовый баланс заказа не изменится.
+            </p>
+            <div class="form-group">
+                <label>Позиция заказа</label>
+                <input type="text" id="defect-order-id" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+                <label>Бракованный компонент</label>
+                <input type="text" id="defect-component" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+                <label>Причина брака</label>
+                <select id="defect-reason" class="form-control">
+                    <option>Царапина на эмали/покрытии</option>
+                    <option>Скол при обработке края</option>
+                    <option>Мусор/пыль внутри камеры</option>
+                    <option>Трещина при прессовании</option>
+                    <option>Ошибка размера</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-outline" style="flex:1;" onclick="closeDefectModal()">Отмена</button>
+                <button class="btn btn-danger" style="flex:1;" onclick="submitDefect()">Отправить в Горячую Очередь</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function switchTab(tabId, element) {
-            // Update active menu
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            if(element) element.classList.add('active');
+        // Global State Simulation
+        const state = {
+            orders: [
+                { id: '#ORD-2026-081', client: 'ООО "Оконный Стиль"', formula: '4i-14Ar-4M1-14Ar-4i', size: '1600x1100 (2 шт)', edgeDeletion: true, stage: 'Мойка / Сборка', statusClass: 'status-cutting' },
+                { id: '#ORD-2026-082', client: 'ИП Бейсенов', formula: '4M1-16-4M1', size: '2100x1200 (5 шт)', edgeDeletion: false, stage: 'Ожидает раскроя', statusClass: 'status-new' },
+                { id: '#ORD-2026-083', client: 'Фасад-Строй', formula: '6Solar-16Ar-4M1', size: '1800x1500 (10 шт)', edgeDeletion: true, stage: 'Готов на Пирамиде №4', statusClass: 'status-ready' }
+            ],
+            hotQueue: [
+                { id: '#ORD-2026-080', comp: 'Стекло 1 (6Solar)', reason: 'Скол при зачистке края', time: '10 минут назад' }
+            ]
+        };
 
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        function renderOrdersTable() {
+            const tbody = document.getElementById('dash-orders-table');
+            tbody.innerHTML = '';
+            state.orders.forEach(o => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${o.id}</strong></td>
+                    <td>${o.client}</td>
+                    <td><code>${o.formula}</code></td>
+                    <td>${o.size}</td>
+                    <td>${o.edgeDeletion ? '<span style="color:var(--warning); font-weight:600;">⚠️ Зачистить 12мм</span>' : 'Нет'}</td>
+                    <td><span class="status-pill ${o.statusClass}">${o.stage}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('badge-orders-count').innerText = state.orders.length;
+        }
 
-            // Show selected tab
-            const activeTab = document.getElementById('tab-' + tabId);
-            if(activeTab) activeTab.classList.add('active');
+        function renderHotQueue() {
+            const container = document.getElementById('hot-queue-list');
+            container.innerHTML = '';
+            state.hotQueue.forEach(item => {
+                const div = document.createElement('div');
+                div.style.cssText = 'background:#fef2f2; border:1px solid #fecaca; padding:12px; border-radius:8px; margin-bottom:10px; font-size:0.85rem;';
+                div.innerHTML = `
+                    <div style="display:flex; justify-size:space-between; font-weight:700; color:var(--danger);">
+                        <span>${item.id} — ${item.comp}</span>
+                        <span style="font-size:0.75rem;">${item.time}</span>
+                    </div>
+                    <div style="color:#991b1b; margin-top:4px;">Причина: ${item.reason}</div>
+                    <div style="margin-top:8px; text-align:right;">
+                        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.75rem;" onclick="resolveHotQueueItem(this)">Выполнить резку сейчас</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            document.getElementById('badge-hot-count').innerText = `${state.hotQueue.length} БРАК`;
+            document.getElementById('dash-hot-val').innerText = `${state.hotQueue.length} шт`;
+        }
 
-            // Update title
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if(el) el.classList.add('active');
+
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+
             const titles = {
-                'dashboard': 'Обзор & Статусы',
-                'toggle-settings': 'Настройки ручного/авто режима',
-                'calculator': 'Параметрический расчёт стеклопакета',
-                'orders': 'Заказы в работе',
-                'warehouse': 'Склад & Остатки'
+                'dashboard': ['Дашборд производства стеклопакетов', 'Сквозной контроль: От заказа и снятия эмали до брака и логистики пирамид'],
+                'crm': ['CRM & Конструктор Формул', 'Проверка технологических ограничений и импорт из оконного ПО'],
+                'cutting': ['Технолог / Раскрой & Деловой обрез', 'Учет делового отхода стекла (>600x600мм) и формирование суточных карт'],
+                'shopfloor': ['Цеховой сенсорный терминал', 'Оперативный просмотр слоев и быстрый перезапуск брака'],
+                'pyramids': ['Логистика & Учет Пирамид', 'Возвратная тара и залоговые балансы клиентов'],
+                'settings': ['Настройки технологических флагов', 'Управление автоматическими и ручными режимами цеха']
             };
-            document.getElementById('page-title').innerText = titles[tabId] || 'Раздел системы';
+
+            if(titles[tabId]) {
+                document.getElementById('tab-title').innerText = titles[tabId][0];
+                document.getElementById('tab-subtitle').innerText = titles[tabId][1];
+            }
         }
 
-        function updateFlagStats() {
-            const checkboxes = document.querySelectorAll('#tab-toggle-settings input[type="checkbox"]');
-            let checkedCount = 0;
-            checkboxes.forEach(cb => { if(cb.checked) checkedCount++; });
-            document.getElementById('active-flags-count').innerText = `${checkedCount} из ${checkboxes.length} включено`;
-        }
-
-        function runCalculation() {
-            const w = parseFloat(document.getElementById('calc-w').value) || 0;
-            const h = parseFloat(document.getElementById('calc-h').value) || 0;
-            const chambers = parseInt(document.getElementById('calc-chambers').value) || 1;
+        function runFormulaValidation() {
+            const formula = document.getElementById('crm-formula').value.toUpperCase();
+            const w = parseFloat(document.getElementById('crm-w').value) || 0;
+            const h = parseFloat(document.getElementById('crm-h').value) || 0;
+            const qty = parseInt(document.getElementById('crm-qty').value) || 1;
 
             const area = (w * h) / 1000000;
             const perimeter = ((w + h) * 2) / 1000;
-            const spacerMeter = perimeter * chambers;
             
-            // Расчет веса (приблизительно 2.5 кг на 1 мм толщины 1 кв.м стекла, берем 4мм стекла)
-            const glassThickness = (chambers + 1) * 4; // 2 стекла = 8мм, 3 стекла = 12мм
-            const weight = area * glassThickness * 2.5;
+            // Check formula features
+            const hasI = formula.includes('I');
+            const hasSolar = formula.includes('SOLAR');
+            const hasArgon = formula.includes('AR');
+            const chambers = (formula.match(/-/g) || []).length / 2;
 
-            document.getElementById('res-area').innerText = area.toFixed(2) + ' м²';
-            document.getElementById('res-perimeter').innerText = perimeter.toFixed(2) + ' м';
-            document.getElementById('res-spacer').innerText = spacerMeter.toFixed(2) + ' м';
-            document.getElementById('res-weight').innerText = weight.toFixed(1) + ' кг';
+            document.getElementById('calc-area').innerText = (area * qty).toFixed(2) + ' м²';
+            document.getElementById('calc-perimeter').innerText = (perimeter * qty).toFixed(2) + ' м';
+            document.getElementById('calc-spacer').innerText = (perimeter * (chambers || 1) * qty).toFixed(2) + ' м';
+            document.getElementById('calc-weight').innerText = (area * 3 * 2.5 * 4 * qty).toFixed(1) + ' кг';
+            document.getElementById('calc-argon').innerText = hasArgon ? `Да (~${(area*14*qty).toFixed(0)} л)` : 'Нет';
+
+            const box = document.getElementById('crm-validation-box');
+            box.innerHTML = '';
+
+            let warnings = [];
+            if(hasI || hasSolar) {
+                warnings.push('⚠️ <strong>Энергосберегающее/Соляр стекло:</strong> Автоматически включена операция <u>Edge Deletion (зачистка эмали 12мм)</u>.');
+            }
+            if(w > 2200 || h > 2200) {
+                warnings.push('⚠️ <strong>Габарит > 2200 мм:</strong> Рекомендуется толщина стекла не менее 6 мм вместо 4 мм!');
+            }
+            if(w < 180 || h < 180) {
+                warnings.push('❌ <strong>Предупреждение мойки:</strong> Размер меньше минимального порога моечной машины (180 мм)!');
+            }
+
+            if(warnings.length > 0) {
+                box.innerHTML = `<div class="alert alert-warning" style="margin-top:10px;">${warnings.join('<br>')}</div>`;
+            } else {
+                box.innerHTML = `<div class="alert alert-info" style="margin-top:10px;">✓ Параметры соответствуют технологическим нормам цеха.</div>`;
+            }
         }
+
+        function addNewOrder() {
+            const formula = document.getElementById('crm-formula').value;
+            const w = document.getElementById('crm-w').value;
+            const h = document.getElementById('crm-h').value;
+            const qty = document.getElementById('crm-qty').value;
+            const newId = `#ORD-2026-0${84 + state.orders.length}`;
+
+            state.orders.unshift({
+                id: newId,
+                client: 'Новый Заказ (Ручной)',
+                formula: formula,
+                size: `${w}x${h} (${qty} шт)`,
+                edgeDeletion: formula.toUpperCase().includes('I') || formula.toUpperCase().includes('SOLAR'),
+                stage: 'В очереди резки',
+                statusClass: 'status-new'
+            });
+
+            renderOrdersTable();
+            alert(`Заказ ${newId} успешно сформирован и передан на стол резки!`);
+            switchTab('dashboard', document.querySelectorAll('.nav-item')[0]);
+        }
+
+        function simulateImport() {
+            alert('Файл "Optima_Order_99.xml" успешно распарсен! Добавлено 12 стеклопакетов в спецификацию резки.');
+        }
+
+        function openDefectModal(orderId, comp) {
+            document.getElementById('defect-order-id').value = orderId;
+            document.getElementById('defect-component').value = comp;
+            document.getElementById('defectModal').style.display = 'flex';
+        }
+
+        function closeDefectModal() {
+            document.getElementById('defectModal').style.display = 'none';
+        }
+
+        function submitDefect() {
+            const orderId = document.getElementById('defect-order-id').value;
+            const comp = document.getElementById('defect-component').value;
+            const reason = document.getElementById('defect-reason').value;
+
+            state.hotQueue.unshift({
+                id: orderId,
+                comp: comp,
+                reason: reason,
+                time: 'Только что'
+            });
+
+            renderHotQueue();
+            closeDefectModal();
+            alert('Деталь отправлена в Горячую очередь!');
+        }
+
+        function resolveHotQueueItem(btn) {
+            btn.innerText = '✓ Выполнено';
+            btn.disabled = true;
+            btn.parentElement.parentElement.style.opacity = '0.5';
+            setTimeout(() => {
+                state.hotQueue.shift();
+                renderHotQueue();
+            }, 1000);
+        }
+
+        function returnPyramid(id, btn) {
+            btn.innerText = '✓ Возвращено';
+            btn.classList.replace('btn-outline', 'btn-success');
+            btn.disabled = true;
+        }
+
+        function toggleFlagNotification(flagName) {
+            console.log(`Флаг "${flagName}" изменен.`);
+        }
+
+        function passStage() {
+            alert('Стеклопакет отмечен готовым и загружен на Пирамиду ПИР-12!');
+        }
+
+        // Init
+        window.onload = function() {
+            renderOrdersTable();
+            renderHotQueue();
+            runFormulaValidation();
+        };
     </script>
 </body>
 </html>
