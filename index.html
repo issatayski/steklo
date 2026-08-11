@@ -1,1048 +1,1024 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GlassERP Pro — Профессиональная ERP/CRM для производства стеклопакетов</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-main: #f1f5f9;
-            --bg-card: #ffffff;
-            --sidebar-bg: #0f172a;
-            --sidebar-hover: #1e293b;
-            --primary: #0284c7;
-            --primary-hover: #0369a1;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --border: #cbd5e1;
-            --border-light: #e2e8f0;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #3b82f6;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-dark);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Sidebar Overlay for Mobile */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(15, 23, 42, 0.6);
-            z-index: 999;
-            backdrop-filter: blur(2px);
-        }
-
-        .sidebar-overlay.active {
-            display: block;
-        }
-
-        /* Sidebar */
-        aside {
-            width: 280px;
-            background-color: var(--sidebar-bg);
-            color: #f8fafc;
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            border-right: 1px solid #1e293b;
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
-
-        .brand {
-            padding: 20px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            border-bottom: 1px solid #1e293b;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .brand-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .brand-logo {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #38bdf8, #0284c7);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            color: white;
-            font-size: 16px;
-        }
-
-        .close-sidebar-btn {
-            display: none;
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .nav-list {
-            list-style: none;
-            padding: 16px 12px;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .nav-item {
-            padding: 12px 14px;
-            margin-bottom: 4px;
-            border-radius: 8px;
-            color: #94a3b8;
-            cursor: pointer;
-            font-size: 0.88rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s;
-        }
-
-        .nav-item:hover {
-            background-color: var(--sidebar-hover);
-            color: #f8fafc;
-        }
-
-        .nav-item.active {
-            background-color: var(--primary);
-            color: white;
-            font-weight: 600;
-        }
-
-        .badge-count {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-        }
-
-        .badge-danger {
-            background: var(--danger);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-
-        /* Main Workspace */
-        main {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            width: 100%;
-        }
-
-        header {
-            height: 64px;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 28px;
-            gap: 12px;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.4rem;
-            color: var(--text-dark);
-            cursor: pointer;
-            padding: 4px;
-        }
-
-        .header-info h1 {
-            font-size: 1.15rem;
-            font-weight: 700;
-        }
-
-        .header-info p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .role-badge {
-            background-color: #e0f2fe;
-            color: #0369a1;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-
-        .content-body {
-            flex-grow: 1;
-            padding: 24px 28px;
-            overflow-y: auto;
-        }
-
-        .tab-panel {
-            display: none;
-        }
-
-        .tab-panel.active {
-            display: block;
-        }
-
-        /* UI Components */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-            margin-bottom: 24px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-            margin-bottom: 24px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            margin-bottom: 20px;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            border-bottom: 1px solid var(--border-light);
-            padding-bottom: 12px;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .card-title {
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Form elements */
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 14px;
-        }
-
-        .form-group label {
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .form-control {
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 0.2s;
-            width: 100%;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary);
-        }
-
-        .form-row {
-            display: flex;
-            gap: 12px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 0.88rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #dc2626;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-dark);
-        }
-
-        .btn-outline:hover {
-            background: #f8fafc;
-        }
-
-        .btn-success {
-            background-color: var(--success);
-            color: white;
-        }
-
-        /* Alerts & Banners */
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            line-height: 1.4;
-        }
-
-        .alert-warning {
-            background-color: #fffbeb;
-            border: 1px solid #fde68a;
-            color: #92400e;
-        }
-
-        .alert-info {
-            background-color: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1e40af;
-        }
-
-        .alert-danger {
-            background-color: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #991b1b;
-        }
-
-        /* Tables */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.88rem;
-            text-align: left;
-            min-width: 600px;
-        }
-
-        th {
-            background-color: #f8fafc;
-            padding: 12px 14px;
-            font-weight: 600;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        td {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border-light);
-            vertical-align: middle;
-        }
-
-        /* Status Pills */
-        .status-pill {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-            white-space: nowrap;
-        }
-
-        .status-new { background-color: #e2e8f0; color: #334155; }
-        .status-cutting { background-color: #fef3c7; color: #d97706; }
-        .status-assembly { background-color: #dbeafe; color: #1d4ed8; }
-        .status-hot { background-color: #fee2e2; color: #b91c1c; font-weight: 700; animation: pulse 1.5s infinite; }
-        .status-ready { background-color: #d1fae5; color: #047857; }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
-
-        /* Toggle Switches */
-        .switch-label {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            width: 100%;
-            gap: 12px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-            flex-shrink: 0;
-        }
-
-        .switch input { opacity: 0; width: 0; height: 0; }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #cbd5e1;
-            transition: .2s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .2s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(20px); }
-
-        /* Modal */
-        .modal-backdrop {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 16px;
-        }
-
-        .modal {
-            background: white;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 520px;
-            padding: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            border-bottom: 1px solid var(--border-light);
-            padding-bottom: 12px;
-        }
-
-        .modal-title { font-weight: 700; font-size: 1.1rem; color: var(--danger); }
-
-        /* Shop Floor Big Buttons */
-        .shop-unit-card {
-            background: #f8fafc;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .shop-layer {
-            background: white;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid var(--border-light);
-            margin-top: 8px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            gap: 8px;
-        }
-
-        /* RESPONSIVE MEDIA QUERIES */
-        @media (max-width: 992px) {
-            header {
-                padding: 0 20px;
-            }
-            .content-body {
-                padding: 20px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            aside {
-                position: fixed;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                transform: translateX(-100%);
-            }
-
-            aside.open {
-                transform: translateX(0);
-            }
-
-            .close-sidebar-btn {
-                display: block;
-            }
-
-            .menu-toggle {
-                display: block;
-            }
-
-            header {
-                padding: 0 16px;
-            }
-
-            .header-info p {
-                display: none;
-            }
-
-            .header-info h1 {
-                font-size: 1rem;
-            }
-
-            .role-badge {
-                padding: 4px 8px;
-                font-size: 0.75rem;
-            }
-
-            .content-body {
-                padding: 16px;
-            }
-
-            .grid-2, .grid-3 {
-                grid-template-columns: 1fr;
-            }
-
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-
-            .shop-actions-row {
-                flex-direction: column;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .card {
-                padding: 14px;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .card-header .btn {
-                width: auto;
-            }
-
-            .shop-layer {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GlassERP — производство стеклопакетов</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2f6; --card:#fff; --sb:#0f172a; --sb2:#1e293b;
+  --pri:#0284c7; --pri2:#0369a1;
+  --tx:#0f172a; --mu:#64748b; --bd:#cbd5e1; --bdl:#e2e8f0;
+  --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; --info:#3b82f6;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',-apple-system,sans-serif}
+body{background:var(--bg);color:var(--tx);display:flex;height:100vh;overflow:hidden}
+:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- sidebar ---------- */
+.ovl{display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:999}
+.ovl.active{display:block}
+aside{width:270px;background:var(--sb);color:#f8fafc;display:flex;flex-direction:column;flex-shrink:0;transition:transform .25s;z-index:1000}
+.brand{padding:18px 20px;border-bottom:1px solid var(--sb2);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand-i{display:flex;align-items:center;gap:11px}
+.logo{width:32px;height:32px;background:linear-gradient(135deg,#38bdf8,#0284c7);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.brand b{font-size:1.05rem}
+.brand small{color:#94a3b8;font-weight:400;font-size:.7rem}
+.xbtn{display:none;background:none;border:none;color:#94a3b8;font-size:1.5rem;cursor:pointer}
+.nav{list-style:none;padding:12px 10px;flex-grow:1;overflow-y:auto}
+.ni{padding:11px 13px;margin-bottom:3px;border-radius:8px;color:#94a3b8;cursor:pointer;font-size:.86rem;font-weight:500;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:.15s}
+.ni:hover{background:var(--sb2);color:#f8fafc}
+.ni.active{background:var(--pri);color:#fff;font-weight:600}
+.bdg{background:rgba(255,255,255,.2);padding:2px 8px;border-radius:12px;font-size:.72rem}
+.bdg.red{background:var(--bad);color:#fff;font-weight:700}
+.sb-foot{padding:14px;border-top:1px solid var(--sb2);font-size:.72rem;color:#64748b}
+
+/* ---------- layout ---------- */
+main{flex-grow:1;display:flex;flex-direction:column;overflow:hidden;width:100%}
+header{height:62px;background:var(--card);border-bottom:1px solid var(--bdl);display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:12px;flex-shrink:0}
+.hl{display:flex;align-items:center;gap:12px;min-width:0}
+.mtg{display:none;background:none;border:none;font-size:1.35rem;cursor:pointer;color:var(--tx)}
+.hi h1{font-size:1.08rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hi p{font-size:.78rem;color:var(--mu)}
+.role-sel{background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;padding:7px 10px;border-radius:20px;font-size:.8rem;font-weight:600;cursor:pointer}
+.body{flex-grow:1;padding:22px 24px;overflow-y:auto}
+.tab{display:none}.tab.active{display:block}
+
+/* ---------- primitives ---------- */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--bdl);border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);margin-bottom:18px}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--bdl);padding-bottom:11px;gap:10px;flex-wrap:wrap}
+.ct{font-size:.98rem;font-weight:650}
+.hint{font-size:.78rem;color:var(--mu);line-height:1.45}
+.kpi{font-size:1.9rem;font-weight:700;font-family:var(--mono)}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.fg label{font-size:.8rem;font-weight:600}
+.fc{padding:9px 11px;border:1px solid var(--bd);border-radius:8px;font-size:.88rem;width:100%;background:#fff}
+.fc:focus{border-color:var(--pri);outline:none}
+.fr{display:flex;gap:10px}.fr>.fg{flex:1}
+.btn{padding:9px 16px;border-radius:8px;font-size:.86rem;font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s}
+.b-pri{background:var(--pri);color:#fff}.b-pri:hover{background:var(--pri2)}
+.b-out{background:transparent;border:1px solid var(--bd);color:var(--tx)}.b-out:hover{background:#f8fafc}
+.b-bad{background:var(--bad);color:#fff}
+.b-ok{background:var(--ok);color:#fff}
+.alert{padding:11px 14px;border-radius:8px;font-size:.83rem;margin-bottom:14px;display:flex;gap:9px;line-height:1.45}
+.a-warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.a-info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+.a-bad{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.a-ok{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
+.tw{width:100%;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem;text-align:left;min-width:560px}
+th{background:#f8fafc;padding:10px 12px;font-weight:600;color:var(--mu);border-bottom:1px solid var(--bdl);font-size:.78rem;text-transform:uppercase;letter-spacing:.02em}
+td{padding:10px 12px;border-bottom:1px solid var(--bdl);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.pill{padding:3px 9px;border-radius:20px;font-size:.73rem;font-weight:600;display:inline-block;white-space:nowrap}
+.p-new{background:#e2e8f0;color:#334155}.p-cut{background:#fef3c7;color:#b45309}
+.p-asm{background:#dbeafe;color:#1d4ed8}.p-hot{background:#fee2e2;color:#b91c1c;font-weight:700}
+.p-ok{background:#d1fae5;color:#047857}
+.mono{font-family:var(--mono)}
+.sw{display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:12px}
+.switch{position:relative;width:42px;height:23px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.sl{position:absolute;inset:0;background:#cbd5e1;transition:.2s;border-radius:23px;cursor:pointer}
+.sl:before{position:absolute;content:"";height:17px;width:17px;left:3px;bottom:3px;background:#fff;transition:.2s;border-radius:50%}
+input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:translateX(19px)}
+.flagbox{border:1px solid var(--bdl);padding:14px;border-radius:9px}
+.modal-bd{position:fixed;inset:0;background:rgba(15,23,42,.65);display:none;align-items:center;justify-content:center;z-index:1100;padding:16px}
+.modal-bd.open{display:flex}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:540px;padding:22px;max-height:90vh;overflow-y:auto}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--bdl);padding-bottom:11px}
+.mt{font-weight:700;font-size:1.05rem}
+
+/* ---------- domain-specific ---------- */
+.calcbox{background:#f8fafc;border:1px solid var(--bdl);border-radius:9px;padding:13px;display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:9px;font-size:.82rem}
+.calcbox b{font-family:var(--mono)}
+.layers{margin-top:10px}
+.layer{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 11px;border-radius:7px;margin-bottom:5px;font-size:.83rem;border:1px solid var(--bdl)}
+.layer.glass{background:#f0f9ff;border-color:#bae6fd}
+.layer.gap{background:#fafafa}
+.layer.lowe{background:#fefce8;border-color:#fde68a}
+.surf-sel{font-size:.75rem;padding:3px 6px;border:1px solid var(--bd);border-radius:6px}
+.pricerow{display:flex;justify-content:space-between;padding:5px 0;font-size:.83rem;border-bottom:1px dashed var(--bdl)}
+.pricerow:last-child{border:none}
+.pricerow b{font-family:var(--mono)}
+.total{background:#0f172a;color:#fff;padding:13px 16px;border-radius:9px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.total .kpi{font-size:1.5rem;color:#7dd3fc}
+.shape-pick{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.shape-btn{border:1px solid var(--bd);background:#fff;border-radius:8px;padding:8px 11px;cursor:pointer;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:6px}
+.shape-btn.on{border-color:var(--pri);background:#e0f2fe;color:#0369a1}
+.shape-btn svg{width:20px;height:20px}
+.sheet-wrap{background:#f1f5f9;border:1px solid var(--bd);border-radius:9px;padding:11px;overflow-x:auto}
+.util-bar{height:9px;background:#e2e8f0;border-radius:5px;overflow:hidden;margin-top:7px}
+.util-fill{height:100%;background:linear-gradient(90deg,#10b981,#0284c7)}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:.82rem}
+.bar-lbl{width:180px;flex-shrink:0}
+.bar-track{flex:1;height:20px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;background:var(--bad);opacity:.85}
+.bar-val{width:78px;text-align:right;font-family:var(--mono);font-weight:600}
+/* touch terminal */
+.term{background:#0f172a;color:#f8fafc;border-radius:12px;padding:18px}
+.term .unit{background:#1e293b;border-radius:10px;padding:16px;margin-bottom:14px}
+.term .big{font-size:1.7rem;font-weight:800;font-family:var(--mono);letter-spacing:.01em}
+.term .frm{font-family:var(--mono);color:#7dd3fc;font-size:.95rem;margin-top:3px}
+.term .step{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:11px 13px;margin-top:7px;display:flex;justify-content:space-between;align-items:center;gap:9px;font-size:.92rem}
+.term .step.done{border-color:#065f46;background:#052e2b}
+.term .req{background:#78350f;border:1px solid #f59e0b;color:#fef3c7;padding:11px 13px;border-radius:8px;margin-top:11px;font-weight:600;font-size:.9rem}
+.bigbtn{height:76px;font-size:1.15rem;font-weight:800;border-radius:11px;flex:1}
+.scanbar{display:flex;gap:9px;margin-bottom:14px}
+.scanbar input{flex:1;font-family:var(--mono);font-size:1.05rem;padding:14px;border-radius:9px;border:2px solid #334155;background:#1e293b;color:#f8fafc}
+.passport dt{font-size:.75rem;color:var(--mu);text-transform:uppercase;letter-spacing:.03em;margin-top:9px}
+.passport dd{font-family:var(--mono);font-size:.88rem;font-weight:600}
+.money.hidden-role{filter:blur(5px);user-select:none}
+@media(max-width:768px){
+  aside{position:fixed;inset:0 auto 0 0;transform:translateX(-100%)}
+  aside.open{transform:translateX(0)}
+  .xbtn,.mtg{display:block}
+  .hi p{display:none}
+  .body{padding:14px}
+  header{padding:0 14px}
+  .fr{flex-direction:column;gap:0}
+  .bar-lbl{width:110px}
+}
+@media print{
+  aside,header,.no-print{display:none!important}
+  body{display:block;height:auto;overflow:visible}
+  .body{padding:0;overflow:visible}
+  .card{box-shadow:none;border:1px solid #999;break-inside:avoid}
+}
+</style>
 </head>
 <body>
+<div class="ovl" onclick="toggleSb()"></div>
 
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<aside id="sb">
+  <div class="brand">
+    <div class="brand-i">
+      <div class="logo">G</div>
+      <div><b>GlassERP</b><br><small>Стеклопакеты · v3.0</small></div>
+    </div>
+    <button class="xbtn" onclick="toggleSb()" aria-label="Закрыть меню">&times;</button>
+  </div>
+  <ul class="nav">
+    <li class="ni active" onclick="go('dash',this)"><span>📊 Дашборд</span></li>
+    <li class="ni" onclick="go('orders',this)"><span>💼 Заказы и расчёт</span><span class="bdg" id="b-ord">3</span></li>
+    <li class="ni" onclick="go('cutting',this)"><span>✂️ Раскрой и склад стекла</span><span class="bdg" id="b-off">2</span></li>
+    <li class="ni" onclick="go('shop',this)"><span>🖥️ Цеховой терминал</span><span class="bdg red" id="b-hot">1</span></li>
+    <li class="ni" onclick="go('quality',this)"><span>🔍 Брак и паспорт изделия</span></li>
+    <li class="ni" onclick="go('logi',this)"><span>🚚 Отгрузка и пирамиды</span><span class="bdg">4</span></li>
+    <li class="ni" onclick="go('settings',this)"><span>⚙️ Нормативы и режимы</span></li>
+  </ul>
+  <div class="sb-foot">Смена №2 · Линия сборки А<br>Оператор терминала: Ж. Абдуллаев</div>
+</aside>
 
-    <!-- Sidebar Navigation -->
-    <aside id="sidebar">
-        <div class="brand">
-            <div class="brand-info">
-                <div class="brand-logo">G</div>
-                <div>
-                    <div>GlassERP Pro</div>
-                    <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 400;">Версия 2.0 (Сквозная)</div>
-                </div>
-            </div>
-            <button class="close-sidebar-btn" onclick="toggleSidebar()">&times;</button>
+<main>
+  <header>
+    <div class="hl">
+      <button class="mtg" onclick="toggleSb()" aria-label="Открыть меню">☰</button>
+      <div class="hi"><h1 id="tt">Дашборд</h1><p id="ts">Что происходит в цехе прямо сейчас</p></div>
+    </div>
+    <select class="role-sel" id="role" onchange="applyRole()">
+      <option value="admin">👤 Директор / Админ</option>
+      <option value="manager">👤 Менеджер по продажам</option>
+      <option value="tech">👤 Технолог</option>
+      <option value="operator">👤 Оператор цеха</option>
+    </select>
+  </header>
+
+  <div class="body">
+
+  <!-- ============ ДАШБОРД ============ -->
+  <div id="t-dash" class="tab active">
+    <div class="g4" style="margin-bottom:18px">
+      <div class="card" style="margin:0"><div class="hint">В производстве</div><div class="kpi" style="color:var(--pri)">284,5 м²</div><div class="hint">42 стеклопакета в суточной очереди</div></div>
+      <div class="card" style="margin:0"><div class="hint">Горячая очередь (брак)</div><div class="kpi" style="color:var(--bad)" id="k-hot">1 шт</div><div class="hint money">Потеря: <b id="k-hotcost">6 900 ₸</b> · счёт клиенту не меняется</div></div>
+      <div class="card" style="margin:0"><div class="hint">Полезный раскрой за смену</div><div class="kpi" style="color:var(--ok)">88,4 %</div><div class="hint">Норматив 88,0 % · отход 11,6 %</div></div>
+      <div class="card" style="margin:0"><div class="hint">Пирамиды у клиентов</div><div class="kpi" style="color:var(--warn)">4 шт</div><div class="hint money">Залог на руках: 320 000 ₸</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><span class="ct">Заказы в работе</span>
+        <button class="btn b-out no-print" onclick="go('orders',document.querySelectorAll('.ni')[1])">+ Новый заказ</button></div>
+      <div class="tw"><table>
+        <thead><tr><th>Заказ</th><th>Клиент</th><th>Формула</th><th>Позиций</th><th>Особые требования</th><th>Этап</th><th>Отгрузка</th></tr></thead>
+        <tbody id="dash-tbl"></tbody>
+      </table></div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><span class="ct">Загрузка этапов</span></div>
+        <div id="stage-load"></div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">Что тормозит смену</span></div>
+        <div class="alert a-warn">⚠️ Стекло <b>6Solar</b> — остаток 4 листа. Заказ #2026-083 встанет 13.08.</div>
+        <div class="alert a-bad">🔥 Брак на позиции #ORD-2026-081/1 ждёт перерезки 42 мин. Стол резки занят партией 082.</div>
+        <div class="alert a-info">ℹ️ Пирамида ПИР-12 у клиента 14 дней. Залог 80 000 ₸ можно удерживать с 15-го дня.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ЗАКАЗЫ И РАСЧЁТ ============ -->
+  <div id="t-orders" class="tab">
+    <div class="g2">
+      <div>
+        <div class="card">
+          <div class="ch"><span class="ct">1. Геометрия изделия</span></div>
+          <div class="shape-pick" id="shapes"></div>
+          <div class="fr">
+            <div class="fg"><label>Ширина W, мм</label><input type="number" id="f-w" class="fc" value="1600" oninput="recalc()"></div>
+            <div class="fg"><label id="lbl-h">Высота H, мм</label><input type="number" id="f-h" class="fc" value="1100" oninput="recalc()"></div>
+            <div class="fg" id="wrap-h2" style="display:none"><label id="lbl-h2">Высота H₂, мм</label><input type="number" id="f-h2" class="fc" value="700" oninput="recalc()"></div>
+            <div class="fg"><label>Кол-во, шт</label><input type="number" id="f-qty" class="fc" value="4" oninput="recalc()"></div>
+          </div>
+          <div class="hint" id="shape-note"></div>
         </div>
 
-        <ul class="nav-list">
-            <li class="nav-item active" onclick="switchTab('dashboard', this)">
-                <span>📊 Дашборд производства</span>
-            </li>
-            <li class="nav-item" onclick="switchTab('crm', this)">
-                <span>💼 CRM / Заказы & Формула</span>
-                <span class="badge-count" id="badge-orders-count">3</span>
-            </li>
-            <li class="nav-item" onclick="switchTab('cutting', this)">
-                <span>✂️ Технолог / Раскрой & Обрез</span>
-                <span class="badge-count">2 обреза</span>
-            </li>
-            <li class="nav-item" onclick="switchTab('shopfloor', this)">
-                <span>🖥️ Цеховой терминал (Touch)</span>
-                <span class="badge-danger" id="badge-hot-count">1 БРАК</span>
-            </li>
-            <li class="nav-item" onclick="switchTab('pyramids', this)">
-                <span>🏗️ Пирамиды & Тара</span>
-                <span class="badge-count">4 у клиента</span>
-            </li>
-            <li class="nav-item" onclick="switchTab('settings', this)">
-                <span>⚙️ Настройки режимов (Flags)</span>
-            </li>
-        </ul>
-    </aside>
-
-    <!-- Main Workspace -->
-    <main>
-        <header>
-            <div class="header-left">
-                <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Открыть меню">☰</button>
-                <div class="header-info">
-                    <h1 id="tab-title">Дашборд производства стеклопакетов</h1>
-                    <p id="tab-subtitle">Сквозной контроль: От заказа и снятия эмали до брака и логистики пирамид</p>
-                </div>
-            </div>
-            <div class="header-actions">
-                <div class="role-badge">
-                    <span>👤 Инженер / Админ</span>
-                </div>
-            </div>
-        </header>
-
-        <div class="content-body">
-
-            <!-- TAB 1: DASHBOARD -->
-            <div id="tab-dashboard" class="tab-panel active">
-                <div class="grid-3">
-                    <div class="card">
-                        <div class="card-header"><span class="card-title">Объем в производстве</span></div>
-                        <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">284.5 м²</div>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">42 стеклоединицы в суточной очереди</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-header"><span class="card-title">Горячая очередь (Брак)</span></div>
-                        <div style="font-size: 2rem; font-weight: 700; color: var(--danger);" id="dash-hot-val">1 шт</div>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Переделка без изменения счета клиента</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-header"><span class="card-title">Пирамиды у клиентов</span></div>
-                        <div style="font-size: 2rem; font-weight: 700; color: var(--warning);">4 шт</div>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Залоговая стоимость: 320 000 ₸</p>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Сквозной статус текущих партий</span>
-                        <button class="btn btn-outline" onclick="switchTab('crm', document.querySelectorAll('.nav-item')[1])">+ Новый заказ</button>
-                    </div>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID Заказа</th>
-                                    <th>Клиент</th>
-                                    <th>Формула</th>
-                                    <th>Размер (мм)</th>
-                                    <th>Edge Deletion</th>
-                                    <th>Текущий этап</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dash-orders-table">
-                                <tr>
-                                    <td><strong>#ORD-2026-081</strong></td>
-                                    <td>ООО "Оконный Стиль"</td>
-                                    <td>4i-14Ar-4M1-14Ar-4i</td>
-                                    <td>1600 x 1100</td>
-                                    <td><span class="status-pill status-cutting">Да (12мм)</span></td>
-                                    <td><span class="status-pill status-assembly">Сборка</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>#ORD-2026-082</strong></td>
-                                    <td>ИП Бейсенов</td>
-                                    <td>4M1-16-4M1</td>
-                                    <td>1200 x 800</td>
-                                    <td><span class="status-pill status-new">Нет</span></td>
-                                    <td><span class="status-pill status-ready">Готов к отгрузке</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 2: CRM & FORMULA ENGINE -->
-            <div id="tab-crm" class="tab-panel">
-                <div class="grid-2">
-                    <!-- Calculator / Formula Engine -->
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-title">Конструктор формулы & Проверка ТЗ</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Синтаксис формулы стеклопакета</label>
-                            <input type="text" id="crm-formula" class="form-control" value="4i-14Ar-4M1-14Ar-4i">
-                            <span style="font-size: 0.75rem; color: var(--text-muted);">Пример: 4M1-16-4M1 или 6Solar-14Ar-4M1-14Ar-4i</span>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Ширина W (мм)</label>
-                                <input type="number" id="crm-w" class="form-control" value="1600">
-                            </div>
-                            <div class="form-group">
-                                <label>Высота H (мм)</label>
-                                <input type="number" id="crm-h" class="form-control" value="1100">
-                            </div>
-                            <div class="form-group">
-                                <label>Кол-во (шт)</label>
-                                <input type="number" id="crm-qty" class="form-control" value="4">
-                            </div>
-                        </div>
-
-                        <!-- Calculations Box -->
-                        <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid var(--border-light); margin-top: 10px;">
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; font-size: 0.85rem;">
-                                <div>Площадь 1 шт: <strong id="calc-area">1.76 м²</strong></div>
-                                <div>Периметр: <strong id="calc-perimeter">5.40 м</strong></div>
-                                <div>Расход рамки: <strong id="calc-spacer">10.80 м</strong></div>
-                                <div>Расчетный вес: <strong id="calc-weight">52.8 кг</strong></div>
-                                <div>Втор. герметик: <strong id="calc-sealant">~0.65 л</strong></div>
-                                <div>Аргон (Газ): <strong id="calc-argon">Да (~32 л)</strong></div>
-                            </div>
-                        </div>
-
-                        <button class="btn btn-primary" style="margin-top: 16px; width: 100%; justify-content: center;">
-                            Запустить заказ в производство
-                        </button>
-                    </div>
-
-                    <!-- Integration & Import -->
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-title">Импорт из оконного ПО</span>
-                        </div>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
-                            Загрузите файлы выгрузки XML/CSV/DBF для автоматического формирования спецификаций резки.
-                        </p>
-                        <div style="border: 2px dashed var(--border); padding: 24px; text-align: center; border-radius: 8px; background: #f8fafc;">
-                            <p style="font-size: 0.9rem; font-weight: 600;">Перетащите файл заказа сюда</p>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Поддерживается .xml, .csv, .dbf</p>
-                            <button class="btn btn-outline" style="margin-top: 12px;">Эмулировать импорт файла</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 3: CUTTING & OFFCUTS -->
-            <div id="tab-cutting" class="tab-panel">
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Управление деловым обрезом</span>
-                        <button class="btn btn-outline">+ Зарегистрировать обрез</button>
-                    </div>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
-                        Куски стекла > 600х600 мм автоматически ставятся на учет с уникальным ID и приоритетно подставляются алгоритмом раскроя.
-                    </p>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID Обреза</th>
-                                    <th>Марка стекла</th>
-                                    <th>Толщина</th>
-                                    <th>Размеры (мм)</th>
-                                    <th>Ячейка стойки</th>
-                                    <th>Статус</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>OFF-8821</strong></td>
-                                    <td>4M1 Прозрачное</td>
-                                    <td>4 мм</td>
-                                    <td>1400 x 950</td>
-                                    <td>Стойка B-04</td>
-                                    <td><span class="status-pill status-ready">Доступен</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>OFF-8822</strong></td>
-                                    <td>4i Энергосберегающее</td>
-                                    <td>4 мм</td>
-                                    <td>1200 x 700</td>
-                                    <td>Стойка A-01</td>
-                                    <td><span class="status-pill status-ready">Доступен</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 4: SHOP FLOOR TERMINAL (TOUCH UI) -->
-            <div id="tab-shopfloor" class="tab-panel">
-                <div class="alert alert-warning">
-                    ⚠️ <strong>Режим цехового сенсорного терминала:</strong> Оператор сканирует ШК изделия или выбирает позицию. При браке нажатие кнопки «БРАК» мгновенно отправляет деталь в Горячую очередь резки.
-                </div>
-
-                <div class="grid-2">
-                    <div class="card">
-                        <div class="card-header"><span class="card-title">Текущая позиция на сборке</span></div>
-                        
-                        <div class="shop-unit-card">
-                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-                                <strong>#ORD-2026-081 (Пакет 1 из 2)</strong>
-                                <span class="status-pill status-cutting">Мойка / Сборка</span>
-                            </div>
-                            <div style="margin-top: 8px; font-size: 1.1rem; font-weight: 700;">1600 х 1100 мм</div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted);">Формула: 4i-14Ar-4M1-14Ar-4i</div>
-
-                            <div style="margin-top: 12px; font-size: 0.8rem; font-weight: 600; color: #92400e;">
-                                ⚠️ ТРЕБОВАНИЕ: Зачистить край 12мм на стекле №1 и №3 (Edge Deletion)!
-                            </div>
-
-                            <div class="shop-layer">
-                                <span>Стекло 1: 4mm i-Glass (Энерго)</span>
-                                <span style="color: var(--success); font-weight: 600;">✓ Зачищено</span>
-                            </div>
-                            <div class="shop-layer">
-                                <span>Рамка 1: 14mm Ar (Газ)</span>
-                                <span style="color: var(--success); font-weight: 600;">✓ Засып сита ОК</span>
-                            </div>
-                            <div class="shop-layer">
-                                <span>Стекло 2: 4mm M1</span>
-                                <span style="color: var(--success); font-weight: 600;">✓ Вымыто</span>
-                            </div>
-                        </div>
-
-                        <div class="shop-actions-row" style="display: flex; gap: 12px; margin-top: 16px;">
-                            <button class="btn btn-success" style="flex: 2; height: 50px; font-size: 1rem; justify-content: center;">
-                                ✓ ЭТАП ПРОЙДЕН
-                            </button>
-                            <button class="btn btn-danger" style="flex: 1; height: 50px; font-size: 1rem; justify-content: center;">
-                                ✖ БРАК
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Hot Queue / Defect Feed -->
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-title" style="color: var(--danger);">🔥 Горячая очередь переделки (Hot Queue)</span>
-                        </div>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">
-                            Детали с браком идут на стол резки в первую очередь, минуя общую очередь.
-                        </p>
-                        <div id="hot-queue-list">
-                            <div style="border: 1px solid #fecaca; background: #fef2f2; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
-                                <div style="display: flex; justify-content: space-between; font-weight: 700; color: #991b1b;">
-                                    <span>#ORD-2026-081 / Стекло 1</span>
-                                    <span>ПРИОРИТЕТ 1</span>
-                                </div>
-                                <div style="font-size: 0.85rem; margin-top: 4px; color: #7f1d1d;">
-                                    Причина: Царапина Low-E покрытия | Размер: 1600x1100 мм
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 5: PYRAMIDS & LOGISTICS -->
-            <div id="tab-pyramids" class="tab-panel">
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Учёт и возврат пирамид (Возвратная тара)</span>
-                    </div>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>№ Пирамиды</th>
-                                    <th>Тип</th>
-                                    <th>Текущий клиент</th>
-                                    <th>Заказа на пирамиде</th>
-                                    <th>Дата отгрузки</th>
-                                    <th>Залог</th>
-                                    <th>Действие</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>ПИР-12</strong></td>
-                                    <td>A-образная (Большая)</td>
-                                    <td>ООО "Оконный Стиль"</td>
-                                    <td>#ORD-2026-081</td>
-                                    <td>10.08.2026</td>
-                                    <td>80 000 ₸</td>
-                                    <td><button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;">Отметить возврат</button></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>ПИР-05</strong></td>
-                                    <td>L-образная</td>
-                                    <td>ИП Бейсенов</td>
-                                    <td>#ORD-2026-082</td>
-                                    <td>11.08.2026</td>
-                                    <td>80 000 ₸</td>
-                                    <td><button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;">Отметить возврат</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 6: SETTINGS (FEATURE FLAGS) -->
-            <div id="tab-settings" class="tab-panel">
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">Гибкие флаги технологического процесса (Feature Flags)</span>
-                    </div>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
-                        Включайте и отключайте модули под реальное оснащение цеха. Если операция делается вручную — выключите соответствующий флаг.
-                    </p>
-
-                    <div class="grid-2">
-                        <div style="border: 1px solid var(--border-light); padding: 16px; border-radius: 8px;">
-                            <label class="switch-label">
-                                <div>
-                                    <strong style="font-size: 0.9rem;">Авто-выгрузка на ЧПУ резку</strong>
-                                    <p style="font-size: 0.78rem; color: var(--text-muted);">Генерировать G-code для стола резки. Если выключено — печать бумажной карты.</p>
-                                </div>
-                                <div class="switch">
-                                    <input type="checkbox" checked id="flag-cnc">
-                                    <span class="slider"></span>
-                                </div>
-                            </label>
-                        </div>
-
-                        <div style="border: 1px solid var(--border-light); padding: 16px; border-radius: 8px;">
-                            <label class="switch-label">
-                                <div>
-                                    <strong style="font-size: 0.9rem;">Авто-списание герметика</strong>
-                                    <p style="font-size: 0.78rem; color: var(--text-muted);">Списывать бутил/тиокол по теоретической формуле при закрытии пакета.</p>
-                                </div>
-                                <div class="switch">
-                                    <input type="checkbox" checked id="flag-sealant">
-                                    <span class="slider"></span>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+        <div class="card">
+          <div class="ch"><span class="ct">2. Формула и покрытия</span></div>
+          <div class="fg">
+            <label>Формула стеклопакета</label>
+            <input type="text" id="f-formula" class="fc mono" value="4i-14Ar-4M1-14Ar-4i" oninput="recalc()">
+            <span class="hint">Слои через дефис: стекло — камера — стекло. Примеры: <code>4M1-16-4M1</code>, <code>6Solar-14Ar-4M1-14Ar-4i</code>, <code>4M1-12Ar-33.1Tr</code></span>
+          </div>
+          <div class="layers" id="layers"></div>
+          <div id="lowe-warn"></div>
+          <div class="fr" style="margin-top:12px">
+            <div class="fg"><label>Зачистка кромки (Edge Deletion)</label>
+              <select id="f-edge" class="fc" onchange="recalc()">
+                <option value="0">Не требуется</option>
+                <option value="10">10 мм по контуру Low-E</option>
+                <option value="12" selected>12 мм по контуру Low-E</option>
+              </select></div>
+            <div class="fg"><label>Раскладка (шпросы), п.м. на изделие</label>
+              <input type="number" id="f-spros" class="fc" value="0" step="0.1" oninput="recalc()"></div>
+          </div>
         </div>
-    </main>
+      </div>
 
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.querySelector('.sidebar-overlay');
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-        }
+      <div>
+        <div class="card">
+          <div class="ch"><span class="ct">3. Технический расчёт</span></div>
+          <div class="calcbox" id="tech"></div>
+          <div id="tech-warn" style="margin-top:12px"></div>
+        </div>
 
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById('tab-' + tabId).classList.add('active');
-            
-            if (element) {
-                element.classList.add('active');
-            }
+        <div class="card money">
+          <div class="ch"><span class="ct">4. Себестоимость и цена</span>
+            <button class="btn b-out no-print" onclick="window.print()">🖨 КП</button></div>
+          <div id="cost"></div>
+          <div class="total"><div><div style="font-size:.75rem;opacity:.7">ИТОГО ЗА <span id="tot-qty">4</span> ШТ</div><div class="kpi" id="tot-sum">—</div></div>
+            <div style="text-align:right;font-size:.8rem;opacity:.8">за 1 шт<br><b class="mono" id="tot-one">—</b><br>за м²<br><b class="mono" id="tot-m2">—</b></div></div>
+          <button class="btn b-pri no-print" style="width:100%;margin-top:12px" onclick="addPos()">Добавить позицию в заказ</button>
+        </div>
+      </div>
+    </div>
 
-            // Close sidebar on mobile after selecting a tab
-            if (window.innerWidth <= 768) {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.querySelector('.sidebar-overlay');
-                if (sidebar.classList.contains('open')) {
-                    sidebar.classList.remove('open');
-                    overlay.classList.remove('active');
-                }
-            }
-        }
-    </script>
+    <div class="card">
+      <div class="ch"><span class="ct">Спецификация заказа #ORD-2026-084 · ТОО «Оконный Стиль»</span>
+        <button class="btn b-ok no-print" onclick="alert('Заказ запущен. Позиции переданы в раскрой, статус: Ожидает резки.')">Запустить в производство</button></div>
+      <div class="tw"><table>
+        <thead><tr><th>№</th><th>Форма</th><th>Размер, мм</th><th>Формула</th><th>Кол-во</th><th>Площадь</th><th class="money">Цена, ₸</th><th class="money">Сумма, ₸</th><th class="no-print"></th></tr></thead>
+        <tbody id="spec-tbl"><tr><td colspan="9" class="hint" style="text-align:center;padding:22px">Позиций пока нет. Рассчитайте изделие выше и нажмите «Добавить позицию в заказ».</td></tr></tbody>
+      </table></div>
+      <div class="total money" id="spec-total" style="display:none"></div>
+    </div>
+
+    <div class="card no-print">
+      <div class="ch"><span class="ct">Импорт из оконного ПО</span></div>
+      <p class="hint" style="margin-bottom:12px">Выгрузка из ПО оконщика (Профстрой, SuperOkna, WinDraw и др.) — размеры и формулы подставятся в спецификацию автоматически, пересчёт цены пойдёт по вашим нормативам, а не по прайсу клиента.</p>
+      <div style="border:2px dashed var(--bd);padding:22px;text-align:center;border-radius:9px;background:#f8fafc">
+        <b style="font-size:.9rem">Перетащите файл заказа сюда</b>
+        <p class="hint" style="margin-top:4px">.xml · .csv · .dbf</p>
+        <button class="btn b-out" style="margin-top:11px" onclick="importDemo()">Показать на примере</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ РАСКРОЙ ============ -->
+  <div id="t-cutting" class="tab">
+    <div class="alert a-info">ℹ️ Раскрой — главная статья экономии. Каждый процент полезного использования листа при 300 м²/сутки это примерно 8–9 тыс. ₸ в день. Стекло с покрытием и узорчатое разворачивать нельзя — алгоритм это учитывает.</div>
+
+    <div class="card">
+      <div class="ch"><span class="ct">Карта раскроя</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" class="no-print">
+          <select id="cut-mark" class="fc" style="width:auto" onchange="buildCut()">
+            <option value="4M1">4 мм · M1 прозрачное</option>
+            <option value="4i">4 мм · i-стекло (Low-E)</option>
+            <option value="6Solar">6 мм · Solar мультифункциональное</option>
+          </select>
+          <button class="btn b-pri" onclick="buildCut()">Пересчитать</button>
+        </div>
+      </div>
+      <div id="cut-summary" class="g4" style="margin-bottom:14px"></div>
+      <div class="sheet-wrap" id="cut-map"></div>
+      <div class="hint" style="margin-top:10px">Лист-джамбо 3210 × 2250 мм · рез 5 мм · технологический припуск по кромке 10 мм. Серым — отход, штриховкой — куски, уходящие в деловой обрез.</div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><span class="ct">Склад стекла (по листам, не в м²)</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Марка</th><th>Формат листа</th><th>Целых листов</th><th>Партия</th><th class="money">Цена, ₸/м²</th></tr></thead>
+          <tbody id="stock-tbl"></tbody>
+        </table></div>
+        <p class="hint" style="margin-top:10px">Остаток в м² не даёт спланировать резку: 20 м² в виде четырёх целых листов и в виде обрезков — это разные возможности.</p>
+      </div>
+
+      <div class="card">
+        <div class="ch"><span class="ct">Деловой обрез</span><button class="btn b-out no-print">+ Зарегистрировать</button></div>
+        <p class="hint" style="margin-bottom:11px">Куски больше 600 × 600 мм ставятся на учёт с ID и ячейкой хранения. Алгоритм подставляет их в раскрой раньше целого листа.</p>
+        <div class="tw"><table>
+          <thead><tr><th>ID</th><th>Марка</th><th>Размер, мм</th><th>Ячейка</th><th>Лежит</th><th>Статус</th></tr></thead>
+          <tbody>
+            <tr><td class="mono"><b>OFF-8821</b></td><td>4M1</td><td class="mono">1400 × 950</td><td>Стойка B-04</td><td>3 дня</td><td><span class="pill p-ok">Доступен</span></td></tr>
+            <tr><td class="mono"><b>OFF-8822</b></td><td>4i (Low-E)</td><td class="mono">1200 × 700</td><td>Стойка A-01</td><td>19 дней</td><td><span class="pill p-cut">Залежался</span></td></tr>
+          </tbody>
+        </table></div>
+        <div class="alert a-warn" style="margin-top:12px">⚠️ Обрез Low-E старше 30 дней в открытом хранении окисляется по кромке. OFF-8822 — использовать в течение 11 дней.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ЦЕХОВОЙ ТЕРМИНАЛ ============ -->
+  <div id="t-shop" class="tab">
+    <div class="alert a-warn">⚠️ Экран для сенсорного терминала у линии. Основной ввод — сканер штрихкода. Кнопки крупные: руки в перчатках и мокрые после мойки.</div>
+    <div class="g2">
+      <div class="term">
+        <div class="scanbar">
+          <input id="scan" placeholder="Отсканируйте штрихкод изделия" onkeydown="if(event.key==='Enter')doScan()">
+          <button class="btn b-pri" style="padding:0 20px" onclick="doScan()">Найти</button>
+        </div>
+        <div class="unit">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+            <b class="mono">#ORD-2026-081 · пакет 1 из 4</b>
+            <span class="pill p-asm">Мойка / Сборка</span>
+          </div>
+          <div class="big">1600 × 1100</div>
+          <div class="frm">4i-14Ar-4M1-14Ar-4i</div>
+          <div class="req">⚠️ Зачистить кромку 12 мм: стекло №1 и стекло №3. Low-E внутрь камеры — покрытием к рамке.</div>
+          <div class="step done"><span>Стекло 1 · 4i — покрытие на поверхность 2</span><b style="color:#34d399">✓ зачищено</b></div>
+          <div class="step done"><span>Рамка 1 · 14 мм, аргон</span><b style="color:#34d399">✓ сито засыпано</b></div>
+          <div class="step done"><span>Стекло 2 · 4M1</span><b style="color:#34d399">✓ вымыто</b></div>
+          <div class="step"><span>Рамка 2 · 14 мм, аргон</span><b style="color:#94a3b8">ожидает</b></div>
+          <div class="step"><span>Стекло 3 · 4i — покрытие на поверхность 5</span><b style="color:#94a3b8">ожидает</b></div>
+        </div>
+        <div style="display:flex;gap:11px">
+          <button class="btn b-ok bigbtn" style="flex:2" onclick="stagePass()">✓ ЭТАП ПРОЙДЕН</button>
+          <button class="btn b-bad bigbtn" onclick="openDefect()">✖ БРАК</button>
+        </div>
+        <p style="font-size:.75rem;color:#64748b;margin-top:10px;text-align:center">«БРАК» открывает окно подтверждения — случайное нажатие ничего не отправит.</p>
+      </div>
+
+      <div class="card">
+        <div class="ch"><span class="ct" style="color:var(--bad)">🔥 Горячая очередь переделки</span></div>
+        <p class="hint" style="margin-bottom:11px">Бракованные детали идут на стол резки первыми, минуя общую очередь. Счёт клиенту не меняется, потеря ложится на себестоимость смены.</p>
+        <div id="hotq"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ БРАК И ПАСПОРТ ============ -->
+  <div id="t-quality" class="tab">
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><span class="ct">Брак по причинам · август</span></div>
+        <div id="def-reason"></div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">Брак по этапам</span></div>
+        <div id="def-stage"></div>
+        <div class="alert a-bad" style="margin-top:14px">Мойка даёт 41 % брака при 2 % доли в трудозатратах. Проверить щётки и деминерализацию воды.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><span class="ct">Журнал брака</span><span class="hint money">Потери за месяц: <b id="def-total">—</b></span></div>
+      <div class="tw"><table>
+        <thead><tr><th>Дата</th><th>Изделие</th><th>Этап</th><th>Причина</th><th>Смена</th><th>Площадь</th><th class="money">Потеря, ₸</th><th>Поставщик стекла</th></tr></thead>
+        <tbody id="def-tbl"></tbody>
+      </table></div>
+      <p class="hint" style="margin-top:10px">Столбец поставщика — чтобы видеть, когда царапины и сколы приходят с чужого склада, а не рождаются у вас.</p>
+    </div>
+
+    <div class="card">
+      <div class="ch"><span class="ct">Паспорт изделия</span>
+        <div style="display:flex;gap:8px" class="no-print"><input class="fc mono" style="width:200px" value="GL-2026-081-01" id="pass-id"><button class="btn b-out" onclick="alert('В рабочей версии — поиск по QR с наклейки на пакете.')">Найти</button></div>
+      </div>
+      <p class="hint" style="margin-bottom:14px">QR наклеивается на пакет при закрытии. Когда через полгода клиент приходит с запотеванием внутри камеры, по этому коду видно, чьё стекло, чья партия сита и герметика, чья смена. Без этого гарантийный разбор превращается в спор.</p>
+      <div class="g3">
+        <div><dl class="passport">
+          <dt>Изделие</dt><dd>GL-2026-081-01</dd>
+          <dt>Заказ / клиент</dt><dd>#ORD-2026-081 · Оконный Стиль</dd>
+          <dt>Формула</dt><dd>4i-14Ar-4M1-14Ar-4i</dd>
+          <dt>Размер</dt><dd>1600 × 1100 мм</dd>
+        </dl></div>
+        <div><dl class="passport">
+          <dt>Дата и смена сборки</dt><dd>11.08.2026 · смена 2</dd>
+          <dt>Оператор сборки</dt><dd>Ж. Абдуллаев</dd>
+          <dt>Стекло 4i · партия</dt><dd>GLZ-0725-114 (Guardian)</dd>
+          <dt>Стекло 4M1 · партия</dt><dd>SIS-0725-902 (SISECAM)</dd>
+        </dl></div>
+        <div><dl class="passport">
+          <dt>Молекулярное сито</dt><dd>SIE-3A-0625-11 · вскрыт 11.08 07:40</dd>
+          <dt>Бутил / тиокол</dt><dd>BUT-2206 / TIO-1188</dd>
+          <dt>Заполнение аргоном</dt><dd>92,4 % (норма ≥ 90 %)</dd>
+          <dt>Гарантия</dt><dd>до 11.08.2031</dd>
+        </dl></div>
+      </div>
+      <div class="alert a-ok" style="margin-top:14px">✓ Сито вскрыто за 1 ч 20 мин до засыпки — в норме (предел 4 ч). Просроченное сито уже набрало влагу из воздуха и точка росы поплывёт через год-два.</div>
+    </div>
+  </div>
+
+  <!-- ============ ОТГРУЗКА ============ -->
+  <div id="t-logi" class="tab">
+    <div class="card">
+      <div class="ch"><span class="ct">Рейс на 12.08.2026</span><span class="pill p-cut">Загрузка 76 %</span></div>
+      <div class="g3" style="margin-bottom:14px">
+        <div><div class="hint">Машина / водитель</div><b>Газель 128 ASA · Р. Ералиев</b></div>
+        <div><div class="hint">Пакетов в рейсе</div><b>34 шт · 61,2 м² · 1 470 кг</b></div>
+        <div><div class="hint">Пирамид в рейсе</div><b>3 шт (2 A-обр., 1 L-обр.)</b></div>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>Точка</th><th>Клиент</th><th>Заказ</th><th>Пакетов</th><th>Пирамида</th><th>Вес</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Оконный Стиль</td><td class="mono">#ORD-2026-081</td><td>18</td><td class="mono">ПИР-12</td><td>820 кг</td></tr>
+          <tr><td>2</td><td>ИП Бейсенов</td><td class="mono">#ORD-2026-082</td><td>11</td><td class="mono">ПИР-05</td><td>410 кг</td></tr>
+          <tr><td>3</td><td>Строймонтаж KZ</td><td class="mono">#ORD-2026-079</td><td>5</td><td class="mono">ПИР-08</td><td>240 кг</td></tr>
+        </tbody>
+      </table></div>
+      <div class="alert a-warn" style="margin-top:12px">⚠️ Пирамида не привязана к клиенту — она привязана к рейсу. Пока водитель не отметил возврат, тара числится за точкой выгрузки.</div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><span class="ct">Возвратная тара</span><span class="hint money">Залог на руках: <b>320 000 ₸</b></span></div>
+      <div class="tw"><table>
+        <thead><tr><th>№</th><th>Тип</th><th>У кого</th><th>Заказ</th><th>Отгружена</th><th>Дней</th><th class="money">Залог</th><th class="no-print">Действие</th></tr></thead>
+        <tbody id="pyr-tbl"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ============ НАСТРОЙКИ ============ -->
+  <div id="t-settings" class="tab">
+    <div class="card">
+      <div class="ch"><span class="ct">Нормативы расчёта</span><span class="hint">Меняются здесь — пересчитывается весь прайс</span></div>
+      <div class="g3" id="norms"></div>
+      <button class="btn b-pri no-print" style="margin-top:14px" onclick="readNorms();recalc();buildCut();alert('Нормативы применены. Расчёт и карта раскроя пересчитаны.')">Применить нормативы</button>
+    </div>
+
+    <div class="card money">
+      <div class="ch"><span class="ct">Цены материалов</span></div>
+      <div class="g3" id="mat-prices"></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><span class="ct">Режимы производства</span></div>
+      <p class="hint" style="margin-bottom:16px">Включайте только то, что реально есть в цехе. Если операция ручная — выключите флаг, система не будет требовать данных, которые некому вводить.</p>
+      <div class="g2" id="flags"></div>
+    </div>
+  </div>
+
+  </div>
+</main>
+
+<!-- ============ МОДАЛКА БРАКА ============ -->
+<div class="modal-bd" id="m-defect">
+  <div class="modal">
+    <div class="mh"><span class="mt" style="color:var(--bad)">Регистрация брака</span><button class="btn b-out" onclick="closeDefect()">&times;</button></div>
+    <div class="alert a-warn">Деталь уйдёт в горячую очередь резки. Счёт клиенту не изменится — потеря запишется на смену.</div>
+    <div class="fg"><label>Что забраковано</label>
+      <select class="fc" id="d-part"><option>Стекло 1 · 4i (Low-E)</option><option>Стекло 2 · 4M1</option><option>Стекло 3 · 4i (Low-E)</option><option>Пакет целиком</option></select></div>
+    <div class="fg"><label>Причина</label>
+      <select class="fc" id="d-reason"><option>Царапина покрытия Low-E</option><option>Скол кромки при резке</option><option>Разводы после мойки</option><option>Ошибка размера</option><option>Непроклей герметика</option><option>Бой при перемещении</option><option>Брак пришёл от поставщика</option></select></div>
+    <div class="fr">
+      <div class="fg"><label>Где возникло</label>
+        <select class="fc" id="d-stage"><option>Резка</option><option>Мойка</option><option selected>Сборка</option><option>Прессование</option><option>Герметизация</option><option>Склад / перемещение</option></select></div>
+      <div class="fg"><label>Смена</label><select class="fc" id="d-shift"><option>Смена 1</option><option selected>Смена 2</option></select></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn b-out" style="flex:1" onclick="closeDefect()">Отмена</button>
+      <button class="btn b-bad" style="flex:2" onclick="saveDefect()">Отправить в горячую очередь</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   СПРАВОЧНИКИ
+   ============================================================ */
+const GLASS = {
+  M1:    {label:'Прозрачное M1',        perMm:650,  lowE:false, rotate:true },
+  i:     {label:'i-стекло (Low-E)',     perMm:1050, lowE:true,  rotate:false},
+  Solar: {label:'Solar мультифункц.',   perMm:1300, lowE:true,  rotate:false},
+  Mat:   {label:'Матовое / узорчатое',  perMm:850,  lowE:false, rotate:false},
+  Tr:    {label:'Триплекс',             perMm:1800, lowE:false, rotate:true },
+  Zak:   {label:'Закалённое',           perMm:1150, lowE:false, rotate:true }
+};
+
+const SHAPES = {
+  rect:  {name:'Прямоугольник', k:1.0},
+  trap:  {name:'Трапеция',      k:1.5},
+  tri:   {name:'Треугольник',   k:1.6},
+  arch:  {name:'Арка',          k:2.2}
+};
+
+let N = {                       // нормативы
+  minArea:0.5,                  // минимальная расчётная площадь, м²
+  util:0.88,                    // полезное использование листа
+  sieveGPerMm:0.8,              // г сита на п.м. на 1 мм ширины рамки
+  butylG:3.5,                   // г бутила на п.м. на сторону
+  sealDepth:5,                  // глубина шва вторичного герметика, мм
+  argonLoss:1.8,                // коэффициент потерь аргона
+  labor:1400,                   // работа + энергия, ₸/м²
+  overhead:900,                 // накладные и амортизация, ₸/м²
+  scrap:3,                      // заложенный бой, %
+  margin:35,                    // маржа, %
+  bigArea:2.5,                  // площадь, с которой доплата за габарит
+  bigK:15                       // доплата за габарит, %
+};
+let P = {                       // цены материалов
+  spacerBase:380, spacerPerMm:12,   // рамка ₸/п.м.
+  sieve:900,                        // ₸/кг
+  butyl:2800,                       // ₸/кг
+  sealant:1900,                     // ₸/л
+  argon:55,                         // ₸/л
+  edge:350,                         // зачистка кромки ₸/п.м.
+  spros:1200                        // шпросы ₸/п.м.
+};
+const SHEET = {w:3210, h:2250, kerf:5, trim:10};
+
+const STOCK = [
+  {mark:'4M1',   fmt:'3210 × 2250', n:64, lot:'SIS-0725-902', price:2600},
+  {mark:'4i',    fmt:'3210 × 2250', n:31, lot:'GLZ-0725-114', price:4200},
+  {mark:'6Solar',fmt:'3210 × 2250', n:4,  lot:'GLZ-0625-088', price:7800},
+  {mark:'4Mat',  fmt:'2250 × 1650', n:12, lot:'KZ-0525-041',  price:3400}
+];
+
+let DEFECTS = [
+  {d:'11.08', item:'GL-2026-081-01', stage:'Сборка',  reason:'Царапина покрытия Low-E', shift:'Смена 2', area:1.76, sup:'Guardian'},
+  {d:'10.08', item:'GL-2026-078-04', stage:'Мойка',   reason:'Разводы после мойки',     shift:'Смена 1', area:1.44, sup:'SISECAM'},
+  {d:'10.08', item:'GL-2026-078-09', stage:'Мойка',   reason:'Царапина покрытия Low-E', shift:'Смена 1', area:0.96, sup:'Guardian'},
+  {d:'09.08', item:'GL-2026-076-02', stage:'Резка',   reason:'Скол кромки при резке',   shift:'Смена 2', area:2.10, sup:'SISECAM'},
+  {d:'08.08', item:'GL-2026-074-11', stage:'Мойка',   reason:'Разводы после мойки',     shift:'Смена 2', area:1.20, sup:'SISECAM'},
+  {d:'08.08', item:'GL-2026-074-03', stage:'Герметизация', reason:'Непроклей герметика',shift:'Смена 1', area:1.65, sup:'Guardian'},
+  {d:'07.08', item:'GL-2026-071-06', stage:'Сборка',  reason:'Ошибка размера',          shift:'Смена 2', area:0.88, sup:'—'}
+];
+
+const ORDERS = [
+  {id:'#ORD-2026-081', cl:'ТОО «Оконный Стиль»', f:'4i-14Ar-4M1-14Ar-4i', n:24, note:'Зачистка 12 мм · Low-E пов. 2 и 5', st:'Сборка', cls:'p-asm', ship:'12.08'},
+  {id:'#ORD-2026-082', cl:'ИП Бейсенов',         f:'4M1-16-4M1',          n:11, note:'—',                                st:'Готов к отгрузке', cls:'p-ok', ship:'12.08'},
+  {id:'#ORD-2026-083', cl:'Строймонтаж KZ',      f:'6Solar-14Ar-4M1',     n:9,  note:'2 трапеции · 1 арка',              st:'Ожидает стекла', cls:'p-new', ship:'14.08'}
+];
+
+const PYRAMIDS = [
+  {n:'ПИР-12', t:'A-образная (большая)', cl:'ТОО «Оконный Стиль»', ord:'#ORD-2026-081', d:'10.08.2026', days:14, dep:80000},
+  {n:'ПИР-05', t:'L-образная',           cl:'ИП Бейсенов',         ord:'#ORD-2026-082', d:'11.08.2026', days:1,  dep:80000},
+  {n:'ПИР-08', t:'A-образная (большая)', cl:'Строймонтаж KZ',      ord:'#ORD-2026-079', d:'05.08.2026', days:19, dep:80000},
+  {n:'ПИР-03', t:'L-образная',           cl:'Алау Пласт',          ord:'#ORD-2026-071', d:'28.07.2026', days:27, dep:80000}
+];
+
+let shape='rect', spec=[], hotQueue=[
+  {item:'#ORD-2026-081 / стекло 1', reason:'Царапина покрытия Low-E', size:'1600 × 1100', min:42}
+];
+
+/* ============================================================
+   УТИЛИТЫ
+   ============================================================ */
+const $  = id => document.getElementById(id);
+const fmt = n => new Intl.NumberFormat('ru-RU').format(Math.round(n));
+const f2  = n => n.toFixed(2).replace('.',',');
+
+function toggleSb(){ $('sb').classList.toggle('open'); document.querySelector('.ovl').classList.toggle('active'); }
+const TITLES = {
+  dash:['Дашборд','Что происходит в цехе прямо сейчас'],
+  orders:['Заказы и расчёт','От геометрии изделия до цены в КП'],
+  cutting:['Раскрой и склад стекла','Карта резки, целые листы и деловой обрез'],
+  shop:['Цеховой терминал','Экран оператора у линии сборки'],
+  quality:['Брак и паспорт изделия','Почему брак возник и что зашито в конкретный пакет'],
+  logi:['Отгрузка и пирамиды','Рейсы, загрузка и возвратная тара'],
+  settings:['Нормативы и режимы','Цифры, из которых считается всё остальное']
+};
+function go(tab,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(t=>t.classList.remove('active'));
+  $('t-'+tab).classList.add('active');
+  if(el) el.classList.add('active');
+  $('tt').textContent=TITLES[tab][0]; $('ts').textContent=TITLES[tab][1];
+  if(window.innerWidth<=768 && $('sb').classList.contains('open')) toggleSb();
+  $('t-'+tab).parentElement.scrollTop=0;
+}
+function applyRole(){
+  const r=$('role').value;
+  const hide = (r==='operator'||r==='tech');
+  document.querySelectorAll('.money').forEach(e=>e.classList.toggle('hidden-role',hide));
+}
+
+/* ============================================================
+   ПАРСЕР ФОРМУЛЫ
+   ============================================================ */
+function parseFormula(str){
+  const parts = str.trim().split('-').map(s=>s.trim()).filter(Boolean);
+  const layers=[]; let err=null;
+  parts.forEach((p,i)=>{
+    if(i%2===0){                                  // стекло
+      const m = p.match(/^(\d+(?:\.\d+)?)\s*([A-Za-z0-9]*)$/);
+      if(!m){ err='Не разобрать слой стекла: «'+p+'»'; return; }
+      let th = parseFloat(m[1]);
+      let mark = m[2] || 'M1';
+      if(!GLASS[mark]){                            // триплекс вида 33.1
+        if(/^\d+\.\d+$/.test(m[1])){ mark='Tr'; th = m[1].split('.').reduce((a,b,ix)=> ix===0 ? [...b].reduce((s,c)=>s+ +c,0) : a, 0); }
+        else { err='Неизвестная марка стекла: «'+m[2]+'»'; return; }
+      }
+      layers.push({t:'glass', th, mark, raw:p});
+    } else {                                      // камера
+      const m = p.match(/^(\d+)\s*(Ar|AR|ar)?$/);
+      if(!m){ err='Не разобрать камеру: «'+p+'»'; return; }
+      layers.push({t:'gap', w:parseInt(m[1]), argon:!!m[2], raw:p});
+    }
+  });
+  if(layers.length && layers[layers.length-1].t==='gap') err='Формула должна заканчиваться стеклом';
+  return {layers, err};
+}
+
+/* ============================================================
+   ГЕОМЕТРИЯ
+   ============================================================ */
+function geometry(){
+  const W=+$('f-w').value||0, H=+$('f-h').value||0, H2=+$('f-h2').value||0;
+  const w=W/1000, h=H/1000, h2=H2/1000;
+  let area, perim;
+  if(shape==='rect'){ area=w*h; perim=2*(w+h); }
+  else if(shape==='trap'){ area=w*(h+h2)/2; perim=w+h+h2+Math.hypot(w,h-h2); }
+  else if(shape==='tri'){ area=w*h/2; perim=w+h+Math.hypot(w,h); }
+  else { const r=w/2, sp=Math.max(h-r,0); area=w*sp+Math.PI*r*r/2; perim=w+2*sp+Math.PI*r; }
+  return {W,H,area, perim, billArea: w*h};   // счёт — по описанному прямоугольнику
+}
+
+/* ============================================================
+   ГЛАВНЫЙ РАСЧЁТ
+   ============================================================ */
+function recalc(){
+  const {layers,err} = parseFormula($('f-formula').value);
+  const g = geometry();
+  const qty = Math.max(1,+$('f-qty').value||1);
+  const glasses = layers.filter(l=>l.t==='glass');
+  const gaps    = layers.filter(l=>l.t==='gap');
+
+  // --- слои и позиции поверхностей ---
+  let html='', surf=0, loweSurfaces=[];
+  layers.forEach((l,i)=>{
+    if(l.t==='glass'){
+      const G=GLASS[l.mark];
+      const s1=++surf, s2=++surf;
+      if(G.lowE){
+        const inner = (i===0) ? s2 : s1;              // покрытие всегда внутрь камеры
+        loweSurfaces.push(inner);
+        html+=`<div class="layer lowe"><span><b>Стекло ${glasses.indexOf(l)+1}</b> · ${l.th} мм · ${G.label}</span>
+          <span class="mono">поверхности ${s1}/${s2} → покрытие на <b>${inner}</b></span></div>`;
+      } else {
+        html+=`<div class="layer glass"><span><b>Стекло ${glasses.indexOf(l)+1}</b> · ${l.th} мм · ${G.label}</span><span class="mono">поверхности ${s1}/${s2}</span></div>`;
+      }
+    } else {
+      html+=`<div class="layer gap"><span>Камера ${gaps.indexOf(l)+1} · ${l.w} мм</span><span class="mono">${l.argon?'аргон':'воздух'}</span></div>`;
+    }
+  });
+  $('layers').innerHTML = err ? `<div class="alert a-bad">✖ ${err}</div>` : html;
+
+  if(loweSurfaces.length){
+    $('lowe-warn').innerHTML = `<div class="alert a-info">ℹ️ Low-E покрытие всегда обращено внутрь камеры — снаружи оно сотрётся. В этой формуле: поверхност${loweSurfaces.length>1?'и':'ь'} <b>${loweSurfaces.join(' и ')}</b>. Эта строка уходит в задание оператору и в паспорт изделия.</div>`;
+  } else $('lowe-warn').innerHTML='';
+
+  if(err){ $('tech').innerHTML='<span class="hint">Исправьте формулу — расчёт не выполнен.</span>'; return; }
+
+  // --- технический расчёт ---
+  const pkgTh   = layers.reduce((s,l)=> s + (l.t==='glass'? l.th : l.w), 0);
+  const spacerM = g.perim*gaps.length;
+  const weight  = glasses.reduce((s,l)=> s + g.area*l.th*2.5, 0);
+  const sealL   = g.perim*(N.sealDepth/1000)*(pkgTh/1000)*1000;
+  const argonL  = gaps.filter(x=>x.argon).reduce((s,x)=> s + g.area*(x.w/1000)*1000, 0)*N.argonLoss;
+  const sieveKg = spacerM*gaps.reduce((s,x)=>s+x.w,0)/gaps.length*N.sieveGPerMm/1000;
+  const butylKg = spacerM*2*N.butylG/1000;
+  const edgeMm  = +$('f-edge').value;
+  const edgeM   = edgeMm ? g.perim*loweSurfaces.length : 0;
+  const billArea= Math.max(g.billArea, N.minArea);
+
+  $('tech').innerHTML = `
+    <div>Площадь изделия<br><b>${f2(g.area)} м²</b></div>
+    <div>Расчётная площадь<br><b>${f2(billArea)} м²</b></div>
+    <div>Периметр<br><b>${f2(g.perim)} м</b></div>
+    <div>Толщина пакета<br><b>${pkgTh} мм</b></div>
+    <div>Вес 1 шт<br><b>${f2(weight)} кг</b></div>
+    <div>Рамка<br><b>${f2(spacerM)} м</b></div>
+    <div>Сито<br><b>${f2(sieveKg*1000)} г</b></div>
+    <div>Бутил<br><b>${f2(butylKg*1000)} г</b></div>
+    <div>Вторичный герметик<br><b>${f2(sealL)} л</b></div>
+    <div>Аргон<br><b>${argonL?f2(argonL)+' л':'—'}</b></div>
+    <div>Зачистка кромки<br><b>${edgeM?f2(edgeM)+' м':'нет'}</b></div>
+    <div>Вес партии<br><b>${f2(weight*qty)} кг</b></div>`;
+
+  // --- предупреждения технолога ---
+  let warns=[];
+  const maxTh = Math.max(...glasses.map(l=>l.th));
+  if(g.area>2.5 && maxTh<5) warns.push(`Площадь ${f2(g.area)} м² при стекле ${maxTh} мм — по ветровой нагрузке нужно от 5 мм. Проверьте расчёт на прогиб.`);
+  if(g.area>4) warns.push('Свыше 4 м² — проверьте, проходит ли пакет по грузоподъёмности линии и по проёму на объекте.');
+  if(gaps.some(x=>x.w>16)) warns.push('Камера шире 16 мм — теплопередача не улучшается, а конвекция в камере растёт.');
+  if(g.billArea<N.minArea) warns.push(`Изделие мельче минимальной расчётной площади — считается как ${N.minArea} м². Мелкий пакет по трудозатратам не дешевле среднего.`);
+  if(loweSurfaces.length && !edgeMm) warns.push('Low-E в формуле есть, а зачистка кромки не назначена. Герметик не держится на покрытии — пакет разгерметизируется.');
+  if(shape!=='rect') warns.push(`${SHAPES[shape].name}: площадь для счёта берётся по описанному прямоугольнику (${f2(g.billArea)} м²), потому что раскрой всё равно идёт из прямоугольной заготовки.`);
+  $('tech-warn').innerHTML = warns.length
+    ? warns.map(w=>`<div class="alert a-warn" style="margin-bottom:8px">⚠️ ${w}</div>`).join('')
+    : '<div class="alert a-ok">✓ Конструкция проходит по базовым проверкам технолога.</div>';
+
+  // --- себестоимость ---
+  const cGlass = glasses.reduce((s,l)=> s + billArea*l.th*GLASS[l.mark].perMm, 0)/N.util;
+  const cSpacer= spacerM*(P.spacerBase + gaps.reduce((s,x)=>s+x.w,0)/gaps.length*P.spacerPerMm/10);
+  const cSieve = sieveKg*P.sieve;
+  const cButyl = butylKg*P.butyl;
+  const cSeal  = sealL*P.sealant;
+  const cArgon = argonL*P.argon;
+  const cWork  = billArea*(N.labor+N.overhead);
+  const cEdge  = edgeM*P.edge;
+  const cSpros = (+$('f-spros').value||0)*P.spros;
+  let cost = cGlass+cSpacer+cSieve+cButyl+cSeal+cArgon+cWork+cEdge+cSpros;
+  const cScrap = cost*N.scrap/100; cost += cScrap;
+
+  let price = cost*(1+N.margin/100)*SHAPES[shape].k;
+  const bigK = g.billArea>N.bigArea ? N.bigK/100 : 0;
+  price *= (1+bigK);
+
+  const rows = [
+    ['Стекло (с учётом раскроя ' + Math.round(N.util*100) + ' %)', cGlass],
+    ['Дистанционная рамка', cSpacer],
+    ['Молекулярное сито', cSieve],
+    ['Бутил (первичный герметик)', cButyl],
+    ['Вторичный герметик', cSeal],
+    ['Аргон', cArgon],
+    ['Работа, энергия, накладные', cWork],
+    ['Зачистка кромки', cEdge],
+    ['Раскладка (шпросы)', cSpros],
+    ['Заложенный бой ' + N.scrap + ' %', cScrap]
+  ].filter(r=>r[1]>0.5);
+
+  $('cost').innerHTML = rows.map(r=>`<div class="pricerow"><span>${r[0]}</span><b>${fmt(r[1])} ₸</b></div>`).join('')
+    + `<div class="pricerow" style="border-top:2px solid var(--bdl);margin-top:6px;padding-top:8px"><span><b>Себестоимость 1 шт</b></span><b>${fmt(cost)} ₸</b></div>`
+    + `<div class="pricerow"><span>Маржа ${N.margin} %</span><b>+${fmt(cost*N.margin/100)} ₸</b></div>`
+    + (SHAPES[shape].k!==1 ? `<div class="pricerow"><span>Коэффициент формы «${SHAPES[shape].name}» ×${SHAPES[shape].k}</span><b>+${fmt(cost*(1+N.margin/100)*(SHAPES[shape].k-1))} ₸</b></div>`:'')
+    + (bigK ? `<div class="pricerow"><span>Габарит свыше ${N.bigArea} м² +${N.bigK} %</span><b>+${fmt(price-price/(1+bigK))} ₸</b></div>`:'');
+
+  $('tot-qty').textContent=qty;
+  $('tot-sum').textContent=fmt(price*qty)+' ₸';
+  $('tot-one').textContent=fmt(price)+' ₸';
+  $('tot-m2').textContent=fmt(price/billArea)+' ₸';
+
+  window._pos = {shape:SHAPES[shape].name, size:`${g.W} × ${g.H}`, f:$('f-formula').value, qty, area:billArea, price};
+}
+
+/* ---------- спецификация ---------- */
+function addPos(){
+  if(!window._pos) return;
+  spec.push({...window._pos});
+  const tb=$('spec-tbl'); tb.innerHTML='';
+  let sum=0, m2=0;
+  spec.forEach((p,i)=>{
+    sum += p.price*p.qty; m2 += p.area*p.qty;
+    tb.innerHTML += `<tr><td>${i+1}</td><td>${p.shape}</td><td class="mono">${p.size}</td><td class="mono">${p.f}</td>
+      <td>${p.qty}</td><td class="mono">${f2(p.area*p.qty)} м²</td>
+      <td class="money mono">${fmt(p.price)}</td><td class="money mono"><b>${fmt(p.price*p.qty)}</b></td>
+      <td class="no-print"><button class="btn b-out" style="padding:3px 8px;font-size:.72rem" onclick="delPos(${i})">Убрать</button></td></tr>`;
+  });
+  const t=$('spec-total'); t.style.display='flex';
+  t.innerHTML=`<div><div style="font-size:.75rem;opacity:.7">ИТОГО ПО ЗАКАЗУ · ${f2(m2)} м²</div><div class="kpi">${fmt(sum)} ₸</div></div>
+    <div style="text-align:right;font-size:.8rem;opacity:.8">средняя цена м²<br><b class="mono">${fmt(sum/m2)} ₸</b></div>`;
+  $('b-ord').textContent = spec.length;
+}
+function delPos(i){ spec.splice(i,1); const s=[...spec]; spec=[];
+  $('spec-tbl').innerHTML='<tr><td colspan="9" class="hint" style="text-align:center;padding:22px">Позиций пока нет.</td></tr>';
+  $('spec-total').style.display='none';
+  s.forEach(p=>{window._pos=p; addPos();}); recalc(); }
+
+function importDemo(){
+  $('f-formula').value='6Solar-14Ar-4M1'; $('f-w').value=1450; $('f-h').value=2100; $('f-qty').value=6;
+  setShape('rect'); recalc(); addPos();
+  $('f-w').value=1200; $('f-h').value=1600; $('f-h2').value=900; $('f-qty').value=2;
+  setShape('trap'); recalc(); addPos();
+  $('f-w').value=1000; $('f-h').value=1400; $('f-qty').value=1;
+  setShape('arch'); recalc(); addPos();
+  alert('Импортировано 3 позиции из файла оконщика. Цены пересчитаны по вашим нормативам — обратите внимание на коэффициенты формы у трапеции и арки.');
+}
+
+/* ---------- выбор формы ---------- */
+const SHAPE_SVG = {
+  rect:'<rect x="3" y="4" width="14" height="12" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+  trap:'<path d="M3 16 L3 6 L17 10 L17 16 Z" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+  tri:'<path d="M3 16 L3 4 L17 16 Z" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+  arch:'<path d="M3 16 L3 10 A7 7 0 0 1 17 10 L17 16 Z" fill="none" stroke="currentColor" stroke-width="1.6"/>'
+};
+function setShape(s){
+  shape=s;
+  document.querySelectorAll('.shape-btn').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+  $('wrap-h2').style.display = s==='trap' ? '' : 'none';
+  $('lbl-h').textContent = s==='trap' ? 'Высота H₁, мм' : (s==='arch'?'Полная высота H, мм':'Высота H, мм');
+  const notes={
+    rect:'Обычное прямоугольное изделие.',
+    trap:'Трапеция: H₁ — высокая сторона, H₂ — низкая. Резка сложнее, рамка гнётся под угол — отсюда коэффициент ×1,5.',
+    tri:'Треугольник: катеты W и H. Острый угол рамки — ручная операция, коэффициент ×1,6.',
+    arch:'Арка: полукруг радиусом W/2 сверху. Рамка гнётся на станке, коэффициент ×2,2.'
+  };
+  $('shape-note').textContent=notes[s];
+  recalc();
+}
+
+/* ============================================================
+   РАСКРОЙ (полосовая упаковка)
+   ============================================================ */
+function piecesFor(mark){
+  const base = {
+    '4M1':   [[1600,1100,8],[1200,800,11],[900,1400,6],[1450,2100,4],[600,700,9]],
+    '4i':    [[1600,1100,16],[980,1350,7],[1200,700,5]],
+    '6Solar':[[1450,2100,6],[1200,1600,3],[900,900,4]]
+  }[mark]||[];
+  const out=[]; base.forEach(([w,h,n],gi)=>{ for(let i=0;i<n;i++) out.push({w,h,gi}); });
+  return out;
+}
+function buildCut(){
+  const mark = $('cut-mark').value;
+  const rotatable = GLASS[mark.replace(/^\d+(\.\d+)?/,'')||'M1']?.rotate ?? true;
+  const pieces = piecesFor(mark).sort((a,b)=>b.h-a.h);
+  const SW=SHEET.w-SHEET.trim*2, SH=SHEET.h-SHEET.trim*2, K=SHEET.kerf;
+
+  const sheets=[]; let cur=null;
+  const newSheet=()=>({shelves:[], used:0, y:0});
+  pieces.forEach(p=>{
+    let w=p.w,h=p.h;
+    if(rotatable && h>SH && w<=SH){ [w,h]=[h,w]; }
+    let placed=false;
+    for(const s of sheets){
+      for(const sh of s.shelves){
+        if(sh.h>=h && sh.x+w+K<=SW){ sh.items.push({x:sh.x,y:sh.y,w,h,gi:p.gi}); sh.x+=w+K; s.used+=w*h; placed=true; break; }
+      }
+      if(placed) break;
+      if(s.y+h+K<=SH){ const sh={y:s.y,x:0,h,items:[]}; sh.items.push({x:0,y:s.y,w,h,gi:p.gi}); sh.x=w+K; s.shelves.push(sh); s.y+=h+K; s.used+=w*h; placed=true; break; }
+    }
+    if(!placed){ const s=newSheet(); const sh={y:0,x:w+K,h,items:[{x:0,y:0,w,h,gi:p.gi}]}; s.shelves.push(sh); s.y=h+K; s.used=w*h; sheets.push(s); }
+  });
+
+  const totalArea = sheets.length*SHEET.w*SHEET.h;
+  const usedArea  = sheets.reduce((s,x)=>s+x.used,0);
+  const util = totalArea? usedArea/totalArea : 0;
+  // деловой обрез: хвосты полок и низ листа шире 600 мм
+  let offcuts=[];
+  sheets.forEach((s,si)=>{
+    s.shelves.forEach(sh=>{ const rest=SW-sh.x; if(rest>=600 && sh.h>=600) offcuts.push({w:rest,h:sh.h,si,x:sh.x,y:sh.y}); });
+    const rest=SH-s.y; if(rest>=600) offcuts.push({w:SW,h:rest,si,x:0,y:s.y});
+  });
+
+  $('cut-summary').innerHTML=`
+    <div class="card" style="margin:0;padding:13px"><div class="hint">Деталей в партии</div><div class="kpi" style="font-size:1.4rem">${pieces.length}</div></div>
+    <div class="card" style="margin:0;padding:13px"><div class="hint">Листов нужно</div><div class="kpi" style="font-size:1.4rem">${sheets.length}</div></div>
+    <div class="card" style="margin:0;padding:13px"><div class="hint">Полезное использование</div><div class="kpi" style="font-size:1.4rem;color:${util>=N.util?'var(--ok)':'var(--warn)'}">${(util*100).toFixed(1)} %</div>
+      <div class="util-bar"><div class="util-fill" style="width:${util*100}%"></div></div>
+      <div class="hint" style="margin-top:5px">Норматив ${(N.util*100).toFixed(0)} %</div></div>
+    <div class="card money" style="margin:0;padding:13px"><div class="hint">Отход в деньги</div><div class="kpi" style="font-size:1.4rem;color:var(--bad)">${fmt((totalArea-usedArea)/1e6*(STOCK.find(s=>s.mark===mark)?.price||3000))} ₸</div>
+      <div class="hint">из них ${offcuts.length} кус${offcuts.length===1?'ок':'ка'} в деловой обрез</div></div>`;
+
+  const COLORS=['#0284c7','#0891b2','#7c3aed','#db2777','#ea580c','#65a30d'];
+  const scale = 0.155;
+  $('cut-map').innerHTML = sheets.map((s,si)=>{
+    const items = s.shelves.flatMap(sh=>sh.items);
+    const offs = offcuts.filter(o=>o.si===si);
+    return `<div style="margin-bottom:14px">
+      <div style="font-size:.8rem;font-weight:600;margin-bottom:5px">Лист ${si+1} из ${sheets.length} · ${mark} · заполнение ${((s.used/(SHEET.w*SHEET.h))*100).toFixed(1)} %</div>
+      <svg width="${SHEET.w*scale}" height="${SHEET.h*scale}" style="background:#cbd5e1;border:1px solid #94a3b8;border-radius:3px">
+        <defs><pattern id="hatch${si}" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <line x1="0" y="0" x2="0" y2="6" stroke="#f59e0b" stroke-width="3"/></pattern></defs>
+        <g transform="translate(${SHEET.trim*scale},${SHEET.trim*scale})">
+        ${offs.map(o=>`<rect x="${o.x*scale}" y="${o.y*scale}" width="${o.w*scale}" height="${o.h*scale}" fill="url(#hatch${si})" opacity=".5"/>`).join('')}
+        ${items.map(it=>`<g><rect x="${it.x*scale}" y="${it.y*scale}" width="${it.w*scale}" height="${it.h*scale}"
+             fill="${COLORS[it.gi%COLORS.length]}" stroke="#fff" stroke-width="1.2" opacity=".9"/>
+           <text x="${(it.x+it.w/2)*scale}" y="${(it.y+it.h/2)*scale}" fill="#fff" font-size="9" font-family="monospace"
+             text-anchor="middle" dominant-baseline="middle">${it.w}×${it.h}</text></g>`).join('')}
+        </g></svg></div>`;
+  }).join('') + (rotatable?'<div class="hint">Разворот деталей разрешён — стекло без покрытия и без узора.</div>'
+                          :'<div class="alert a-warn" style="margin-top:8px">⚠️ '+mark+': разворот деталей запрещён — покрытие имеет сторону. Из-за этого полезный раскрой ниже, и это нормально.</div>');
+}
+
+/* ============================================================
+   БРАК
+   ============================================================ */
+function costPerM2(){ return 9000; }
+function renderDefects(){
+  const byReason={}, byStage={}; let total=0;
+  DEFECTS.forEach(d=>{ const c=d.area*costPerM2(); total+=c;
+    byReason[d.reason]=(byReason[d.reason]||0)+c; byStage[d.stage]=(byStage[d.stage]||0)+c; });
+  const bars = obj => { const mx=Math.max(...Object.values(obj));
+    return Object.entries(obj).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
+      `<div class="bar-row"><div class="bar-lbl">${k}</div><div class="bar-track"><div class="bar-fill" style="width:${v/mx*100}%"></div></div>
+       <div class="bar-val money">${fmt(v)} ₸</div></div>`).join(''); };
+  $('def-reason').innerHTML=bars(byReason);
+  $('def-stage').innerHTML=bars(byStage);
+  $('def-total').textContent=fmt(total)+' ₸';
+  $('def-tbl').innerHTML=DEFECTS.map(d=>`<tr><td>${d.d}</td><td class="mono">${d.item}</td><td>${d.stage}</td>
+    <td>${d.reason}</td><td>${d.shift}</td><td class="mono">${f2(d.area)} м²</td>
+    <td class="money mono">${fmt(d.area*costPerM2())}</td><td>${d.sup}</td></tr>`).join('');
+  $('k-hotcost').textContent=fmt(1.76*costPerM2())+' ₸';
+}
+function openDefect(){ $('m-defect').classList.add('open'); }
+function closeDefect(){ $('m-defect').classList.remove('open'); }
+function saveDefect(){
+  const r=$('d-reason').value, st=$('d-stage').value, sh=$('d-shift').value, part=$('d-part').value;
+  DEFECTS.unshift({d:'11.08', item:'GL-2026-081-0'+(DEFECTS.length), stage:st, reason:r, shift:sh, area:1.76, sup:'Guardian'});
+  hotQueue.unshift({item:'#ORD-2026-081 / '+part.toLowerCase(), reason:r, size:'1600 × 1100', min:0});
+  renderDefects(); renderHot(); closeDefect();
+  $('b-hot').textContent=hotQueue.length; $('k-hot').textContent=hotQueue.length+' шт';
+}
+function renderHot(){
+  $('hotq').innerHTML = hotQueue.map((h,i)=>`
+    <div style="border:1px solid #fecaca;background:#fef2f2;padding:11px;border-radius:8px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-weight:700;color:#991b1b;gap:8px;flex-wrap:wrap">
+        <span class="mono">${h.item}</span><span>ПРИОРИТЕТ ${i+1}</span></div>
+      <div style="font-size:.83rem;margin-top:4px;color:#7f1d1d">${h.reason} · ${h.size} мм${h.min?' · ждёт '+h.min+' мин':' · только что'}</div>
+    </div>`).join('') || '<div class="alert a-ok">✓ Горячая очередь пуста. Переделок в смене нет.</div>';
+}
+function stagePass(){ alert('Этап отмечен. Изделие ушло на прессование, следующая позиция подана на экран.'); }
+function doScan(){ const v=$('scan').value.trim(); if(!v) return;
+  alert('Найдено: '+v+'\nВ рабочей версии — карточка изделия с маршрутом и требованиями по этому штрихкоду.'); $('scan').value=''; }
+
+/* ============================================================
+   НАСТРОЙКИ
+   ============================================================ */
+const NORM_META=[
+  ['minArea','Минимальная расчётная площадь','м²','Всё, что меньше, считается по этой площади'],
+  ['util','Полезное использование листа','доля','0,88 = 12 % уходит в отход'],
+  ['labor','Работа и энергия','₸/м²',''],
+  ['overhead','Накладные и амортизация','₸/м²',''],
+  ['scrap','Заложенный бой','%','Закладывается в цену заранее'],
+  ['margin','Маржа','%',''],
+  ['sealDepth','Глубина шва герметика','мм','Самая недооценённая статья расхода'],
+  ['argonLoss','Коэффициент потерь аргона','×','Реально уходит в 1,5–2 раза больше расчётного'],
+  ['bigArea','Габарит от','м²','С этой площади доплата за сложность подъёма'],
+  ['bigK','Доплата за габарит','%','']
+];
+const PRICE_META=[
+  ['spacerBase','Рамка, база','₸/п.м.'],['spacerPerMm','Рамка, за мм ширины','₸'],
+  ['sieve','Молекулярное сито','₸/кг'],['butyl','Бутил','₸/кг'],
+  ['sealant','Вторичный герметик','₸/л'],['argon','Аргон','₸/л'],
+  ['edge','Зачистка кромки','₸/п.м.'],['spros','Раскладка (шпросы)','₸/п.м.']
+];
+function renderSettings(){
+  $('norms').innerHTML=NORM_META.map(([k,l,u,h])=>
+    `<div class="fg"><label>${l}, ${u}</label><input class="fc mono" id="n-${k}" value="${N[k]}" step="any" type="number">
+     ${h?`<span class="hint">${h}</span>`:''}</div>`).join('');
+  $('mat-prices').innerHTML=PRICE_META.map(([k,l,u])=>
+    `<div class="fg"><label>${l}, ${u}</label><input class="fc mono" id="p-${k}" value="${P[k]}" step="any" type="number" onchange="P['${k}']=+this.value;recalc()"></div>`).join('');
+  const FLAGS=[
+    ['Выгрузка на ЧПУ-резку','Генерировать программу для стола резки. Выключено — печатается бумажная карта раскроя.',true],
+    ['Списание герметика по норме','Списывать бутил и тиокол по расчёту при закрытии пакета. Раз в месяц сверяется с фактическим приходом бочек — расхождение больше 8 % это либо перерасход, либо утечка со склада.',true],
+    ['Учёт делового обреза','Куски больше 600 × 600 ставятся на учёт и подставляются в раскрой первыми.',true],
+    ['Штрихкод на каждом стекле','Печать этикетки после резки. Без него оператор ищет нужное стекло глазами.',true],
+    ['Паспорт изделия с QR','Привязка партий стекла, сита и герметика к конкретному пакету. Нужен для гарантийных разборов.',true],
+    ['Контроль заполнения аргоном','Требовать ввод показания газоанализатора. Выключено — если анализатора в цехе нет.',false],
+    ['Залог за пирамиды','Начислять залог при отгрузке тары и удерживать при невозврате.',true],
+    ['Разворот Low-E при раскрое','Оставьте выключенным: у стекла с покрытием есть сторона, разворот испортит деталь.',false]
+  ];
+  $('flags').innerHTML=FLAGS.map((f,i)=>`<div class="flagbox"><label class="sw">
+    <div><b style="font-size:.88rem">${f[0]}</b><p class="hint" style="margin-top:3px">${f[2]!==undefined?f[1]:''}</p></div>
+    <div class="switch"><input type="checkbox" ${f[2]?'checked':''}><span class="sl"></span></div></label></div>`).join('');
+}
+function readNorms(){ NORM_META.forEach(([k])=>{ const v=+$('n-'+k).value; if(!isNaN(v)) N[k]=v; }); }
+
+/* ============================================================
+   СТАРТ
+   ============================================================ */
+(function init(){
+  $('shapes').innerHTML=Object.entries(SHAPES).map(([k,v])=>
+    `<button class="shape-btn ${k==='rect'?'on':''}" data-s="${k}" onclick="setShape('${k}')">
+      <svg viewBox="0 0 20 20">${SHAPE_SVG[k]}</svg>${v.name}${v.k!==1?` ×${String(v.k).replace('.',',')}`:''}</button>`).join('');
+
+  $('dash-tbl').innerHTML=ORDERS.map(o=>`<tr><td class="mono"><b>${o.id}</b></td><td>${o.cl}</td><td class="mono">${o.f}</td>
+    <td>${o.n} шт</td><td style="font-size:.8rem">${o.note}</td><td><span class="pill ${o.cls}">${o.st}</span></td><td>${o.ship}</td></tr>`).join('');
+
+  const stages=[['Резка',68],['Мойка',41],['Сборка',84],['Прессование',52],['Герметизация',37],['Отгрузка',22]];
+  $('stage-load').innerHTML=stages.map(([s,v])=>
+    `<div class="bar-row"><div class="bar-lbl">${s}</div><div class="bar-track"><div class="bar-fill" style="width:${v}%;background:${v>75?'var(--warn)':'var(--pri)'}"></div></div><div class="bar-val">${v} м²</div></div>`).join('');
+
+  $('stock-tbl').innerHTML=STOCK.map(s=>`<tr><td><b>${s.mark}</b></td><td class="mono">${s.fmt}</td>
+    <td class="mono ${s.n<8?'':''}" style="${s.n<8?'color:var(--bad);font-weight:700':''}">${s.n}</td>
+    <td class="mono" style="font-size:.78rem">${s.lot}</td><td class="money mono">${fmt(s.price)}</td></tr>`).join('');
+
+  $('pyr-tbl').innerHTML=PYRAMIDS.map(p=>`<tr><td class="mono"><b>${p.n}</b></td><td>${p.t}</td><td>${p.cl}</td>
+    <td class="mono">${p.ord}</td><td>${p.d}</td>
+    <td style="${p.days>14?'color:var(--bad);font-weight:700':''}">${p.days}</td>
+    <td class="money mono">${fmt(p.dep)} ₸</td>
+    <td class="no-print"><button class="btn b-out" style="padding:4px 9px;font-size:.75rem" onclick="this.closest('tr').style.opacity=.4;this.textContent='Возвращена'">Отметить возврат</button></td></tr>`).join('');
+
+  renderSettings(); renderDefects(); renderHot(); setShape('rect'); buildCut(); applyRole();
+})();
+</script>
 </body>
 </html>
