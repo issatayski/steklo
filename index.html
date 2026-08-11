@@ -36,6 +36,24 @@
             display: flex;
             height: 100vh;
             overflow: hidden;
+            position: relative;
+        }
+
+        /* Sidebar Overlay for Mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 999;
+            backdrop-filter: blur(2px);
+        }
+
+        .sidebar-overlay.active {
+            display: block;
         }
 
         /* Sidebar */
@@ -47,6 +65,8 @@
             flex-direction: column;
             flex-shrink: 0;
             border-right: 1px solid #1e293b;
+            transition: transform 0.3s ease;
+            z-index: 1000;
         }
 
         .brand {
@@ -54,6 +74,13 @@
             font-size: 1.2rem;
             font-weight: 700;
             border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .brand-info {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -70,6 +97,15 @@
             font-weight: 800;
             color: white;
             font-size: 16px;
+        }
+
+        .close-sidebar-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
         }
 
         .nav-list {
@@ -126,6 +162,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            width: 100%;
         }
 
         header {
@@ -136,6 +173,23 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 28px;
+            gap: 12px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            color: var(--text-dark);
+            cursor: pointer;
+            padding: 4px;
         }
 
         .header-info h1 {
@@ -164,6 +218,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
         }
 
         .content-body {
@@ -183,14 +238,14 @@
         /* UI Components */
         .grid-2 {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
             margin-bottom: 24px;
         }
 
         .grid-3 {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 20px;
             margin-bottom: 24px;
         }
@@ -211,6 +266,8 @@
             margin-bottom: 16px;
             border-bottom: 1px solid var(--border-light);
             padding-bottom: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .card-title {
@@ -242,6 +299,7 @@
             font-size: 0.9rem;
             outline: none;
             transition: border-color 0.2s;
+            width: 100%;
         }
 
         .form-control:focus {
@@ -338,6 +396,7 @@
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
@@ -345,6 +404,7 @@
             border-collapse: collapse;
             font-size: 0.88rem;
             text-align: left;
+            min-width: 600px;
         }
 
         th {
@@ -368,6 +428,7 @@
             font-size: 0.75rem;
             font-weight: 600;
             display: inline-block;
+            white-space: nowrap;
         }
 
         .status-new { background-color: #e2e8f0; color: #334155; }
@@ -389,6 +450,7 @@
             justify-content: space-between;
             cursor: pointer;
             width: 100%;
+            gap: 12px;
         }
 
         .switch {
@@ -396,6 +458,7 @@
             display: inline-block;
             width: 44px;
             height: 24px;
+            flex-shrink: 0;
         }
 
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -433,6 +496,7 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            padding: 16px;
         }
 
         .modal {
@@ -473,19 +537,112 @@
             display: flex;
             justify-content: space-between;
             font-size: 0.85rem;
+            gap: 8px;
+        }
+
+        /* RESPONSIVE MEDIA QUERIES */
+        @media (max-width: 992px) {
+            header {
+                padding: 0 20px;
+            }
+            .content-body {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            aside {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+            }
+
+            aside.open {
+                transform: translateX(0);
+            }
+
+            .close-sidebar-btn {
+                display: block;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            header {
+                padding: 0 16px;
+            }
+
+            .header-info p {
+                display: none;
+            }
+
+            .header-info h1 {
+                font-size: 1rem;
+            }
+
+            .role-badge {
+                padding: 4px 8px;
+                font-size: 0.75rem;
+            }
+
+            .content-body {
+                padding: 16px;
+            }
+
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .shop-actions-row {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 14px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .card-header .btn {
+                width: auto;
+            }
+
+            .shop-layer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
     <!-- Sidebar Navigation -->
-    <aside>
+    <aside id="sidebar">
         <div class="brand">
-            <div class="brand-logo">G</div>
-            <div>
-                <div>GlassERP Pro</div>
-                <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 400;">Версия 2.0 (Сквозная)</div>
+            <div class="brand-info">
+                <div class="brand-logo">G</div>
+                <div>
+                    <div>GlassERP Pro</div>
+                    <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 400;">Версия 2.0 (Сквозная)</div>
+                </div>
             </div>
+            <button class="close-sidebar-btn" onclick="toggleSidebar()">&times;</button>
         </div>
 
         <ul class="nav-list">
@@ -517,9 +674,12 @@
     <!-- Main Workspace -->
     <main>
         <header>
-            <div class="header-info">
-                <h1 id="tab-title">Дашборд производства стеклопакетов</h1>
-                <p id="tab-subtitle">Сквозной контроль: От заказа и снятия эмали до брака и логистики пирамид</p>
+            <div class="header-left">
+                <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Открыть меню">☰</button>
+                <div class="header-info">
+                    <h1 id="tab-title">Дашборд производства стеклопакетов</h1>
+                    <p id="tab-subtitle">Сквозной контроль: От заказа и снятия эмали до брака и логистики пирамид</p>
+                </div>
             </div>
             <div class="header-actions">
                 <div class="role-badge">
@@ -568,7 +728,22 @@
                                 </tr>
                             </thead>
                             <tbody id="dash-orders-table">
-                                <!-- Populated dynamically -->
+                                <tr>
+                                    <td><strong>#ORD-2026-081</strong></td>
+                                    <td>ООО "Оконный Стиль"</td>
+                                    <td>4i-14Ar-4M1-14Ar-4i</td>
+                                    <td>1600 x 1100</td>
+                                    <td><span class="status-pill status-cutting">Да (12мм)</span></td>
+                                    <td><span class="status-pill status-assembly">Сборка</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#ORD-2026-082</strong></td>
+                                    <td>ИП Бейсенов</td>
+                                    <td>4M1-16-4M1</td>
+                                    <td>1200 x 800</td>
+                                    <td><span class="status-pill status-new">Нет</span></td>
+                                    <td><span class="status-pill status-ready">Готов к отгрузке</span></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -586,33 +761,28 @@
                         
                         <div class="form-group">
                             <label>Синтаксис формулы стеклопакета</label>
-                            <input type="text" id="crm-formula" class="form-control" value="4i-14Ar-4M1-14Ar-4i" oninput="runFormulaValidation()">
+                            <input type="text" id="crm-formula" class="form-control" value="4i-14Ar-4M1-14Ar-4i">
                             <span style="font-size: 0.75rem; color: var(--text-muted);">Пример: 4M1-16-4M1 или 6Solar-14Ar-4M1-14Ar-4i</span>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Ширина W (мм)</label>
-                                <input type="number" id="crm-w" class="form-control" value="1600" oninput="runFormulaValidation()">
+                                <input type="number" id="crm-w" class="form-control" value="1600">
                             </div>
                             <div class="form-group">
                                 <label>Высота H (мм)</label>
-                                <input type="number" id="crm-h" class="form-control" value="1100" oninput="runFormulaValidation()">
+                                <input type="number" id="crm-h" class="form-control" value="1100">
                             </div>
                             <div class="form-group">
                                 <label>Кол-во (шт)</label>
-                                <input type="number" id="crm-qty" class="form-control" value="4" oninput="runFormulaValidation()">
+                                <input type="number" id="crm-qty" class="form-control" value="4">
                             </div>
-                        </div>
-
-                        <!-- Validation Warning Box -->
-                        <div id="crm-validation-box">
-                            <!-- Injected by JS -->
                         </div>
 
                         <!-- Calculations Box -->
                         <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid var(--border-light); margin-top: 10px;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; font-size: 0.85rem;">
                                 <div>Площадь 1 шт: <strong id="calc-area">1.76 м²</strong></div>
                                 <div>Периметр: <strong id="calc-perimeter">5.40 м</strong></div>
                                 <div>Расход рамки: <strong id="calc-spacer">10.80 м</strong></div>
@@ -622,7 +792,7 @@
                             </div>
                         </div>
 
-                        <button class="btn btn-primary" style="margin-top: 16px; width: 100%; justify-content: center;" onclick="addNewOrder()">
+                        <button class="btn btn-primary" style="margin-top: 16px; width: 100%; justify-content: center;">
                             Запустить заказ в производство
                         </button>
                     </div>
@@ -630,7 +800,7 @@
                     <!-- Integration & Import -->
                     <div class="card">
                         <div class="card-header">
-                            <span class="card-title">Импорт из оконного ПО (СуперОкна / Optima / Klaes)</span>
+                            <span class="card-title">Импорт из оконного ПО</span>
                         </div>
                         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
                             Загрузите файлы выгрузки XML/CSV/DBF для автоматического формирования спецификаций резки.
@@ -638,21 +808,21 @@
                         <div style="border: 2px dashed var(--border); padding: 24px; text-align: center; border-radius: 8px; background: #f8fafc;">
                             <p style="font-size: 0.9rem; font-weight: 600;">Перетащите файл заказа сюда</p>
                             <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Поддерживается .xml, .csv, .dbf</p>
-                            <button class="btn btn-outline" style="margin-top: 12px;" onclick="simulateImport()">Эмулировать импорт файла "Optima_Order_99.xml"</button>
+                            <button class="btn btn-outline" style="margin-top: 12px;">Эмулировать импорт файла</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 3: CUTTING & OFFCUTS (ТЕХНОЛОГ) -->
+            <!-- TAB 3: CUTTING & OFFCUTS -->
             <div id="tab-cutting" class="tab-panel">
                 <div class="card">
                     <div class="card-header">
-                        <span class="card-title">Управление деловым обрезом (Деловой отход стекла)</span>
-                        <button class="btn btn-outline" onclick="addOffcut()">+ Зарегистрировать обрез вручную</button>
+                        <span class="card-title">Управление деловым обрезом</span>
+                        <button class="btn btn-outline">+ Зарегистрировать обрез</button>
                     </div>
                     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
-                        Куски стекла > 600х600 мм автоматически ставятся на учет с уникальным ID и приоритетно подставляются алгоритмом раскроя перед джамбо-листом.
+                        Куски стекла > 600х600 мм автоматически ставятся на учет с уникальным ID и приоритетно подставляются алгоритмом раскроя.
                     </p>
                     <div class="table-responsive">
                         <table>
@@ -666,14 +836,14 @@
                                     <th>Статус</th>
                                 </tr>
                             </thead>
-                            <tbody id="offcuts-table-body">
+                            <tbody>
                                 <tr>
                                     <td><strong>OFF-8821</strong></td>
                                     <td>4M1 Прозрачное</td>
                                     <td>4 мм</td>
                                     <td>1400 x 950</td>
                                     <td>Стойка B-04</td>
-                                    <td><span class="status-pill status-ready">Доступен для раскроя</span></td>
+                                    <td><span class="status-pill status-ready">Доступен</span></td>
                                 </tr>
                                 <tr>
                                     <td><strong>OFF-8822</strong></td>
@@ -681,7 +851,7 @@
                                     <td>4 мм</td>
                                     <td>1200 x 700</td>
                                     <td>Стойка A-01</td>
-                                    <td><span class="status-pill status-ready">Доступен для раскроя</span></td>
+                                    <td><span class="status-pill status-ready">Доступен</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -692,7 +862,7 @@
             <!-- TAB 4: SHOP FLOOR TERMINAL (TOUCH UI) -->
             <div id="tab-shopfloor" class="tab-panel">
                 <div class="alert alert-warning">
-                    ⚠️ <strong>Режим цехового сенсорного терминала:</strong> Оператор сканирует ШК изделия или выбирает позицию. При браке нажатие кнопки «БРАК» мгновенно отправляет деталь в Горячую очередь резки без пересчета стоимости заказа.
+                    ⚠️ <strong>Режим цехового сенсорного терминала:</strong> Оператор сканирует ШК изделия или выбирает позицию. При браке нажатие кнопки «БРАК» мгновенно отправляет деталь в Горячую очередь резки.
                 </div>
 
                 <div class="grid-2">
@@ -700,9 +870,9 @@
                         <div class="card-header"><span class="card-title">Текущая позиция на сборке</span></div>
                         
                         <div class="shop-unit-card">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
                                 <strong>#ORD-2026-081 (Пакет 1 из 2)</strong>
-                                <span class="status-pill status-cutting">Участок: Мойка / Сборка</span>
+                                <span class="status-pill status-cutting">Мойка / Сборка</span>
                             </div>
                             <div style="margin-top: 8px; font-size: 1.1rem; font-weight: 700;">1600 х 1100 мм</div>
                             <div style="font-size: 0.85rem; color: var(--text-muted);">Формула: 4i-14Ar-4M1-14Ar-4i</div>
@@ -725,12 +895,12 @@
                             </div>
                         </div>
 
-                        <div style="display: flex; gap: 12px; margin-top: 16px;">
-                            <button class="btn btn-success" style="flex: 2; height: 50px; font-size: 1rem; justify-content: center;" onclick="passStage()">
-                                ✓ ЭТАП ПРОЙДЕН (Далее)
+                        <div class="shop-actions-row" style="display: flex; gap: 12px; margin-top: 16px;">
+                            <button class="btn btn-success" style="flex: 2; height: 50px; font-size: 1rem; justify-content: center;">
+                                ✓ ЭТАП ПРОЙДЕН
                             </button>
-                            <button class="btn btn-danger" style="flex: 1; height: 50px; font-size: 1rem; justify-content: center;" onclick="openDefectModal('#ORD-2026-081', 'Стекло 1 (4i)')">
-                                ✖ БРАК / ПЕРЕДЕЛКА
+                            <button class="btn btn-danger" style="flex: 1; height: 50px; font-size: 1rem; justify-content: center;">
+                                ✖ БРАК
                             </button>
                         </div>
                     </div>
@@ -744,7 +914,15 @@
                             Детали с браком идут на стол резки в первую очередь, минуя общую очередь.
                         </p>
                         <div id="hot-queue-list">
-                            <!-- Dynamic items -->
+                            <div style="border: 1px solid #fecaca; background: #fef2f2; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                                <div style="display: flex; justify-content: space-between; font-weight: 700; color: #991b1b;">
+                                    <span>#ORD-2026-081 / Стекло 1</span>
+                                    <span>ПРИОРИТЕТ 1</span>
+                                </div>
+                                <div style="font-size: 0.85rem; margin-top: 4px; color: #7f1d1d;">
+                                    Причина: Царапина Low-E покрытия | Размер: 1600x1100 мм
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -777,7 +955,7 @@
                                     <td>#ORD-2026-081</td>
                                     <td>10.08.2026</td>
                                     <td>80 000 ₸</td>
-                                    <td><button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick="returnPyramid('ПИР-12', this)">Отметить возврат</button></td>
+                                    <td><button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;">Отметить возврат</button></td>
                                 </tr>
                                 <tr>
                                     <td><strong>ПИР-05</strong></td>
@@ -786,7 +964,7 @@
                                     <td>#ORD-2026-082</td>
                                     <td>11.08.2026</td>
                                     <td>80 000 ₸</td>
-                                    <td><button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick="returnPyramid('ПИР-05', this)">Отметить возврат</button></td>
+                                    <td><button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;">Отметить возврат</button></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -812,7 +990,7 @@
                                     <p style="font-size: 0.78rem; color: var(--text-muted);">Генерировать G-code для стола резки. Если выключено — печать бумажной карты.</p>
                                 </div>
                                 <div class="switch">
-                                    <input type="checkbox" checked id="flag-cnc" onchange="toggleFlagNotification('ЧПУ Резка')">
+                                    <input type="checkbox" checked id="flag-cnc">
                                     <span class="slider"></span>
                                 </div>
                             </label>
@@ -825,33 +1003,7 @@
                                     <p style="font-size: 0.78rem; color: var(--text-muted);">Списывать бутил/тиокол по теоретической формуле при закрытии пакета.</p>
                                 </div>
                                 <div class="switch">
-                                    <input type="checkbox" checked id="flag-sealant" onchange="toggleFlagNotification('Авто-списание герметика')">
-                                    <span class="slider"></span>
-                                </div>
-                            </label>
-                        </div>
-
-                        <div style="border: 1px solid var(--border-light); padding: 16px; border-radius: 8px;">
-                            <label class="switch-label">
-                                <div>
-                                    <strong style="font-size: 0.9rem;">Обязательное сканирование ШК на мойке</strong>
-                                    <p style="font-size: 0.78rem; color: var(--text-muted);">Блокировать передачу на сборку без сигнала сканера ШК.</p>
-                                </div>
-                                <div class="switch">
-                                    <input type="checkbox" id="flag-barcode" onchange="toggleFlagNotification('Сканирование ШК')">
-                                    <span class="slider"></span>
-                                </div>
-                            </label>
-                        </div>
-
-                        <div style="border: 1px solid var(--border-light); padding: 16px; border-radius: 8px;">
-                            <label class="switch-label">
-                                <div>
-                                    <strong style="font-size: 0.9rem;">Учёт залога и возврата пирамид</strong>
-                                    <p style="font-size: 0.78rem; color: var(--text-muted);">Контролировать баланс возвратной тары на логистике.</p>
-                                </div>
-                                <div class="switch">
-                                    <input type="checkbox" checked id="flag-pyramids" onchange="toggleFlagNotification('Учёт пирамид')">
+                                    <input type="checkbox" checked id="flag-sealant">
                                     <span class="slider"></span>
                                 </div>
                             </label>
@@ -863,241 +1015,34 @@
         </div>
     </main>
 
-    <!-- DEFECT MODAL -->
-    <div class="modal-backdrop" id="defectModal">
-        <div class="modal">
-            <div class="modal-header">
-                <span class="modal-title">✖ Фиксация брака / Переделка</span>
-                <button style="border:none; background:none; font-size:1.2rem; cursor:pointer;" onclick="closeDefectModal()">✕</button>
-            </div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
-                Выбранная деталь будет немедленно отправлена в <strong style="color: var(--danger);">Горячую очередь резки</strong>. Финансовый баланс заказа не изменится.
-            </p>
-            <div class="form-group">
-                <label>Позиция заказа</label>
-                <input type="text" id="defect-order-id" class="form-control" readonly>
-            </div>
-            <div class="form-group">
-                <label>Бракованный компонент</label>
-                <input type="text" id="defect-component" class="form-control" readonly>
-            </div>
-            <div class="form-group">
-                <label>Причина брака</label>
-                <select id="defect-reason" class="form-control">
-                    <option>Царапина на эмали/покрытии</option>
-                    <option>Скол при обработке края</option>
-                    <option>Мусор/пыль внутри камеры</option>
-                    <option>Трещина при прессовании</option>
-                    <option>Ошибка размера</option>
-                </select>
-            </div>
-            <div style="display: flex; gap: 12px; margin-top: 20px;">
-                <button class="btn btn-outline" style="flex:1;" onclick="closeDefectModal()">Отмена</button>
-                <button class="btn btn-danger" style="flex:1;" onclick="submitDefect()">Отправить в Горячую Очередь</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Global State Simulation
-        const state = {
-            orders: [
-                { id: '#ORD-2026-081', client: 'ООО "Оконный Стиль"', formula: '4i-14Ar-4M1-14Ar-4i', size: '1600x1100 (2 шт)', edgeDeletion: true, stage: 'Мойка / Сборка', statusClass: 'status-cutting' },
-                { id: '#ORD-2026-082', client: 'ИП Бейсенов', formula: '4M1-16-4M1', size: '2100x1200 (5 шт)', edgeDeletion: false, stage: 'Ожидает раскроя', statusClass: 'status-new' },
-                { id: '#ORD-2026-083', client: 'Фасад-Строй', formula: '6Solar-16Ar-4M1', size: '1800x1500 (10 шт)', edgeDeletion: true, stage: 'Готов на Пирамиде №4', statusClass: 'status-ready' }
-            ],
-            hotQueue: [
-                { id: '#ORD-2026-080', comp: 'Стекло 1 (6Solar)', reason: 'Скол при зачистке края', time: '10 минут назад' }
-            ]
-        };
-
-        function renderOrdersTable() {
-            const tbody = document.getElementById('dash-orders-table');
-            tbody.innerHTML = '';
-            state.orders.forEach(o => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${o.id}</strong></td>
-                    <td>${o.client}</td>
-                    <td><code>${o.formula}</code></td>
-                    <td>${o.size}</td>
-                    <td>${o.edgeDeletion ? '<span style="color:var(--warning); font-weight:600;">⚠️ Зачистить 12мм</span>' : 'Нет'}</td>
-                    <td><span class="status-pill ${o.statusClass}">${o.stage}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-            document.getElementById('badge-orders-count').innerText = state.orders.length;
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
         }
 
-        function renderHotQueue() {
-            const container = document.getElementById('hot-queue-list');
-            container.innerHTML = '';
-            state.hotQueue.forEach(item => {
-                const div = document.createElement('div');
-                div.style.cssText = 'background:#fef2f2; border:1px solid #fecaca; padding:12px; border-radius:8px; margin-bottom:10px; font-size:0.85rem;';
-                div.innerHTML = `
-                    <div style="display:flex; justify-size:space-between; font-weight:700; color:var(--danger);">
-                        <span>${item.id} — ${item.comp}</span>
-                        <span style="font-size:0.75rem;">${item.time}</span>
-                    </div>
-                    <div style="color:#991b1b; margin-top:4px;">Причина: ${item.reason}</div>
-                    <div style="margin-top:8px; text-align:right;">
-                        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.75rem;" onclick="resolveHotQueueItem(this)">Выполнить резку сейчас</button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-            document.getElementById('badge-hot-count').innerText = `${state.hotQueue.length} БРАК`;
-            document.getElementById('dash-hot-val').innerText = `${state.hotQueue.length} шт`;
-        }
-
-        function switchTab(tabId, el) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            if(el) el.classList.add('active');
-
-            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-
-            const titles = {
-                'dashboard': ['Дашборд производства стеклопакетов', 'Сквозной контроль: От заказа и снятия эмали до брака и логистики пирамид'],
-                'crm': ['CRM & Конструктор Формул', 'Проверка технологических ограничений и импорт из оконного ПО'],
-                'cutting': ['Технолог / Раскрой & Деловой обрез', 'Учет делового отхода стекла (>600x600мм) и формирование суточных карт'],
-                'shopfloor': ['Цеховой сенсорный терминал', 'Оперативный просмотр слоев и быстрый перезапуск брака'],
-                'pyramids': ['Логистика & Учет Пирамид', 'Возвратная тара и залоговые балансы клиентов'],
-                'settings': ['Настройки технологических флагов', 'Управление автоматическими и ручными режимами цеха']
-            };
-
-            if(titles[tabId]) {
-                document.getElementById('tab-title').innerText = titles[tabId][0];
-                document.getElementById('tab-subtitle').innerText = titles[tabId][1];
-            }
-        }
-
-        function runFormulaValidation() {
-            const formula = document.getElementById('crm-formula').value.toUpperCase();
-            const w = parseFloat(document.getElementById('crm-w').value) || 0;
-            const h = parseFloat(document.getElementById('crm-h').value) || 0;
-            const qty = parseInt(document.getElementById('crm-qty').value) || 1;
-
-            const area = (w * h) / 1000000;
-            const perimeter = ((w + h) * 2) / 1000;
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             
-            // Check formula features
-            const hasI = formula.includes('I');
-            const hasSolar = formula.includes('SOLAR');
-            const hasArgon = formula.includes('AR');
-            const chambers = (formula.match(/-/g) || []).length / 2;
-
-            document.getElementById('calc-area').innerText = (area * qty).toFixed(2) + ' м²';
-            document.getElementById('calc-perimeter').innerText = (perimeter * qty).toFixed(2) + ' м';
-            document.getElementById('calc-spacer').innerText = (perimeter * (chambers || 1) * qty).toFixed(2) + ' м';
-            document.getElementById('calc-weight').innerText = (area * 3 * 2.5 * 4 * qty).toFixed(1) + ' кг';
-            document.getElementById('calc-argon').innerText = hasArgon ? `Да (~${(area*14*qty).toFixed(0)} л)` : 'Нет';
-
-            const box = document.getElementById('crm-validation-box');
-            box.innerHTML = '';
-
-            let warnings = [];
-            if(hasI || hasSolar) {
-                warnings.push('⚠️ <strong>Энергосберегающее/Соляр стекло:</strong> Автоматически включена операция <u>Edge Deletion (зачистка эмали 12мм)</u>.');
-            }
-            if(w > 2200 || h > 2200) {
-                warnings.push('⚠️ <strong>Габарит > 2200 мм:</strong> Рекомендуется толщина стекла не менее 6 мм вместо 4 мм!');
-            }
-            if(w < 180 || h < 180) {
-                warnings.push('❌ <strong>Предупреждение мойки:</strong> Размер меньше минимального порога моечной машины (180 мм)!');
+            document.getElementById('tab-' + tabId).classList.add('active');
+            
+            if (element) {
+                element.classList.add('active');
             }
 
-            if(warnings.length > 0) {
-                box.innerHTML = `<div class="alert alert-warning" style="margin-top:10px;">${warnings.join('<br>')}</div>`;
-            } else {
-                box.innerHTML = `<div class="alert alert-info" style="margin-top:10px;">✓ Параметры соответствуют технологическим нормам цеха.</div>`;
+            // Close sidebar on mobile after selecting a tab
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.querySelector('.sidebar-overlay');
+                if (sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('active');
+                }
             }
         }
-
-        function addNewOrder() {
-            const formula = document.getElementById('crm-formula').value;
-            const w = document.getElementById('crm-w').value;
-            const h = document.getElementById('crm-h').value;
-            const qty = document.getElementById('crm-qty').value;
-            const newId = `#ORD-2026-0${84 + state.orders.length}`;
-
-            state.orders.unshift({
-                id: newId,
-                client: 'Новый Заказ (Ручной)',
-                formula: formula,
-                size: `${w}x${h} (${qty} шт)`,
-                edgeDeletion: formula.toUpperCase().includes('I') || formula.toUpperCase().includes('SOLAR'),
-                stage: 'В очереди резки',
-                statusClass: 'status-new'
-            });
-
-            renderOrdersTable();
-            alert(`Заказ ${newId} успешно сформирован и передан на стол резки!`);
-            switchTab('dashboard', document.querySelectorAll('.nav-item')[0]);
-        }
-
-        function simulateImport() {
-            alert('Файл "Optima_Order_99.xml" успешно распарсен! Добавлено 12 стеклопакетов в спецификацию резки.');
-        }
-
-        function openDefectModal(orderId, comp) {
-            document.getElementById('defect-order-id').value = orderId;
-            document.getElementById('defect-component').value = comp;
-            document.getElementById('defectModal').style.display = 'flex';
-        }
-
-        function closeDefectModal() {
-            document.getElementById('defectModal').style.display = 'none';
-        }
-
-        function submitDefect() {
-            const orderId = document.getElementById('defect-order-id').value;
-            const comp = document.getElementById('defect-component').value;
-            const reason = document.getElementById('defect-reason').value;
-
-            state.hotQueue.unshift({
-                id: orderId,
-                comp: comp,
-                reason: reason,
-                time: 'Только что'
-            });
-
-            renderHotQueue();
-            closeDefectModal();
-            alert('Деталь отправлена в Горячую очередь!');
-        }
-
-        function resolveHotQueueItem(btn) {
-            btn.innerText = '✓ Выполнено';
-            btn.disabled = true;
-            btn.parentElement.parentElement.style.opacity = '0.5';
-            setTimeout(() => {
-                state.hotQueue.shift();
-                renderHotQueue();
-            }, 1000);
-        }
-
-        function returnPyramid(id, btn) {
-            btn.innerText = '✓ Возвращено';
-            btn.classList.replace('btn-outline', 'btn-success');
-            btn.disabled = true;
-        }
-
-        function toggleFlagNotification(flagName) {
-            console.log(`Флаг "${flagName}" изменен.`);
-        }
-
-        function passStage() {
-            alert('Стеклопакет отмечен готовым и загружен на Пирамиду ПИР-12!');
-        }
-
-        // Init
-        window.onload = function() {
-            renderOrdersTable();
-            renderHotQueue();
-            runFormulaValidation();
-        };
     </script>
 </body>
 </html>
