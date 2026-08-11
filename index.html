@@ -7,133 +7,175 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#eef2f6; --card:#fff; --sb:#0f172a; --sb2:#1e293b;
-  --pri:#0284c7; --pri2:#0369a1;
-  --tx:#0f172a; --mu:#64748b; --bd:#cbd5e1; --bdl:#e2e8f0;
-  --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; --info:#3b82f6;
-  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --bg:#f5f5f7; --card:#fff; --sb:#fbfbfd;
+  --pri:#0071e3; --pri2:#0077ed; --prisoft:#e8f1fd;
+  --tx:#1d1d1f; --mu:#6e6e73; --mu2:#86868b;
+  --bd:#d2d2d7; --bdl:#e8e8ed;
+  --ok:#1d7f3e; --warn:#a8560a; --bad:#c9251c; --info:#0071e3;
+  --sys:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Inter','Helvetica Neue',Arial,sans-serif;
+  --mono:'SF Mono',ui-monospace,'JetBrains Mono',Menlo,monospace;
 }
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',-apple-system,sans-serif}
-body{background:var(--bg);color:var(--tx);display:flex;height:100vh;overflow:hidden}
-:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--sys)}
+body{background:var(--bg);color:var(--tx);display:flex;height:100vh;height:100dvh;overflow:hidden;
+  -webkit-font-smoothing:antialiased;font-size:14px;letter-spacing:-.01em}
+:focus-visible{outline:3px solid rgba(0,113,227,.4);outline-offset:1px;border-radius:6px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.mono,.kpi,td.mono,.bar-val,.pricerow b{font-variant-numeric:tabular-nums}
 
-/* ---------- sidebar ---------- */
-.ovl{display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:999}
+/* ---------- боковая панель ---------- */
+.ovl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:999}
 .ovl.active{display:block}
-aside{width:270px;background:var(--sb);color:#f8fafc;display:flex;flex-direction:column;flex-shrink:0;transition:transform .25s;z-index:1000}
-.brand{padding:18px 20px;border-bottom:1px solid var(--sb2);display:flex;align-items:center;justify-content:space-between;gap:10px}
-.brand-i{display:flex;align-items:center;gap:11px}
-.logo{width:32px;height:32px;background:linear-gradient(135deg,#38bdf8,#0284c7);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
-.brand b{font-size:1.05rem}
-.brand small{color:#94a3b8;font-weight:400;font-size:.7rem}
-.xbtn{display:none;background:none;border:none;color:#94a3b8;font-size:1.5rem;cursor:pointer}
-.nav{list-style:none;padding:12px 10px;flex-grow:1;overflow-y:auto}
-.ni{padding:11px 13px;margin-bottom:3px;border-radius:8px;color:#94a3b8;cursor:pointer;font-size:.86rem;font-weight:500;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:.15s}
-.ni:hover{background:var(--sb2);color:#f8fafc}
-.ni.active{background:var(--pri);color:#fff;font-weight:600}
-.bdg{background:rgba(255,255,255,.2);padding:2px 8px;border-radius:12px;font-size:.72rem}
-.bdg.red{background:var(--bad);color:#fff;font-weight:700}
-.sb-foot{padding:14px;border-top:1px solid var(--sb2);font-size:.72rem;color:#64748b}
+aside{width:250px;background:var(--sb);color:var(--tx);display:flex;flex-direction:column;
+  flex-shrink:0;transition:transform .25s;z-index:1000;border-right:1px solid var(--bdl)}
+.brand{padding:16px 16px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand-i{display:flex;align-items:center;gap:10px}
+.logo{width:28px;height:28px;background:var(--pri);border-radius:7px;display:flex;align-items:center;
+  justify-content:center;font-weight:600;font-size:14px;color:#fff}
+.brand b{font-size:.95rem;font-weight:600;letter-spacing:-.02em}
+.brand small{color:var(--mu2);font-weight:400;font-size:.72rem}
+.xbtn{display:none;background:none;border:none;color:var(--mu);font-size:1.4rem;cursor:pointer}
+.nav{list-style:none;padding:4px 8px;flex-grow:1;overflow-y:auto}
+.ni{padding:8px 10px;margin-bottom:1px;border-radius:7px;color:var(--tx);cursor:pointer;
+  font-size:.85rem;font-weight:400;display:flex;align-items:center;justify-content:space-between;
+  gap:8px;transition:background .12s}
+.ni:hover{background:rgba(0,0,0,.04)}
+.ni.active{background:var(--pri);color:#fff;font-weight:500}
+.bdg{background:rgba(0,0,0,.07);color:var(--mu);padding:1px 7px;border-radius:10px;font-size:.72rem;
+  font-weight:500;font-variant-numeric:tabular-nums}
+.ni.active .bdg{background:rgba(255,255,255,.25);color:#fff}
+.bdg.red{background:var(--bad);color:#fff}
+.sb-foot{padding:12px 16px;border-top:1px solid var(--bdl);font-size:.7rem;color:var(--mu2);line-height:1.5}
 
-/* ---------- layout ---------- */
+/* ---------- каркас ---------- */
 main{flex-grow:1;display:flex;flex-direction:column;overflow:hidden;width:100%}
-header{height:62px;background:var(--card);border-bottom:1px solid var(--bdl);display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:12px;flex-shrink:0}
+header{height:56px;background:rgba(255,255,255,.8);backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--bdl);
+  display:flex;align-items:center;justify-content:space-between;padding:0 22px;gap:12px;flex-shrink:0}
 .hl{display:flex;align-items:center;gap:12px;min-width:0}
-.mtg{display:none;background:none;border:none;font-size:1.35rem;cursor:pointer;color:var(--tx)}
-.hi h1{font-size:1.08rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hi p{font-size:.78rem;color:var(--mu)}
-.role-sel{background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;padding:7px 10px;border-radius:20px;font-size:.8rem;font-weight:600;cursor:pointer}
-.body{flex-grow:1;padding:22px 24px;overflow-y:auto}
+.mtg{display:none;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--tx)}
+.hi h1{font-size:1.02rem;font-weight:600;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hi p{font-size:.76rem;color:var(--mu)}
+.role-sel{background:rgba(0,0,0,.05);color:var(--tx);border:none;padding:6px 10px;border-radius:7px;
+  font-size:.8rem;font-weight:500;cursor:pointer;appearance:none}
+.body{flex-grow:1;padding:22px;overflow-y:auto}
 .tab{display:none}.tab.active{display:block}
 
-/* ---------- primitives ---------- */
-.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}
-.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+/* ---------- примитивы ---------- */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
 .g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
-.card{background:var(--card);border:1px solid var(--bdl);border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);margin-bottom:18px}
-.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--bdl);padding-bottom:11px;gap:10px;flex-wrap:wrap}
-.ct{font-size:.98rem;font-weight:650}
-.hint{font-size:.78rem;color:var(--mu);line-height:1.45}
-.kpi{font-size:1.9rem;font-weight:700;font-family:var(--mono)}
+.card{background:var(--card);border:1px solid var(--bdl);border-radius:14px;padding:18px;
+  box-shadow:0 1px 2px rgba(0,0,0,.03);margin-bottom:16px}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
+  padding-bottom:12px;border-bottom:1px solid var(--bdl);gap:10px;flex-wrap:wrap}
+.ct{font-size:.95rem;font-weight:600;letter-spacing:-.015em}
+.hint{font-size:.78rem;color:var(--mu);line-height:1.5}
+.kpi{font-size:1.75rem;font-weight:600;letter-spacing:-.03em;color:var(--tx)}
 .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
-.fg label{font-size:.8rem;font-weight:600}
-.fc{padding:9px 11px;border:1px solid var(--bd);border-radius:8px;font-size:.88rem;width:100%;background:#fff}
-.fc:focus{border-color:var(--pri);outline:none}
+.fg label{font-size:.78rem;font-weight:500;color:var(--mu)}
+.fc{padding:8px 11px;border:1px solid var(--bd);border-radius:8px;font-size:.86rem;width:100%;
+  background:#fff;color:var(--tx);transition:border-color .12s,box-shadow .12s}
+.fc:focus{border-color:var(--pri);outline:none;box-shadow:0 0 0 3px rgba(0,113,227,.15)}
 .fr{display:flex;gap:10px}.fr>.fg{flex:1}
-.btn{padding:9px 16px;border-radius:8px;font-size:.86rem;font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s}
+.btn{padding:8px 15px;border-radius:8px;font-size:.84rem;font-weight:500;cursor:pointer;border:none;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:.12s;
+  font-family:var(--sys);letter-spacing:-.01em}
 .b-pri{background:var(--pri);color:#fff}.b-pri:hover{background:var(--pri2)}
-.b-out{background:transparent;border:1px solid var(--bd);color:var(--tx)}.b-out:hover{background:#f8fafc}
+.b-out{background:rgba(0,0,0,.05);color:var(--tx)}.b-out:hover{background:rgba(0,0,0,.08)}
 .b-bad{background:var(--bad);color:#fff}
-.b-ok{background:var(--ok);color:#fff}
-.alert{padding:11px 14px;border-radius:8px;font-size:.83rem;margin-bottom:14px;display:flex;gap:9px;line-height:1.45}
-.a-warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
-.a-info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
-.a-bad{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
-.a-ok{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
+.b-ok{background:var(--pri);color:#fff}
+.alert{padding:11px 14px;border-radius:10px;font-size:.82rem;margin-bottom:12px;display:block;
+  line-height:1.5;background:#f5f5f7;color:var(--tx);border-left:3px solid var(--bd)}
+.a-warn{border-left-color:#ff9f0a}
+.a-info{border-left-color:var(--pri)}
+.a-bad{border-left-color:var(--bad)}
+.a-ok{border-left-color:#30a14e}
 .tw{width:100%;overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:.85rem;text-align:left;min-width:560px}
-th{background:#f8fafc;padding:10px 12px;font-weight:600;color:var(--mu);border-bottom:1px solid var(--bdl);font-size:.78rem;text-transform:uppercase;letter-spacing:.02em}
-td{padding:10px 12px;border-bottom:1px solid var(--bdl);vertical-align:middle}
+table{width:100%;border-collapse:collapse;font-size:.84rem;text-align:left;min-width:560px}
+th{padding:8px 12px;font-weight:500;color:var(--mu);border-bottom:1px solid var(--bdl);font-size:.76rem;
+  background:none}
+td{padding:11px 12px;border-bottom:1px solid var(--bdl);vertical-align:middle}
 tr:last-child td{border-bottom:none}
-.pill{padding:3px 9px;border-radius:20px;font-size:.73rem;font-weight:600;display:inline-block;white-space:nowrap}
-.p-new{background:#e2e8f0;color:#334155}.p-cut{background:#fef3c7;color:#b45309}
-.p-asm{background:#dbeafe;color:#1d4ed8}.p-hot{background:#fee2e2;color:#b91c1c;font-weight:700}
-.p-ok{background:#d1fae5;color:#047857}
-.mono{font-family:var(--mono)}
+tbody tr:hover{background:rgba(0,0,0,.015)}
+.pill{padding:2px 9px;border-radius:20px;font-size:.74rem;font-weight:500;display:inline-flex;
+  align-items:center;gap:5px;white-space:nowrap;background:rgba(0,0,0,.05);color:var(--tx)}
+.pill:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--mu2)}
+.p-new:before{background:#8e8e93}
+.p-cut:before{background:#ff9f0a}
+.p-asm:before{background:var(--pri)}
+.p-ok:before{background:#30a14e}
+.p-hot{color:var(--bad)}.p-hot:before{background:var(--bad)}
+.mono{font-family:var(--mono);font-size:.95em}
 .sw{display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:12px}
-.switch{position:relative;width:42px;height:23px;flex-shrink:0}
+.switch{position:relative;width:44px;height:26px;flex-shrink:0}
 .switch input{opacity:0;width:0;height:0}
-.sl{position:absolute;inset:0;background:#cbd5e1;transition:.2s;border-radius:23px;cursor:pointer}
-.sl:before{position:absolute;content:"";height:17px;width:17px;left:3px;bottom:3px;background:#fff;transition:.2s;border-radius:50%}
-input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:translateX(19px)}
-.flagbox{border:1px solid var(--bdl);padding:14px;border-radius:9px}
-.modal-bd{position:fixed;inset:0;background:rgba(15,23,42,.65);display:none;align-items:center;justify-content:center;z-index:1100;padding:16px}
+.sl{position:absolute;inset:0;background:#e9e9eb;transition:.2s;border-radius:26px;cursor:pointer}
+.sl:before{position:absolute;content:"";height:22px;width:22px;left:2px;bottom:2px;background:#fff;
+  transition:.2s;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+input:checked+.sl{background:#30d158}input:checked+.sl:before{transform:translateX(18px)}
+.flagbox{border:1px solid var(--bdl);padding:14px;border-radius:11px;background:#fcfcfd}
+.modal-bd{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;z-index:1100;padding:16px}
 .modal-bd.open{display:flex}
-.modal{background:#fff;border-radius:12px;width:100%;max-width:540px;padding:22px;max-height:90vh;overflow-y:auto}
-.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--bdl);padding-bottom:11px}
-.mt{font-weight:700;font-size:1.05rem}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:520px;padding:22px;max-height:90vh;
+  overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
+  border-bottom:1px solid var(--bdl);padding-bottom:12px}
+.mt{font-weight:600;font-size:1.02rem;letter-spacing:-.02em}
 
-/* ---------- domain-specific ---------- */
-.calcbox{background:#f8fafc;border:1px solid var(--bdl);border-radius:9px;padding:13px;display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:9px;font-size:.82rem}
-.calcbox b{font-family:var(--mono)}
+/* ---------- предметная часть ---------- */
+.calcbox{background:#f5f5f7;border-radius:11px;padding:14px;display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:11px;font-size:.79rem;color:var(--mu)}
+.calcbox b{font-family:var(--mono);font-size:.92rem;color:var(--tx);font-weight:600;display:block;margin-top:2px}
 .layers{margin-top:10px}
-.layer{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 11px;border-radius:7px;margin-bottom:5px;font-size:.83rem;border:1px solid var(--bdl)}
-.layer.glass{background:#f0f9ff;border-color:#bae6fd}
-.layer.gap{background:#fafafa}
-.layer.lowe{background:#fefce8;border-color:#fde68a}
+.layer{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 12px;
+  border-radius:9px;margin-bottom:5px;font-size:.82rem;background:#f5f5f7}
+.layer.glass{background:var(--prisoft)}
+.layer.gap{background:#f5f5f7;color:var(--mu)}
+.layer.lowe{background:var(--prisoft);box-shadow:inset 3px 0 0 #ff9f0a}
 .surf-sel{font-size:.75rem;padding:3px 6px;border:1px solid var(--bd);border-radius:6px}
-.pricerow{display:flex;justify-content:space-between;padding:5px 0;font-size:.83rem;border-bottom:1px dashed var(--bdl)}
+.pricerow{display:flex;justify-content:space-between;padding:7px 0;font-size:.83rem;
+  border-bottom:1px solid var(--bdl)}
 .pricerow:last-child{border:none}
-.pricerow b{font-family:var(--mono)}
-.total{background:#0f172a;color:#fff;padding:13px 16px;border-radius:9px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-.total .kpi{font-size:1.5rem;color:#7dd3fc}
-.shape-pick{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
-.shape-btn{border:1px solid var(--bd);background:#fff;border-radius:8px;padding:8px 11px;cursor:pointer;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:6px}
-.shape-btn.on{border-color:var(--pri);background:#e0f2fe;color:#0369a1}
-.shape-btn svg{width:20px;height:20px}
-.sheet-wrap{background:#f1f5f9;border:1px solid var(--bd);border-radius:9px;padding:11px;overflow-x:auto}
-.util-bar{height:9px;background:#e2e8f0;border-radius:5px;overflow:hidden;margin-top:7px}
-.util-fill{height:100%;background:linear-gradient(90deg,#10b981,#0284c7)}
-.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:.82rem}
-.bar-lbl{width:180px;flex-shrink:0}
-.bar-track{flex:1;height:20px;background:#f1f5f9;border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;background:var(--bad);opacity:.85}
-.bar-val{width:78px;text-align:right;font-family:var(--mono);font-weight:600}
-/* touch terminal */
-.term{background:#0f172a;color:#f8fafc;border-radius:12px;padding:18px}
-.term .unit{background:#1e293b;border-radius:10px;padding:16px;margin-bottom:14px}
-.term .big{font-size:1.7rem;font-weight:800;font-family:var(--mono);letter-spacing:.01em}
-.term .frm{font-family:var(--mono);color:#7dd3fc;font-size:.95rem;margin-top:3px}
-.term .step{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:11px 13px;margin-top:7px;display:flex;justify-content:space-between;align-items:center;gap:9px;font-size:.92rem}
-.term .step.done{border-color:#065f46;background:#052e2b}
-.term .req{background:#78350f;border:1px solid #f59e0b;color:#fef3c7;padding:11px 13px;border-radius:8px;margin-top:11px;font-weight:600;font-size:.9rem}
-.bigbtn{height:76px;font-size:1.15rem;font-weight:800;border-radius:11px;flex:1}
+.pricerow b{font-family:var(--mono);font-weight:500}
+.total{background:#1d1d1f;color:#fff;padding:16px 18px;border-radius:12px;display:flex;
+  justify-content:space-between;align-items:center;margin-top:12px;gap:14px}
+.total .kpi{font-size:1.55rem;color:#fff}
+.shape-pick{display:inline-flex;gap:2px;padding:2px;background:#f0f0f2;border-radius:9px;margin-bottom:14px;flex-wrap:wrap}
+.shape-btn{border:none;background:transparent;border-radius:7px;padding:7px 12px;cursor:pointer;
+  font-size:.8rem;font-weight:500;display:flex;align-items:center;gap:6px;color:var(--tx);
+  font-family:var(--sys);transition:.12s}
+.shape-btn.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
+.shape-btn svg{width:18px;height:18px}
+.sheet-wrap{background:#f5f5f7;border-radius:11px;padding:12px;overflow-x:auto}
+.util-bar{height:6px;background:#e9e9eb;border-radius:3px;overflow:hidden;margin-top:8px}
+.util-fill{height:100%;background:var(--pri);border-radius:3px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:.81rem}
+.bar-lbl{width:180px;flex-shrink:0;color:var(--mu)}
+.bar-track{flex:1;height:8px;background:#f0f0f2;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;background:var(--pri);border-radius:4px}
+.bar-val{width:82px;text-align:right;font-family:var(--mono);font-weight:500;font-size:.78rem}
+
+/* ---------- цеховой терминал (тёмная поверхность) ---------- */
+.term{background:#1d1d1f;color:#f5f5f7;border-radius:14px;padding:18px}
+.term .unit{background:#2c2c2e;border-radius:11px;padding:16px;margin-bottom:14px}
+.term .big{font-size:1.7rem;font-weight:600;font-family:var(--mono);letter-spacing:-.02em}
+.term .frm{font-family:var(--mono);color:#64d2ff;font-size:.92rem;margin-top:3px}
+.term .step{background:#1d1d1f;border:1px solid #3a3a3c;border-radius:9px;padding:11px 13px;margin-top:7px;
+  display:flex;justify-content:space-between;align-items:center;gap:9px;font-size:.88rem}
+.term .step.done{border-color:#2c5c3a;background:#1c2a20}
+.term .req{background:#2c2c2e;box-shadow:inset 3px 0 0 #ff9f0a;color:#f5f5f7;padding:12px 14px;
+  border-radius:9px;margin-top:11px;font-weight:500;font-size:.87rem;line-height:1.5}
+.term .pill{background:rgba(255,255,255,.14);color:#f5f5f7}
+.bigbtn{height:70px;font-size:1.05rem;font-weight:600;border-radius:12px;flex:1}
 .scanbar{display:flex;gap:9px;margin-bottom:14px}
-.scanbar input{flex:1;font-family:var(--mono);font-size:1.05rem;padding:14px;border-radius:9px;border:2px solid #334155;background:#1e293b;color:#f8fafc}
-.passport dt{font-size:.75rem;color:var(--mu);text-transform:uppercase;letter-spacing:.03em;margin-top:9px}
-.passport dd{font-family:var(--mono);font-size:.88rem;font-weight:600}
+.scanbar input{flex:1;font-family:var(--mono);font-size:1rem;padding:13px;border-radius:10px;
+  border:1px solid #3a3a3c;background:#2c2c2e;color:#f5f5f7}
+.scanbar input:focus{outline:none;border-color:var(--pri)}
+.passport dt{font-size:.73rem;color:var(--mu);margin-top:11px}
+.passport dd{font-family:var(--mono);font-size:.85rem;font-weight:500}
 .money.hidden-role{filter:blur(5px);user-select:none}
+
 @media(max-width:768px){
   aside{position:fixed;inset:0 auto 0 0;transform:translateX(-100%)}
   aside.open{transform:translateX(0)}
@@ -148,7 +190,7 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
   aside,header,.no-print{display:none!important}
   body{display:block;height:auto;overflow:visible}
   .body{padding:0;overflow:visible}
-  .card{box-shadow:none;border:1px solid #999;break-inside:avoid}
+  .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
 }
 </style>
 </head>
@@ -164,13 +206,13 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
     <button class="xbtn" onclick="toggleSb()" aria-label="Закрыть меню">&times;</button>
   </div>
   <ul class="nav">
-    <li class="ni active" onclick="go('dash',this)"><span>📊 Дашборд</span></li>
-    <li class="ni" onclick="go('orders',this)"><span>💼 Заказы и расчёт</span><span class="bdg" id="b-ord">3</span></li>
-    <li class="ni" onclick="go('cutting',this)"><span>✂️ Раскрой и склад стекла</span><span class="bdg" id="b-off">2</span></li>
-    <li class="ni" onclick="go('shop',this)"><span>🖥️ Цеховой терминал</span><span class="bdg red" id="b-hot">1</span></li>
-    <li class="ni" onclick="go('quality',this)"><span>🔍 Брак и паспорт изделия</span></li>
-    <li class="ni" onclick="go('logi',this)"><span>🚚 Отгрузка и пирамиды</span><span class="bdg">4</span></li>
-    <li class="ni" onclick="go('settings',this)"><span>⚙️ Нормативы и режимы</span></li>
+    <li class="ni active" onclick="go('dash',this)"><span>Дашборд</span></li>
+    <li class="ni" onclick="go('orders',this)"><span>Заказы и расчёт</span><span class="bdg" id="b-ord">3</span></li>
+    <li class="ni" onclick="go('cutting',this)"><span>Раскрой и склад стекла</span><span class="bdg" id="b-off">2</span></li>
+    <li class="ni" onclick="go('shop',this)"><span>Цеховой терминал</span><span class="bdg red" id="b-hot">1</span></li>
+    <li class="ni" onclick="go('quality',this)"><span>Брак и паспорт изделия</span></li>
+    <li class="ni" onclick="go('logi',this)"><span>Отгрузка и пирамиды</span><span class="bdg">4</span></li>
+    <li class="ni" onclick="go('settings',this)"><span>Нормативы и режимы</span></li>
   </ul>
   <div class="sb-foot">Смена №2 · Линия сборки А<br>Оператор терминала: Ж. Абдуллаев</div>
 </aside>
@@ -182,10 +224,10 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
       <div class="hi"><h1 id="tt">Дашборд</h1><p id="ts">Что происходит в цехе прямо сейчас</p></div>
     </div>
     <select class="role-sel" id="role" onchange="applyRole()">
-      <option value="admin">👤 Директор / Админ</option>
-      <option value="manager">👤 Менеджер по продажам</option>
-      <option value="tech">👤 Технолог</option>
-      <option value="operator">👤 Оператор цеха</option>
+      <option value="admin">Директор / Админ</option>
+      <option value="manager">Менеджер по продажам</option>
+      <option value="tech">Технолог</option>
+      <option value="operator">Оператор цеха</option>
     </select>
   </header>
 
@@ -194,10 +236,10 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
   <!-- ============ ДАШБОРД ============ -->
   <div id="t-dash" class="tab active">
     <div class="g4" style="margin-bottom:18px">
-      <div class="card" style="margin:0"><div class="hint">В производстве</div><div class="kpi" style="color:var(--pri)">284,5 м²</div><div class="hint">42 стеклопакета в суточной очереди</div></div>
-      <div class="card" style="margin:0"><div class="hint">Горячая очередь (брак)</div><div class="kpi" style="color:var(--bad)" id="k-hot">1 шт</div><div class="hint money">Потеря: <b id="k-hotcost">6 900 ₸</b> · счёт клиенту не меняется</div></div>
-      <div class="card" style="margin:0"><div class="hint">Полезный раскрой за смену</div><div class="kpi" style="color:var(--ok)">88,4 %</div><div class="hint">Норматив 88,0 % · отход 11,6 %</div></div>
-      <div class="card" style="margin:0"><div class="hint">Пирамиды у клиентов</div><div class="kpi" style="color:var(--warn)">4 шт</div><div class="hint money">Залог на руках: 320 000 ₸</div></div>
+      <div class="card" style="margin:0"><div class="hint">В производстве</div><div class="kpi">284,5 м²</div><div class="hint">42 стеклопакета в суточной очереди</div></div>
+      <div class="card" style="margin:0"><div class="hint">Горячая очередь (брак)</div><div class="kpi" id="k-hot">1 шт</div><div class="hint money">Потеря: <b id="k-hotcost">6 900 ₸</b> · счёт клиенту не меняется</div></div>
+      <div class="card" style="margin:0"><div class="hint">Полезный раскрой за смену</div><div class="kpi">88,4 %</div><div class="hint">Норматив 88,0 % · отход 11,6 %</div></div>
+      <div class="card" style="margin:0"><div class="hint">Пирамиды у клиентов</div><div class="kpi">4 шт</div><div class="hint money">Залог на руках: 320 000 ₸</div></div>
     </div>
 
     <div class="card">
@@ -216,9 +258,9 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
       </div>
       <div class="card">
         <div class="ch"><span class="ct">Что тормозит смену</span></div>
-        <div class="alert a-warn">⚠️ Стекло <b>6Solar</b> — остаток 4 листа. Заказ #2026-083 встанет 13.08.</div>
-        <div class="alert a-bad">🔥 Брак на позиции #ORD-2026-081/1 ждёт перерезки 42 мин. Стол резки занят партией 082.</div>
-        <div class="alert a-info">ℹ️ Пирамида ПИР-12 у клиента 14 дней. Залог 80 000 ₸ можно удерживать с 15-го дня.</div>
+        <div class="alert a-warn">Стекло <b>6Solar</b> — остаток 4 листа. Заказ #2026-083 встанет 13.08.</div>
+        <div class="alert a-bad">Брак на позиции #ORD-2026-081/1 ждёт перерезки 42 мин. Стол резки занят партией 082.</div>
+        <div class="alert a-info">Пирамида ПИР-12 у клиента 14 дней. Залог 80 000 ₸ можно удерживать с 15-го дня.</div>
       </div>
     </div>
   </div>
@@ -270,7 +312,7 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
 
         <div class="card money">
           <div class="ch"><span class="ct">4. Себестоимость и цена</span>
-            <button class="btn b-out no-print" onclick="window.print()">🖨 КП</button></div>
+            <button class="btn b-out no-print" onclick="window.print()">КП</button></div>
           <div id="cost"></div>
           <div class="total"><div><div style="font-size:.75rem;opacity:.7">ИТОГО ЗА <span id="tot-qty">4</span> ШТ</div><div class="kpi" id="tot-sum">—</div></div>
             <div style="text-align:right;font-size:.8rem;opacity:.8">за 1 шт<br><b class="mono" id="tot-one">—</b><br>за м²<br><b class="mono" id="tot-m2">—</b></div></div>
@@ -302,7 +344,7 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
 
   <!-- ============ РАСКРОЙ ============ -->
   <div id="t-cutting" class="tab">
-    <div class="alert a-info">ℹ️ Раскрой — главная статья экономии. Каждый процент полезного использования листа при 300 м²/сутки это примерно 8–9 тыс. ₸ в день. Стекло с покрытием и узорчатое разворачивать нельзя — алгоритм это учитывает.</div>
+    <div class="alert a-info">Раскрой — главная статья экономии. Каждый процент полезного использования листа при 300 м²/сутки это примерно 8–9 тыс. ₸ в день. Стекло с покрытием и узорчатое разворачивать нельзя — алгоритм это учитывает.</div>
 
     <div class="card">
       <div class="ch"><span class="ct">Карта раскроя</span>
@@ -340,14 +382,14 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
             <tr><td class="mono"><b>OFF-8822</b></td><td>4i (Low-E)</td><td class="mono">1200 × 700</td><td>Стойка A-01</td><td>19 дней</td><td><span class="pill p-cut">Залежался</span></td></tr>
           </tbody>
         </table></div>
-        <div class="alert a-warn" style="margin-top:12px">⚠️ Обрез Low-E старше 30 дней в открытом хранении окисляется по кромке. OFF-8822 — использовать в течение 11 дней.</div>
+        <div class="alert a-warn" style="margin-top:12px">Обрез Low-E старше 30 дней в открытом хранении окисляется по кромке. OFF-8822 — использовать в течение 11 дней.</div>
       </div>
     </div>
   </div>
 
   <!-- ============ ЦЕХОВОЙ ТЕРМИНАЛ ============ -->
   <div id="t-shop" class="tab">
-    <div class="alert a-warn">⚠️ Экран для сенсорного терминала у линии. Основной ввод — сканер штрихкода. Кнопки крупные: руки в перчатках и мокрые после мойки.</div>
+    <div class="alert a-warn">Экран для сенсорного терминала у линии. Основной ввод — сканер штрихкода. Кнопки крупные: руки в перчатках и мокрые после мойки.</div>
     <div class="g2">
       <div class="term">
         <div class="scanbar">
@@ -361,22 +403,22 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
           </div>
           <div class="big">1600 × 1100</div>
           <div class="frm">4i-14Ar-4M1-14Ar-4i</div>
-          <div class="req">⚠️ Зачистить кромку 12 мм: стекло №1 и стекло №3. Low-E внутрь камеры — покрытием к рамке.</div>
-          <div class="step done"><span>Стекло 1 · 4i — покрытие на поверхность 2</span><b style="color:#34d399">✓ зачищено</b></div>
-          <div class="step done"><span>Рамка 1 · 14 мм, аргон</span><b style="color:#34d399">✓ сито засыпано</b></div>
-          <div class="step done"><span>Стекло 2 · 4M1</span><b style="color:#34d399">✓ вымыто</b></div>
-          <div class="step"><span>Рамка 2 · 14 мм, аргон</span><b style="color:#94a3b8">ожидает</b></div>
-          <div class="step"><span>Стекло 3 · 4i — покрытие на поверхность 5</span><b style="color:#94a3b8">ожидает</b></div>
+          <div class="req">Зачистить кромку 12 мм: стекло №1 и стекло №3. Low-E внутрь камеры — покрытием к рамке.</div>
+          <div class="step done"><span>Стекло 1 · 4i — покрытие на поверхность 2</span><b style="color:#30a14e">✓ зачищено</b></div>
+          <div class="step done"><span>Рамка 1 · 14 мм, аргон</span><b style="color:#30a14e">✓ сито засыпано</b></div>
+          <div class="step done"><span>Стекло 2 · 4M1</span><b style="color:#30a14e">✓ вымыто</b></div>
+          <div class="step"><span>Рамка 2 · 14 мм, аргон</span><b style="color:#86868b">ожидает</b></div>
+          <div class="step"><span>Стекло 3 · 4i — покрытие на поверхность 5</span><b style="color:#86868b">ожидает</b></div>
         </div>
         <div style="display:flex;gap:11px">
-          <button class="btn b-ok bigbtn" style="flex:2" onclick="stagePass()">✓ ЭТАП ПРОЙДЕН</button>
+          <button class="btn b-ok bigbtn" style="flex:2" onclick="stagePass()">✓ ЭТАП ПРОЙДЕН</button>
           <button class="btn b-bad bigbtn" onclick="openDefect()">✖ БРАК</button>
         </div>
         <p style="font-size:.75rem;color:#64748b;margin-top:10px;text-align:center">«БРАК» открывает окно подтверждения — случайное нажатие ничего не отправит.</p>
       </div>
 
       <div class="card">
-        <div class="ch"><span class="ct" style="color:var(--bad)">🔥 Горячая очередь переделки</span></div>
+        <div class="ch"><span class="ct" >Горячая очередь переделки</span></div>
         <p class="hint" style="margin-bottom:11px">Бракованные детали идут на стол резки первыми, минуя общую очередь. Счёт клиенту не меняется, потеря ложится на себестоимость смены.</p>
         <div id="hotq"></div>
       </div>
@@ -431,7 +473,7 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
           <dt>Гарантия</dt><dd>до 11.08.2031</dd>
         </dl></div>
       </div>
-      <div class="alert a-ok" style="margin-top:14px">✓ Сито вскрыто за 1 ч 20 мин до засыпки — в норме (предел 4 ч). Просроченное сито уже набрало влагу из воздуха и точка росы поплывёт через год-два.</div>
+      <div class="alert a-ok" style="margin-top:14px">✓ Сито вскрыто за 1 ч 20 мин до засыпки — в норме (предел 4 ч). Просроченное сито уже набрало влагу из воздуха и точка росы поплывёт через год-два.</div>
     </div>
   </div>
 
@@ -452,7 +494,7 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
           <tr><td>3</td><td>Строймонтаж KZ</td><td class="mono">#ORD-2026-079</td><td>5</td><td class="mono">ПИР-08</td><td>240 кг</td></tr>
         </tbody>
       </table></div>
-      <div class="alert a-warn" style="margin-top:12px">⚠️ Пирамида не привязана к клиенту — она привязана к рейсу. Пока водитель не отметил возврат, тара числится за точкой выгрузки.</div>
+      <div class="alert a-warn" style="margin-top:12px">Пирамида не привязана к клиенту — она привязана к рейсу. Пока водитель не отметил возврат, тара числится за точкой выгрузки.</div>
     </div>
 
     <div class="card">
@@ -490,7 +532,7 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
 <!-- ============ МОДАЛКА БРАКА ============ -->
 <div class="modal-bd" id="m-defect">
   <div class="modal">
-    <div class="mh"><span class="mt" style="color:var(--bad)">Регистрация брака</span><button class="btn b-out" onclick="closeDefect()">&times;</button></div>
+    <div class="mh"><span class="mt">Регистрация брака</span><button class="btn b-out" onclick="closeDefect()">&times;</button></div>
     <div class="alert a-warn">Деталь уйдёт в горячую очередь резки. Счёт клиенту не изменится — потеря запишется на смену.</div>
     <div class="fg"><label>Что забраковано</label>
       <select class="fc" id="d-part"><option>Стекло 1 · 4i (Low-E)</option><option>Стекло 2 · 4M1</option><option>Стекло 3 · 4i (Low-E)</option><option>Пакет целиком</option></select></div>
@@ -691,7 +733,7 @@ function recalc(){
   $('layers').innerHTML = err ? `<div class="alert a-bad">✖ ${err}</div>` : html;
 
   if(loweSurfaces.length){
-    $('lowe-warn').innerHTML = `<div class="alert a-info">ℹ️ Low-E покрытие всегда обращено внутрь камеры — снаружи оно сотрётся. В этой формуле: поверхност${loweSurfaces.length>1?'и':'ь'} <b>${loweSurfaces.join(' и ')}</b>. Эта строка уходит в задание оператору и в паспорт изделия.</div>`;
+    $('lowe-warn').innerHTML = `<div class="alert a-info">Low-E покрытие всегда обращено внутрь камеры — снаружи оно сотрётся. В этой формуле: поверхност${loweSurfaces.length>1?'и':'ь'} <b>${loweSurfaces.join(' и ')}</b>. Эта строка уходит в задание оператору и в паспорт изделия.</div>`;
   } else $('lowe-warn').innerHTML='';
 
   if(err){ $('tech').innerHTML='<span class="hint">Исправьте формулу — расчёт не выполнен.</span>'; return; }
@@ -732,8 +774,8 @@ function recalc(){
   if(loweSurfaces.length && !edgeMm) warns.push('Low-E в формуле есть, а зачистка кромки не назначена. Герметик не держится на покрытии — пакет разгерметизируется.');
   if(shape!=='rect') warns.push(`${SHAPES[shape].name}: площадь для счёта берётся по описанному прямоугольнику (${f2(g.billArea)} м²), потому что раскрой всё равно идёт из прямоугольной заготовки.`);
   $('tech-warn').innerHTML = warns.length
-    ? warns.map(w=>`<div class="alert a-warn" style="margin-bottom:8px">⚠️ ${w}</div>`).join('')
-    : '<div class="alert a-ok">✓ Конструкция проходит по базовым проверкам технолога.</div>';
+    ? warns.map(w=>`<div class="alert a-warn" style="margin-bottom:8px">${w}</div>`).join('')
+    : '<div class="alert a-ok">✓ Конструкция проходит по базовым проверкам технолога.</div>';
 
   // --- себестоимость ---
   const cGlass = glasses.reduce((s,l)=> s + billArea*l.th*GLASS[l.mark].perMm, 0)/N.util;
@@ -881,22 +923,22 @@ function buildCut(){
   $('cut-summary').innerHTML=`
     <div class="card" style="margin:0;padding:13px"><div class="hint">Деталей в партии</div><div class="kpi" style="font-size:1.4rem">${pieces.length}</div></div>
     <div class="card" style="margin:0;padding:13px"><div class="hint">Листов нужно</div><div class="kpi" style="font-size:1.4rem">${sheets.length}</div></div>
-    <div class="card" style="margin:0;padding:13px"><div class="hint">Полезное использование</div><div class="kpi" style="font-size:1.4rem;color:${util>=N.util?'var(--ok)':'var(--warn)'}">${(util*100).toFixed(1)} %</div>
+    <div class="card" style="margin:0;padding:13px"><div class="hint">Полезное использование</div><div class="kpi" style="font-size:1.4rem">${(util*100).toFixed(1)} %</div>
       <div class="util-bar"><div class="util-fill" style="width:${util*100}%"></div></div>
       <div class="hint" style="margin-top:5px">Норматив ${(N.util*100).toFixed(0)} %</div></div>
-    <div class="card money" style="margin:0;padding:13px"><div class="hint">Отход в деньги</div><div class="kpi" style="font-size:1.4rem;color:var(--bad)">${fmt((totalArea-usedArea)/1e6*(STOCK.find(s=>s.mark===mark)?.price||3000))} ₸</div>
+    <div class="card money" style="margin:0;padding:13px"><div class="hint">Отход в деньги</div><div class="kpi" style="font-size:1.4rem">${fmt((totalArea-usedArea)/1e6*(STOCK.find(s=>s.mark===mark)?.price||3000))} ₸</div>
       <div class="hint">из них ${offcuts.length} кус${offcuts.length===1?'ок':'ка'} в деловой обрез</div></div>`;
 
-  const COLORS=['#0284c7','#0891b2','#7c3aed','#db2777','#ea580c','#65a30d'];
+  const COLORS=['#0071e3','#0d4f9c','#3d95ee','#08477f','#1a63c4','#5aa0e0'];
   const scale = 0.155;
   $('cut-map').innerHTML = sheets.map((s,si)=>{
     const items = s.shelves.flatMap(sh=>sh.items);
     const offs = offcuts.filter(o=>o.si===si);
     return `<div style="margin-bottom:14px">
       <div style="font-size:.8rem;font-weight:600;margin-bottom:5px">Лист ${si+1} из ${sheets.length} · ${mark} · заполнение ${((s.used/(SHEET.w*SHEET.h))*100).toFixed(1)} %</div>
-      <svg width="${SHEET.w*scale}" height="${SHEET.h*scale}" style="background:#cbd5e1;border:1px solid #94a3b8;border-radius:3px">
+      <svg width="${SHEET.w*scale}" height="${SHEET.h*scale}" style="background:#e9e9eb;border:1px solid #d2d2d7;border-radius:6px">
         <defs><pattern id="hatch${si}" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
-          <line x1="0" y="0" x2="0" y2="6" stroke="#f59e0b" stroke-width="3"/></pattern></defs>
+          <line x1="0" y="0" x2="0" y2="6" stroke="#ff9f0a" stroke-width="3"/></pattern></defs>
         <g transform="translate(${SHEET.trim*scale},${SHEET.trim*scale})">
         ${offs.map(o=>`<rect x="${o.x*scale}" y="${o.y*scale}" width="${o.w*scale}" height="${o.h*scale}" fill="url(#hatch${si})" opacity=".5"/>`).join('')}
         ${items.map(it=>`<g><rect x="${it.x*scale}" y="${it.y*scale}" width="${it.w*scale}" height="${it.h*scale}"
@@ -905,7 +947,7 @@ function buildCut(){
              text-anchor="middle" dominant-baseline="middle">${it.w}×${it.h}</text></g>`).join('')}
         </g></svg></div>`;
   }).join('') + (rotatable?'<div class="hint">Разворот деталей разрешён — стекло без покрытия и без узора.</div>'
-                          :'<div class="alert a-warn" style="margin-top:8px">⚠️ '+mark+': разворот деталей запрещён — покрытие имеет сторону. Из-за этого полезный раскрой ниже, и это нормально.</div>');
+                          :'<div class="alert a-warn" style="margin-top:8px">'+mark+': разворот деталей запрещён — покрытие имеет сторону. Из-за этого полезный раскрой ниже, и это нормально.</div>');
 }
 
 /* ============================================================
@@ -939,11 +981,11 @@ function saveDefect(){
 }
 function renderHot(){
   $('hotq').innerHTML = hotQueue.map((h,i)=>`
-    <div style="border:1px solid #fecaca;background:#fef2f2;padding:11px;border-radius:8px;margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;font-weight:700;color:#991b1b;gap:8px;flex-wrap:wrap">
+    <div style="background:#f5f5f7;box-shadow:inset 3px 0 0 #c9251c;padding:12px 14px;border-radius:10px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-weight:600;color:#c9251c;gap:8px;flex-wrap:wrap">
         <span class="mono">${h.item}</span><span>ПРИОРИТЕТ ${i+1}</span></div>
-      <div style="font-size:.83rem;margin-top:4px;color:#7f1d1d">${h.reason} · ${h.size} мм${h.min?' · ждёт '+h.min+' мин':' · только что'}</div>
-    </div>`).join('') || '<div class="alert a-ok">✓ Горячая очередь пуста. Переделок в смене нет.</div>';
+      <div style="font-size:.83rem;margin-top:4px;color:#6e6e73">${h.reason} · ${h.size} мм${h.min?' · ждёт '+h.min+' мин':' · только что'}</div>
+    </div>`).join('') || '<div class="alert a-ok">✓ Горячая очередь пуста. Переделок в смене нет.</div>';
 }
 function stagePass(){ alert('Этап отмечен. Изделие ушло на прессование, следующая позиция подана на экран.'); }
 function doScan(){ const v=$('scan').value.trim(); if(!v) return;
@@ -1005,15 +1047,15 @@ function readNorms(){ NORM_META.forEach(([k])=>{ const v=+$('n-'+k).value; if(!i
 
   const stages=[['Резка',68],['Мойка',41],['Сборка',84],['Прессование',52],['Герметизация',37],['Отгрузка',22]];
   $('stage-load').innerHTML=stages.map(([s,v])=>
-    `<div class="bar-row"><div class="bar-lbl">${s}</div><div class="bar-track"><div class="bar-fill" style="width:${v}%;background:${v>75?'var(--warn)':'var(--pri)'}"></div></div><div class="bar-val">${v} м²</div></div>`).join('');
+    `<div class="bar-row"><div class="bar-lbl">${s}</div><div class="bar-track"><div class="bar-fill" style="width:${v}%;background:${v>75?'#ff9f0a':'var(--pri)'}"></div></div><div class="bar-val">${v} м²</div></div>`).join('');
 
   $('stock-tbl').innerHTML=STOCK.map(s=>`<tr><td><b>${s.mark}</b></td><td class="mono">${s.fmt}</td>
-    <td class="mono ${s.n<8?'':''}" style="${s.n<8?'color:var(--bad);font-weight:700':''}">${s.n}</td>
+    <td class="mono ${s.n<8?'':''}" style="${s.n<8?'color:#c9251c;font-weight:600':''}">${s.n}</td>
     <td class="mono" style="font-size:.78rem">${s.lot}</td><td class="money mono">${fmt(s.price)}</td></tr>`).join('');
 
   $('pyr-tbl').innerHTML=PYRAMIDS.map(p=>`<tr><td class="mono"><b>${p.n}</b></td><td>${p.t}</td><td>${p.cl}</td>
     <td class="mono">${p.ord}</td><td>${p.d}</td>
-    <td style="${p.days>14?'color:var(--bad);font-weight:700':''}">${p.days}</td>
+    <td style="${p.days>14?'color:#c9251c;font-weight:600':''}">${p.days}</td>
     <td class="money mono">${fmt(p.dep)} ₸</td>
     <td class="no-print"><button class="btn b-out" style="padding:4px 9px;font-size:.75rem" onclick="this.closest('tr').style.opacity=.4;this.textContent='Возвращена'">Отметить возврат</button></td></tr>`).join('');
 
