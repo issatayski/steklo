@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Цех — стеклопакеты</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* палитра взята из материала: торец флоат-стекла зелёный, рамка алюминиевая, бутил чёрный */
+  --wash:#e9eeec;      /* матовое стекло */
+  --paper:#ffffff;
+  --ink:#0e1a19;
+  --mute:#6a7b79;
+  --line:#dbe4e1;
+  --edge:#0d6b57;      /* зелёный торец стекла — основной акцент */
+  --edge-d:#0a5344;
+  --mine:#d7efe5;      /* мой пузырь */
+  --bad:#bf3a2c;
+  --bad-bg:#fdeceb;
+  --warn:#a56a10;
+  --warn-bg:#fdf5e6;
+  --alu:#b9c4c6;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Golos Text',-apple-system,system-ui,sans-serif;
+  background:#0e1a19;color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  overscroll-behavior:none;
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+:focus-visible{outline:2px solid var(--edge);outline-offset:2px}
+
+/* корпус телефона на десктопе, полный экран на телефоне */
+.phone{
+  width:100%;max-width:430px;height:100vh;max-height:920px;
+  background:var(--wash);position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+@media(min-width:520px){
+  .phone{height:88vh;border-radius:28px;box-shadow:0 30px 80px rgba(0,0,0,.5);border:1px solid #21302e}
+}
+
+/* ---------- шапка ---------- */
+.top{
+  background:var(--edge);color:#fff;flex-shrink:0;
+  padding:14px 14px 12px;display:flex;align-items:center;gap:12px;
+  padding-top:max(14px,env(safe-area-inset-top));
+}
+.top h1{font-size:1.12rem;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+.top .sub{font-size:.74rem;opacity:.72;font-weight:400;margin-top:1px}
+.back{background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:0 2px;line-height:1;display:none}
+.top.deep .back{display:block}
+.role-chip{
+  margin-left:auto;background:rgba(255,255,255,.16);border:none;color:#fff;
+  padding:7px 12px;border-radius:999px;font:600 .74rem/'Golos Text';cursor:pointer;
+  font-family:'Golos Text';display:flex;align-items:center;gap:5px;flex-shrink:0;
+}
+.avat{
+  width:42px;height:42px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.86rem;letter-spacing:-.02em;
+  background:#cfe0da;color:var(--edge-d);
+}
+.avat.bot{background:#173d36;color:#7fd8c0;font-size:1.1rem}
+
+/* ---------- экраны ---------- */
+.screens{flex:1;position:relative;overflow:hidden}
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--wash);
+  transform:translateX(100%);transition:transform .24s cubic-bezier(.4,0,.2,1);visibility:hidden}
+.scr.on{transform:translateX(0);visibility:visible}
+.scr.base{transform:translateX(0);visibility:visible}
+.scr.base.pushed{transform:translateX(-22%);visibility:visible}
+.roll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* ---------- список заказов ---------- */
+.tip{
+  margin:12px 12px 4px;background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:13px 14px;font-size:.84rem;line-height:1.5;color:var(--mute);display:flex;gap:10px
+}
+.tip b{color:var(--ink);font-weight:600}
+.tip button{background:none;border:none;color:var(--edge);font:600 .8rem 'Golos Text';cursor:pointer;flex-shrink:0}
+.row{
+  display:flex;gap:12px;padding:13px 14px;background:#fff;cursor:pointer;
+  border-bottom:1px solid var(--line);align-items:flex-start;
+}
+.row:active{background:#f2f6f4}
+.row-b{flex:1;min-width:0}
+.row-t{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.row-t b{font-size:.94rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-t span{font-size:.72rem;color:var(--mute);flex-shrink:0}
+.row-p{
+  font-size:.83rem;color:var(--mute);margin-top:3px;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+}
+.row-p .who{color:var(--ink);font-weight:500}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--edge);flex-shrink:0;margin-top:6px}
+.dot.red{background:var(--bad)}
+.pin{font-size:.68rem;color:var(--mute);letter-spacing:.06em;text-transform:uppercase;
+  padding:10px 14px 6px;font-weight:600}
+
+/* ---------- лента заказа ---------- */
+.thread{
+  flex:1;overflow-y:auto;padding:12px 12px 16px;
+  background:
+    radial-gradient(circle at 18% 22%,rgba(13,107,87,.05) 0 1px,transparent 1.6px),
+    radial-gradient(circle at 68% 72%,rgba(13,107,87,.05) 0 1px,transparent 1.6px),
+    var(--wash);
+  background-size:34px 34px,34px 34px;
+}
+.day{text-align:center;margin:10px 0 14px}
+.day span{background:rgba(14,26,25,.08);color:#4c5c5a;font-size:.7rem;font-weight:600;
+  padding:4px 11px;border-radius:999px}
+.msg{max-width:88%;margin-bottom:9px;border-radius:14px;padding:10px 12px;font-size:.88rem;
+  line-height:1.45;background:#fff;box-shadow:0 1px 1px rgba(14,26,25,.06);border-top-left-radius:5px}
+.msg.mine{margin-left:auto;background:var(--mine);border-top-left-radius:14px;border-top-right-radius:5px}
+.msg.bad{background:var(--bad-bg);border:1px solid #f4cfc9}
+.msg.warn{background:var(--warn-bg);border:1px solid #f0dfb8}
+.msg .from{font-size:.73rem;font-weight:700;color:var(--edge-d);margin-bottom:3px}
+.msg.bad .from{color:var(--bad)}
+.msg.warn .from{color:var(--warn)}
+.msg .tm{font-size:.66rem;color:#8c9a98;text-align:right;margin-top:4px;font-family:var(--mono)}
+.msg .ttl{font-weight:600;display:block;margin-bottom:2px}
+.msg .kv{display:flex;justify-content:space-between;gap:10px;font-size:.82rem;padding:3px 0;
+  border-bottom:1px dashed var(--line)}
+.msg .kv:last-of-type{border:none}
+.msg .kv b{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.sysline{text-align:center;font-size:.75rem;color:var(--mute);margin:6px 0 12px;line-height:1.4}
+
+/* ---------- ПОДПИСЬ: разрез стеклопакета ---------- */
+.pack{margin:8px 0 4px}
+.pack-strip{display:flex;height:62px;border-radius:6px;overflow:hidden;
+  background:#eef2f1;border:1px solid var(--line)}
+.ly{position:relative;flex-shrink:0}
+.ly.g{background:linear-gradient(90deg,#a9cfc4,#cfe5dd 40%,#a9cfc4);
+  border-left:2px solid #3f8f7c;border-right:2px solid #3f8f7c}
+.ly.a{background:repeating-linear-gradient(90deg,#f7faf9 0 5px,#eef3f1 5px 6px)}
+.ly.a:after{content:attr(data-l);position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;font:600 .6rem var(--mono);color:#8c9a98;letter-spacing:-.02em}
+.ly.lowe:before{content:"";position:absolute;top:0;bottom:0;width:3px;
+  background:repeating-linear-gradient(180deg,#c98a12 0 3px,transparent 3px 6px)}
+.ly.lowe.r:before{right:2px}.ly.lowe.l:before{left:2px}
+.pack-lbl{display:flex;margin-top:5px;font:500 .64rem var(--mono);color:var(--mute)}
+.pack-lbl div{text-align:center;flex-shrink:0}
+.pack-note{font-size:.75rem;color:var(--mute);margin-top:7px;line-height:1.4}
+.pack-note b{color:#c98a12}
+
+/* ---------- нижняя панель действий ---------- */
+.actions{
+  flex-shrink:0;background:#fff;border-top:1px solid var(--line);
+  padding:10px 12px;padding-bottom:max(10px,env(safe-area-inset-bottom));
+  display:flex;gap:9px;align-items:stretch
+}
+.act{
+  flex:1;border:none;border-radius:13px;font:700 .95rem 'Golos Text';cursor:pointer;
+  min-height:56px;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--edge);color:#fff;padding:0 10px;transition:transform .08s
+}
+.act:active{transform:scale(.97)}
+.act.no{flex:0 0 92px;background:var(--bad-bg);color:var(--bad);border:1px solid #f0cbc5}
+.act.ghost{background:#eef2f1;color:var(--ink);flex:0 0 60px;font-size:1.25rem}
+.act[disabled]{background:#eef2f1;color:#9aa8a6}
+.hintbar{font-size:.72rem;color:var(--mute);text-align:center;padding:0 14px 9px;background:#fff}
+
+/* ---------- нижняя навигация ---------- */
+.tabs{flex-shrink:0;background:#fff;border-top:1px solid var(--line);display:flex;
+  padding-bottom:max(0px,env(safe-area-inset-bottom))}
+.tb{flex:1;border:none;background:none;padding:9px 0 10px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;color:#93a2a0;
+  font:600 .68rem 'Golos Text';position:relative}
+.tb i{font-style:normal;font-size:1.28rem;line-height:1}
+.tb.on{color:var(--edge)}
+.tb .bg{position:absolute;top:6px;right:50%;margin-right:-22px;background:var(--bad);color:#fff;
+  min-width:17px;height:17px;border-radius:9px;font:700 .64rem var(--mono);
+  display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+/* ---------- шторка ---------- */
+.sheet-bd{position:absolute;inset:0;background:rgba(14,26,25,.55);z-index:60;display:none}
+.sheet-bd.on{display:block}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;
+  padding:16px 14px;padding-bottom:max(16px,env(safe-area-inset-bottom));
+  transform:translateY(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);max-height:82%;overflow-y:auto}
+.sheet-bd.on .sheet{transform:translateY(0)}
+.grab{width:38px;height:4px;background:var(--line);border-radius:2px;margin:0 auto 14px}
+.sheet h3{font-size:1.02rem;font-weight:700;margin-bottom:3px}
+.sheet .sh-sub{font-size:.8rem;color:var(--mute);margin-bottom:14px;line-height:1.45}
+.opt{width:100%;text-align:left;background:#f4f7f6;border:1px solid var(--line);border-radius:13px;
+  padding:14px;margin-bottom:8px;cursor:pointer;font:500 .9rem 'Golos Text';color:var(--ink);
+  display:flex;justify-content:space-between;align-items:center;gap:10px}
+.opt:active{background:#e9efed}
+.opt.sel{border-color:var(--edge);background:#e8f4f0}
+.opt small{display:block;color:var(--mute);font-size:.75rem;margin-top:3px;font-weight:400;line-height:1.4}
+.opt .tick{color:var(--edge);font-weight:700;flex-shrink:0}
+
+/* ---------- расчёт ---------- */
+.q{padding:12px 14px;background:#fff;border-bottom:1px solid var(--line)}
+.q label{font-size:.78rem;font-weight:600;color:var(--mute);display:block;margin-bottom:6px}
+.inp{width:100%;padding:13px 12px;border:1px solid var(--line);border-radius:12px;
+  font:600 1rem var(--mono);background:#f7faf9;color:var(--ink)}
+.inp:focus{outline:none;border-color:var(--edge);background:#fff}
+.duo{display:flex;gap:9px}.duo>div{flex:1}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{padding:9px 12px;border-radius:11px;border:1px solid var(--line);background:#f7faf9;
+  font:600 .8rem 'Golos Text';cursor:pointer;color:var(--ink)}
+.chip.on{background:var(--edge);color:#fff;border-color:var(--edge)}
+.money-off{display:none!important}
+.total{background:var(--ink);color:#fff;border-radius:14px;padding:14px;margin-top:10px}
+.total .sm{font-size:.7rem;opacity:.6;letter-spacing:.06em;text-transform:uppercase}
+.total .big{font:700 1.7rem var(--mono);color:#7fd8c0;margin-top:2px;letter-spacing:-.02em}
+.total .sp{display:flex;justify-content:space-between;font-size:.78rem;opacity:.8;margin-top:8px;
+  border-top:1px solid rgba(255,255,255,.15);padding-top:8px}
+.total .sp b{font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <div class="top" id="top">
+    <button class="back" onclick="pop()" aria-label="Назад">‹</button>
+    <div class="avat" id="top-av" style="display:none"></div>
+    <div style="min-width:0">
+      <h1 id="top-t">Заказы</h1>
+      <div class="sub" id="top-s">Цех «Ай-Стекло» · смена 2</div>
+    </div>
+    <button class="role-chip" onclick="openRoles()" id="role-btn">Сборщик ▾</button>
+  </div>
+
+  <div class="screens">
+
+    <!-- ============ 1. ЗАКАЗЫ ============ -->
+    <div class="scr base" id="s-list">
+      <div class="roll" id="list"></div>
+    </div>
+
+    <!-- ============ 2. ЦЕХ (бот) ============ -->
+    <div class="scr base" id="s-shop" style="display:none">
+      <div class="thread" id="shop-feed"></div>
+    </div>
+
+    <!-- ============ 3. РАСЧЁТ ============ -->
+    <div class="scr base" id="s-calc" style="display:none">
+      <div class="roll">
+        <div class="q">
+          <label>Размер изделия, мм</label>
+          <div class="duo">
+            <div><input class="inp" id="c-w" type="number" inputmode="numeric" value="1600" oninput="calc()"></div>
+            <div><input class="inp" id="c-h" type="number" inputmode="numeric" value="1100" oninput="calc()"></div>
+          </div>
+        </div>
+        <div class="q">
+          <label>Форма</label>
+          <div class="chips" id="c-shapes"></div>
+        </div>
+        <div class="q">
+          <label>Формула пакета</label>
+          <div class="chips" id="c-forms" style="margin-bottom:9px"></div>
+          <input class="inp" id="c-f" value="4i-14Ar-4M1-14Ar-4i" oninput="calc()">
+        </div>
+        <div class="q">
+          <label>Количество, шт</label>
+          <input class="inp" id="c-q" type="number" inputmode="numeric" value="4" oninput="calc()">
+        </div>
+        <div class="q" style="border:none">
+          <div id="c-out"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="act" onclick="toOrder()">Отправить в заказ</button>
+      </div>
+    </div>
+
+    <!-- ============ ЛЕНТА ЗАКАЗА ============ -->
+    <div class="scr" id="s-thread">
+      <div class="thread" id="feed"></div>
+      <div class="actions" id="acts"></div>
+      <div class="hintbar" id="acth"></div>
+    </div>
+
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tb on" data-t="list" onclick="tab('list')"><i>▤</i>Заказы</button>
+    <button class="tb" data-t="shop" onclick="tab('shop')"><i>◉</i>Цех<span class="bg" id="bg-shop">2</span></button>
+    <button class="tb" data-t="calc" onclick="tab('calc')"><i>≡</i>Расчёт</button>
+  </div>
+
+  <!-- шторка -->
+  <div class="sheet-bd" id="sheet-bd" onclick="if(event.target===this)closeSheet()">
+    <div class="sheet" id="sheet"></div>
+  </div>
+
+</div>
+
+<script>
+/* ================= справочники (из расчётного ядра) ================= */
+const GLASS={
+  M1:{label:'прозрачное',perMm:650,lowE:false},
+  i:{label:'i-стекло Low-E',perMm:1050,lowE:true},
+  Solar:{label:'Solar',perMm:1300,lowE:true},
+  Mat:{label:'матовое',perMm:850,lowE:false},
+  Tr:{label:'триплекс',perMm:1800,lowE:false},
+  Zak:{label:'закалённое',perMm:1150,lowE:false}
+};
+const SHAPES={rect:['Прямоугольник',1],trap:['Трапеция',1.5],tri:['Треугольник',1.6],arch:['Арка',2.2]};
+const N={minArea:.5,util:.88,sieveGPerMm:.8,butylG:3.5,sealDepth:5,argonLoss:1.8,
+  labor:1400,overhead:900,scrap:3,margin:35,bigArea:2.5,bigK:15};
+const P={spacerBase:380,spacerPerMm:12,sieve:900,butyl:2800,sealant:1900,argon:55,edge:350};
+
+const ROLES={
+  cutter :{n:'Резчик',   money:false, act:['Раскроил','Скол при резке'], stage:'Резка'},
+  worker :{n:'Сборщик',  money:false, act:['Собрал пакет','Брак'],       stage:'Сборка'},
+  master :{n:'Мастер',   money:true,  act:['Отгрузил','Брак'],           stage:'Отгрузка'},
+  owner  :{n:'Владелец', money:true,  act:[],                            stage:'—'}
+};
+let role='worker', cur=null, shape='rect', unread=2;
+
+const $=id=>document.getElementById(id);
+const fmt=n=>new Intl.NumberFormat('ru-RU').format(Math.round(n));
+const f2=n=>n.toFixed(2).replace('.',',');
+const now=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+
+/* ================= данные ================= */
+const ORDERS=[
+ {id:'081',cl:'Оконный Стиль',short:'ОС',f:'4i-14Ar-4M1-14Ar-4i',n:24,size:'1600 × 1100',
+  ship:'12.08',stage:'Сборка',unread:1,red:true,
+  msgs:[
+   {t:'day',x:'вчера'},
+   {t:'sys',x:'Заказ принят · 24 пакета · отгрузка 12.08'},
+   {t:'pack'},
+   {t:'ev',w:'Айдос · менеджер',x:'Клиент просит зачистку кромки 12 мм. По формуле Low-E уходит на поверхности 2 и 5 — покрытием внутрь камеры.',tm:'16:04'},
+   {t:'ev',w:'Стол резки',x:'Раскроено 24 из 24. Ушло 9 листов, отход 11,4 %.',tm:'08:12'},
+   {t:'day',x:'сегодня'},
+   {t:'bad',w:'Ерлан · мойка',x:'Царапина покрытия Low-E. Стекло 1, пакет 1. Ушло в переделку.',tm:'09:41'},
+   {t:'ev',w:'Стол резки',x:'Перерезано. Стекло 1 вернулось на мойку.',tm:'10:23'},
+   {t:'mine',x:'Собрал пакет 1 из 24',tm:'10:58'}
+  ]},
+ {id:'082',cl:'ИП Бейсенов',short:'ББ',f:'4M1-16-4M1',n:11,size:'1300 × 900',
+  ship:'12.08',stage:'Готов к отгрузке',unread:0,red:false,
+  msgs:[
+   {t:'day',x:'сегодня'},
+   {t:'sys',x:'Заказ принят · 11 пакетов · отгрузка 12.08'},
+   {t:'pack'},
+   {t:'ev',w:'Стол резки',x:'Раскроено 11 из 11. Отход 9,8 % — лучшая смена за неделю.',tm:'07:50'},
+   {t:'mine',x:'Собрал 11 из 11',tm:'11:20'},
+   {t:'ev',w:'Прессование',x:'Пакеты запрессованы, шов герметика 5 мм по контуру.',tm:'12:05'},
+   {t:'warn',w:'Логистика',x:'Пирамида ПИР-05 закреплена за заказом. Залог 80 000 ₸ вернётся после возврата тары.',tm:'12:30'}
+  ]},
+ {id:'083',cl:'Строймонтаж KZ',short:'СМ',f:'6Solar-14Ar-4M1',n:9,size:'2100 × 1400',
+  ship:'14.08',stage:'Ждёт стекла',unread:1,red:false,
+  msgs:[
+   {t:'day',x:'сегодня'},
+   {t:'sys',x:'Заказ принят · 9 пакетов · 2 трапеции, 1 арка · отгрузка 14.08'},
+   {t:'pack'},
+   {t:'warn',w:'Склад',x:'6Solar — осталось 4 листа, нужно 7. Заказ встанет 13.08, если стекло не приедет.',tm:'08:30'}
+  ]}
+];
+const SHOP=[
+ {t:'day',x:'сегодня'},
+ {t:'warn',w:'Склад',x:'6Solar — 4 листа в остатке. На заказ 083 нужно 7. Закупка не оформлена.',tm:'08:30'},
+ {t:'bad',w:'Брак',x:'Царапина Low-E · заказ 081 · смена 2. Потеря 6 900 ₸. Третий случай на мойке за неделю — проверь щётки.',tm:'09:41'},
+ {t:'ev',w:'Раскрой',x:'Полезное использование листа за смену — 88,4 % при норме 88,0 %.',tm:'12:00'},
+ {t:'warn',w:'Тара',x:'Пирамида ПИР-08 у Строймонтаж KZ 19 дней. Залог 80 000 ₸ можно удерживать.',tm:'12:10'}
+];
+const REASONS=[
+ ['Скол кромки при резке','Стол резки, неверный прижим или тупое колесо'],
+ ['Царапина покрытия Low-E','Мойка или перенос без перчаток'],
+ ['Разводы после мойки','Деминерализация воды или щётки'],
+ ['Ошибка размера','Разошлись задание и рез'],
+ ['Непроклей герметика','Пресс или температура бутила']
+];
+
+/* ================= разрез пакета — подпись интерфейса ================= */
+function parseF(s){
+  const p=s.trim().split('-').map(x=>x.trim()).filter(Boolean), L=[];
+  p.forEach((x,i)=>{
+    if(i%2===0){
+      const m=x.match(/^(\d+(?:\.\d+)?)\s*([A-Za-z0-9]*)$/); if(!m)return;
+      let th=parseFloat(m[1]),mk=m[2]||'M1';
+      if(!GLASS[mk]){ if(/^\d+\.\d+$/.test(m[1])){mk='Tr';th=[...m[1].replace('.','')].reduce((a,c)=>a+ +c,0)} else return }
+      L.push({t:'g',th,mk});
+    }else{
+      const m=x.match(/^(\d+)\s*(Ar|ar|AR)?$/); if(!m)return;
+      L.push({t:'a',th:+m[1],ar:!!m[2]});
+    }
+  });
+  return L;
+}
+function packHTML(f){
+  const L=parseF(f); if(!L.length) return '';
+  const tot=L.reduce((s,l)=>s+l.th,0);
+  let strip='',lbl='',surf=0,lowe=[];
+  L.forEach((l,i)=>{
+    const w=Math.max(l.t==='g'?7:4, l.th/tot*100)+'%';
+    if(l.t==='g'){
+      const s1=++surf,s2=++surf, G=GLASS[l.mk];
+      let cls='ly g';
+      if(G.lowE){ const inner=(i===0)?s2:s1; lowe.push(inner); cls+=' lowe '+((i===0)?'r':'l'); }
+      strip+=`<div class="${cls}" style="width:${w}"></div>`;
+      lbl+=`<div style="width:${w}">${l.th}${l.mk!=='M1'?l.mk:''}</div>`;
+    }else{
+      strip+=`<div class="ly a" data-l="${l.ar?'Ar':''}" style="width:${w}"></div>`;
+      lbl+=`<div style="width:${w}">${l.th}</div>`;
+    }
+  });
+  const note = lowe.length
+    ? `Толщина ${tot} мм. <b>Жёлтым — сторона покрытия Low-E</b>: поверхност${lowe.length>1?'и':'ь'} ${lowe.join(' и ')}, всегда внутрь камеры. Развернёшь — стекло в брак.`
+    : `Толщина ${tot} мм. Покрытий нет, стекло можно разворачивать при раскрое.`;
+  return `<div class="pack"><div class="pack-strip">${strip}</div><div class="pack-lbl">${lbl}</div>
+    <div class="pack-note">${note}</div></div>`;
+}
+
+/* ================= рендер сообщений ================= */
+function msgHTML(m,f){
+  if(m.t==='day')  return `<div class="day"><span>${m.x}</span></div>`;
+  if(m.t==='sys')  return `<div class="sysline">${m.x}</div>`;
+  if(m.t==='pack') return `<div class="msg" style="max-width:100%"><span class="ttl">Что собираем</span>
+    <span class="mono" style="font-family:var(--mono);font-size:.82rem">${f}</span>${packHTML(f)}</div>`;
+  if(m.t==='mine') return `<div class="msg mine">${m.x}<div class="tm">${m.tm} ✓✓</div></div>`;
+  if(m.t==='price')return m.x;
+  const c=m.t==='bad'?'msg bad':m.t==='warn'?'msg warn':'msg';
+  return `<div class="${c}"><div class="from">${m.w}</div>${m.x}<div class="tm">${m.tm}</div></div>`;
+}
+
+/* ================= список заказов ================= */
+let tipOff=false;
+function renderList(){
+  const tip = tipOff?'':`<div class="tip"><div>Каждый заказ — это <b>чат</b>. Открой и увидишь всё,
+    что с ним происходит: от раскроя до отгрузки. Кнопка внизу — твоё действие по смене.</div>
+    <button onclick="tipOff=true;renderList()">Ясно</button></div>`;
+  const rows=ORDERS.map(o=>{
+    const last=[...o.msgs].reverse().find(m=>['ev','bad','warn','mine'].includes(m.t))||{};
+    const who=last.t==='mine'?'Вы':(last.w||'');
+    return `<div class="row" onclick="openOrder('${o.id}')">
+      <div class="avat">${o.short}</div>
+      <div class="row-b">
+        <div class="row-t"><b>${o.cl}</b><span>${last.tm||''}</span></div>
+        <div class="row-p"><span class="who">${who}:</span> ${(last.x||'').slice(0,88)}</div>
+        <div class="row-p" style="margin-top:4px;font-size:.75rem">
+          <span style="font-family:var(--mono)">№${o.id}</span> · ${o.n} шт · ${o.stage} · до ${o.ship}</div>
+      </div>
+      ${o.unread?`<div class="dot ${o.red?'red':''}"></div>`:''}
+    </div>`}).join('');
+  $('list').innerHTML=tip+`<div class="pin">Заказы в работе</div>`+rows;
+}
+
+/* ================= лента заказа ================= */
+function openOrder(id){
+  cur=ORDERS.find(o=>o.id===id); cur.unread=0;
+  $('top-t').textContent=cur.cl;
+  $('top-s').textContent=`№${cur.id} · ${cur.n} шт · ${cur.size} мм · до ${cur.ship}`;
+  $('top-av').style.display='flex'; $('top-av').textContent=cur.short;
+  $('top').classList.add('deep');
+  $('tabs').style.display='none';
+  renderThread(); renderActs();
+  $('s-thread').classList.add('on');
+  document.querySelectorAll('.scr.base').forEach(s=>s.classList.add('pushed'));
+  renderList();
+}
+function pop(){
+  $('s-thread').classList.remove('on');
+  document.querySelectorAll('.scr.base').forEach(s=>s.classList.remove('pushed'));
+  $('top').classList.remove('deep'); $('top-av').style.display='none';
+  $('tabs').style.display='flex'; tab(curTab,true);
+}
+function renderThread(){
+  $('feed').innerHTML=cur.msgs.map(m=>msgHTML(m,cur.f)).join('');
+  $('feed').scrollTop=$('feed').scrollHeight;
+}
+function renderActs(){
+  const R=ROLES[role];
+  if(!R.act.length){
+    $('acts').innerHTML=`<button class="act" disabled>Только просмотр</button>`;
+    $('acth').textContent='Владелец не отмечает этапы — он их читает.'; return;
+  }
+  $('acts').innerHTML=`
+    <button class="act ghost" onclick="scan()" aria-label="Сканировать">⌗</button>
+    <button class="act" onclick="pass()">${R.act[0]}</button>
+    <button class="act no" onclick="openDefect()">${R.act[1]}</button>`;
+  $('acth').textContent='Слева — сканер штрихкода. «Брак» спросит причину, случайно не отправится.';
+}
+function push(m){ cur.msgs.push(m); renderThread(); renderList(); }
+function pass(){
+  push({t:'mine',x:ROLES[role].act[0]+' · '+cur.size+' мм',tm:now()});
+  cur.stage=ROLES[role].stage;
+}
+function scan(){
+  push({t:'ev',w:'Сканер',x:`Штрихкод GL-2026-${cur.id}-07. Пакет 7 из ${cur.n}, этап «${cur.stage}». Требование: зачистка кромки 12 мм.`,tm:now()});
+}
+
+/* ================= брак ================= */
+function openDefect(){
+  $('sheet').innerHTML=`<div class="grab"></div>
+    <h3>Что случилось?</h3>
+    <p class="sh-sub">Деталь уйдёт в переделку первой очередью. Счёт клиенту не меняется — потеря ложится на смену.</p>
+    ${REASONS.map((r,i)=>`<button class="opt" onclick="saveDefect(${i})">
+      <span>${r[0]}<small>${r[1]}</small></span><span class="tick">›</span></button>`).join('')}
+    <button class="opt" style="background:#fff;justify-content:center" onclick="closeSheet()">Отмена</button>`;
+  $('sheet-bd').classList.add('on');
+}
+function saveDefect(i){
+  closeSheet();
+  push({t:'bad',w:'Вы · '+ROLES[role].n,x:REASONS[i][0]+'. Ушло в переделку.',tm:now()});
+  push({t:'ev',w:'Стол резки',x:'Принято в горячую очередь, приоритет 1. Перерезка ориентировочно 25 мин.',tm:now()});
+  cur.red=true;
+  SHOP.push({t:'bad',w:'Брак',x:`${REASONS[i][0]} · заказ ${cur.id}. Потеря 6 900 ₸.`,tm:now()});
+  unread++; $('bg-shop').textContent=unread; renderShop();
+}
+function closeSheet(){ $('sheet-bd').classList.remove('on') }
+
+/* ================= роли ================= */
+function openRoles(){
+  $('sheet').innerHTML=`<div class="grab"></div>
+    <h3>Кто ты в смене</h3>
+    <p class="sh-sub">Роль решает, какая кнопка внизу и видно ли деньги. Одна лента на всех — меняется только действие.</p>
+    ${Object.entries(ROLES).map(([k,r])=>`<button class="opt ${k===role?'sel':''}" onclick="setRole('${k}')">
+      <span>${r.n}<small>${r.act.length?'Кнопка: '+r.act[0]:'Только чтение'} · деньги ${r.money?'видны':'скрыты'}</small></span>
+      ${k===role?'<span class="tick">✓</span>':''}</button>`).join('')}`;
+  $('sheet-bd').classList.add('on');
+}
+function setRole(k){
+  role=k; closeSheet();
+  $('role-btn').textContent=ROLES[k].n+' ▾';
+  document.querySelectorAll('.money').forEach(e=>e.classList.toggle('money-off',!ROLES[k].money));
+  if(cur && $('s-thread').classList.contains('on')) renderActs();
+  calc();
+}
+
+/* ================= цех ================= */
+function renderShop(){ $('shop-feed').innerHTML=SHOP.map(m=>msgHTML(m)).join(''); }
+
+/* ================= расчёт ================= */
+function calc(){
+  const W=+$('c-w').value||0,H=+$('c-h').value||0,q=Math.max(1,+$('c-q').value||1);
+  const w=W/1000,h=H/1000;
+  let area = shape==='rect'? w*h : shape==='tri'? w*h/2 : shape==='trap'? w*h*.8 : w*h*.86;
+  let perim= shape==='rect'? 2*(w+h) : w+h+Math.hypot(w,h);
+  const L=parseF($('c-f').value), G=L.filter(l=>l.t==='g'), A=L.filter(l=>l.t==='a');
+  const out=$('c-out');
+  if(!G.length||!A.length){ out.innerHTML='<div class="pack-note">Формула не разобрана. Пример: 4M1-16-4M1</div>'; return }
+
+  const bill=Math.max(w*h,N.minArea), pkgTh=L.reduce((s,l)=>s+l.th,0);
+  const spacerM=perim*A.length;
+  const sealL=perim*(N.sealDepth/1000)*(pkgTh/1000)*1000;
+  const argonL=A.filter(x=>x.ar).reduce((s,x)=>s+area*(x.th/1000)*1000,0)*N.argonLoss;
+  const sieveKg=spacerM*A.reduce((s,x)=>s+x.th,0)/A.length*N.sieveGPerMm/1000;
+  const butylKg=spacerM*2*N.butylG/1000;
+  const lowe=G.filter(l=>GLASS[l.mk].lowE).length;
+  const edgeM=lowe?perim*lowe:0;
+
+  const c={
+   'Стекло':G.reduce((s,l)=>s+bill*l.th*GLASS[l.mk].perMm,0)/N.util,
+   'Рамка':spacerM*(P.spacerBase+A.reduce((s,x)=>s+x.th,0)/A.length*P.spacerPerMm/10),
+   'Сито':sieveKg*P.sieve,'Бутил':butylKg*P.butyl,'Герметик':sealL*P.sealant,
+   'Аргон':argonL*P.argon,'Работа и накладные':bill*(N.labor+N.overhead),'Зачистка кромки':edgeM*P.edge
+  };
+  let cost=Object.values(c).reduce((a,b)=>a+b,0); cost+=cost*N.scrap/100;
+  let price=cost*(1+N.margin/100)*SHAPES[shape][1];
+  if(w*h>N.bigArea) price*=1+N.bigK/100;
+
+  let warn='';
+  if(lowe&&!edgeM) warn+='<div class="msg warn" style="max-width:100%;margin-top:10px"><div class="from">Технолог</div>Low-E без зачистки кромки — герметик не держится на покрытии, пакет разгерметизируется.</div>';
+  if(area>2.5&&Math.max(...G.map(l=>l.th))<5) warn+=`<div class="msg warn" style="max-width:100%;margin-top:10px"><div class="from">Технолог</div>${f2(area)} м² при стекле ${Math.max(...G.map(l=>l.th))} мм — по ветровой нагрузке нужно от 5 мм.</div>`;
+  if(A.some(x=>x.th>16)) warn+='<div class="msg warn" style="max-width:100%;margin-top:10px"><div class="from">Технолог</div>Камера шире 16 мм — тепло не улучшается, конвекция внутри растёт.</div>';
+
+  out.innerHTML = packHTML($('c-f').value) + `
+    <div class="msg" style="max-width:100%;margin-top:12px">
+      <div class="kv"><span>Площадь / расчётная</span><b>${f2(area)} / ${f2(bill)} м²</b></div>
+      <div class="kv"><span>Рамка</span><b>${f2(spacerM)} м</b></div>
+      <div class="kv"><span>Аргон с потерями ×${N.argonLoss}</span><b>${argonL?f2(argonL)+' л':'—'}</b></div>
+      <div class="kv"><span>Вес 1 шт</span><b>${f2(G.reduce((s,l)=>s+area*l.th*2.5,0))} кг</b></div>
+    </div>` + warn + `
+    <div class="total money${ROLES[role].money?'':' money-off'}">
+      <div class="sm">Итого за ${q} шт</div>
+      <div class="big">${fmt(price*q)} ₸</div>
+      <div class="sp"><span>за 1 шт</span><b>${fmt(price)} ₸</b></div>
+      <div class="sp" style="border:none;padding-top:4px"><span>за м²</span><b>${fmt(price/bill)} ₸</b></div>
+      <div class="sp" style="border:none;padding-top:4px"><span>себестоимость 1 шт</span><b>${fmt(cost)} ₸</b></div>
+    </div>
+    ${ROLES[role].money?'':'<div class="pack-note" style="margin-top:10px">Цену видят мастер и владелец. У резчика и сборщика на экране только размеры и требования.</div>'}`;
+}
+function toOrder(){
+  const o=ORDERS[0];
+  o.msgs.push({t:'ev',w:'Расчёт',x:`Добавлена позиция: ${$('c-w').value} × ${$('c-h').value} мм · ${$('c-f').value} · ${$('c-q').value} шт.`,tm:now()});
+  o.unread=1; renderList(); tab('list'); openOrder(o.id);
+}
+
+/* ================= вкладки ================= */
+let curTab='list';
+function tab(t,silent){
+  curTab=t;
+  ['list','shop','calc'].forEach(k=>$('s-'+k).style.display = k===t?'flex':'none');
+  document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  const H={list:['Заказы','Цех «Ай-Стекло» · смена 2'],
+           shop:['Цех','Пишет сам, когда что-то идёт не так'],
+           calc:['Расчёт','Размер, формула — и цена']};
+  $('top-t').textContent=H[t][0]; $('top-s').textContent=H[t][1];
+  if(t==='shop'){ unread=0; $('bg-shop').style.display='none' }
+}
+
+/* ================= старт ================= */
+(function init(){
+  $('c-shapes').innerHTML=Object.entries(SHAPES).map(([k,v])=>
+    `<button class="chip ${k==='rect'?'on':''}" data-s="${k}" onclick="shape='${k}';
+     document.querySelectorAll('#c-shapes .chip').forEach(c=>c.classList.toggle('on',c.dataset.s==='${k}'));calc()">
+     ${v[0]}${v[1]!==1?' ×'+String(v[1]).replace('.',','):''}</button>`).join('');
+  $('c-forms').innerHTML=['4M1-16-4M1','4i-16Ar-4M1','4i-14Ar-4M1-14Ar-4i','6Solar-14Ar-4M1'].map(f=>
+    `<button class="chip" onclick="$('c-f').value='${f}';calc()" style="font-family:var(--mono);font-size:.74rem">${f}</button>`).join('');
+  renderList(); renderShop(); calc(); setRole('worker'); tab('list');
+})();
+</script>
+</body>
+</html>
