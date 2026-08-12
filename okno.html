@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GlassERP — Визуальный конструктор окон</title>
+<title>GlassERP — Комплексный модуль «Оконный цех»</title>
 <style>
   :root {
     --bg: #f4f6f9; --card: #ffffff; --tx: #1e293b; --mu: #64748b;
@@ -13,30 +13,35 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   body { background: var(--bg); color: var(--tx); display: flex; height: 100vh; overflow: hidden; font-size: 14px; }
   
-  aside { width: 240px; background: #0f172a; color: #fff; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+  /* Sidebar Nav */
+  aside { width: 250px; background: #0f172a; color: #fff; padding: 20px; display: flex; flex-direction: column; gap: 20px; flex-shrink: 0; }
   aside h2 { font-size: 1.1rem; color: #38bdf8; font-weight: 700; letter-spacing: 0.5px; }
   .nav-group { display: flex; flex-direction: column; gap: 6px; }
-  .nav-item { padding: 10px 12px; border-radius: 8px; color: #94a3b8; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+  .nav-item { padding: 10px 12px; border-radius: 8px; color: #94a3b8; cursor: pointer; font-weight: 500; transition: all 0.2s; user-select: none; }
   .nav-item:hover, .nav-item.active { background: #1e293b; color: #fff; }
   .nav-item.active { border-left: 3px solid #38bdf8; }
 
+  /* Main Area */
   main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   header { background: var(--card); padding: 16px 24px; border-bottom: 1px solid var(--bd); display: flex; justify-content: space-between; align-items: center; }
   header h1 { font-size: 1.25rem; font-weight: 600; }
   .mode-badge { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
 
   .content { padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 20px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .grid-builder { display: grid; grid-template-columns: 340px 1fr 380px; gap: 20px; }
   
+  /* Cards */
   .card { background: var(--card); border: 1px solid var(--bd); border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-  .card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-align: center; }
+  .card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
 
+  /* Form Elements */
   .fg { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
   .fg label { font-size: 0.78rem; font-weight: 600; color: var(--mu); }
   .fc { padding: 8px 10px; border: 1px solid var(--bd); border-radius: 6px; font-size: 0.85rem; outline: none; }
   .fc:focus { border-color: var(--pri); }
   
-  /* Visual Canvas Area */
+  /* Interactive Canvas Area */
   .canvas-card { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; position: relative; min-height: 420px; }
   .svg-container { width: 100%; height: 380px; display: flex; justify-content: center; align-items: center; }
   svg { max-width: 100%; max-height: 100%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
@@ -44,16 +49,26 @@
   .section-pane:hover { fill: #e0f2fe !important; }
   .section-pane.selected { fill: #bae6fd !important; stroke: #0284c7; stroke-width: 2; }
 
-  /* Buttons & Badges */
+  /* Buttons & UI controls */
   .btn { padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; transition: background 0.2s; font-size: 0.82rem; }
   .btn-pri { background: var(--pri); color: #fff; } .btn-pri:hover { background: var(--pri-h); }
-  .btn-group { display: flex; gap: 6px; margin-top: 5px; }
-  .btn-sm { padding: 6px 10px; font-size: 0.75rem; flex: 1; }
+  .btn-ok { background: var(--ok); color: #fff; }
   
+  /* Tables */
   table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
   th, td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; }
   th { background: #f8fafc; color: var(--mu); font-weight: 600; }
   .mono { font-family: var(--mono); }
+
+  /* 1D Visualizer Bar */
+  .bar-container { background: #e2e8f0; height: 36px; border-radius: 6px; overflow: hidden; display: flex; margin-top: 10px; position: relative; }
+  .bar-segment { height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.75rem; font-weight: bold; border-right: 2px solid #fff; position: relative; }
+  .bar-segment.kerf { background: #ef4444 !important; width: 4px !important; padding: 0 !important; }
+  .bar-offcut { background: #cbd5e1; color: #475569; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+
+  /* Tabs Switcher */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 </style>
 </head>
 <body>
@@ -61,113 +76,189 @@
 <aside>
   <h2>GlassERP</h2>
   <div class="nav-group">
-    <div class="nav-item active">🎨 Визуальный Конструктор</div>
-    <div class="nav-item">า 1D-Раскрой хлыстов</div>
-    <div class="nav-item">🖥️ Цеховой терминал</div>
-    <div class="nav-item">📦 Заказ стеклопакетов</div>
+    <div class="nav-item active" onclick="switchTab('calc', this)">🎨 Визуальный Конструктор</div>
+    <div class="nav-item" onclick="switchTab('nesting', this)">า 1D-Раскрой хлыстов</div>
+    <div class="nav-item" onclick="switchTab('terminal', this)">🖥️ Цеховой терминал</div>
+    <div class="nav-item" onclick="switchTab('po', this)">📦 Заказ стеклопакетов</div>
   </div>
 </aside>
 
 <main>
   <header>
-    <h1>Визуальный Конструктор Оконной Конструкции</h1>
-    <span class="mode-badge">Режим: ПВХ / Алюминий (Параметрический)</span>
+    <h1 id="tab-title">Визуальный Конструктор Оконной Конструкции</h1>
+    <span class="mode-badge" id="tab-badge">Режим: ПВХ / Алюминий (Параметрический)</span>
   </header>
 
   <div class="content">
-    <div class="grid-builder">
-      
-      <!-- ПАНЕЛЬ 1: НАСТРОЙКИ ГАБАРИТОВ И КОНФИГУРАЦИИ -->
-      <div class="card">
-        <div class="card-title">1. Основные параметры</div>
+
+    <!-- ВКТЛАДКА 1: ВИЗУАЛЬНЫЙ КОНСТРУКТОР -->
+    <div id="tab-calc" class="tab-content active">
+      <div class="grid-builder">
         
-        <div class="fg">
-          <label>Профильная система</label>
-          <select id="prof-sys" class="fc" onchange="updateWindow()">
-            <option value="PVC_70">ПВХ 70 мм (Фальц 21мм, уварка +6мм)</option>
-            <option value="ALU_64">Алюминий Тёплый 64 мм</option>
-          </select>
+        <!-- ПАНЕЛЬ 1: НАСТРОЙКИ ГАБАРИТОВ И КОНФИГУРАЦИИ -->
+        <div class="card">
+          <div class="card-title">1. Основные параметры</div>
+          
+          <div class="fg">
+            <label>Профильная система</label>
+            <select id="prof-sys" class="fc" onchange="updateWindow()">
+              <option value="PVC_70">ПВХ 70 мм (Фальц 21мм, уварка +6мм)</option>
+              <option value="ALU_64">Алюминий Тёплый 64 мм</option>
+            </select>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="fg"><label>Ширина (W), мм</label><input type="number" id="win-w" class="fc" value="1500" min="500" max="3000" step="10" oninput="updateWindow()"></div>
+            <div class="fg"><label>Высота (H), мм</label><input type="number" id="win-h" class="fc" value="1400" min="500" max="2500" step="10" oninput="updateWindow()"></div>
+          </div>
+
+          <div class="fg">
+            <label>Количество секций (Импосты)</label>
+            <select id="section-count" class="fc" onchange="changeSectionCount()">
+              <option value="1">1 секция (Без импоста)</option>
+              <option value="2" selected>2 секции (1 Вертикальный импост)</option>
+              <option value="3">3 секции (2 Вертикальных импоста)</option>
+            </select>
+          </div>
+
+          <hr style="border:0; border-top: 1px solid var(--bd); margin: 15px 0;">
+
+          <div class="card-title">2. Редактор выбранной секции</div>
+          <p style="font-size:0.75rem; color:var(--mu); margin-bottom:10px;">Нажмите на секцию на чертеже для изменения её типа:</p>
+          
+          <div class="fg">
+            <label>Выбранная секция: <b id="selected-pane-title">Секция №2</b></label>
+            <select id="pane-type" class="fc" onchange="setPaneType()">
+              <option value="FIXED">Глухое остекление (в раму)</option>
+              <option value="TILT_TURN_RIGHT">Створка Поворотно-Откидная (Правая)</option>
+              <option value="TILT_TURN_LEFT">Створка Поворотно-Откидная (Левая)</option>
+              <option value="CASEMENT_RIGHT">Створка Поворотная (Правая)</option>
+            </select>
+          </div>
+
+          <div class="fg">
+            <label>Формула стеклопакета секции</label>
+            <input type="text" id="pane-glass-formula" class="fc" value="4M1-14Ar-4i" oninput="updateWindow()">
+          </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="fg"><label>Ширина (W), мм</label><input type="number" id="win-w" class="fc" value="1500" min="500" max="3000" step="10" oninput="updateWindow()"></div>
-          <div class="fg"><label>Высота (H), мм</label><input type="number" id="win-h" class="fc" value="1400" min="500" max="2500" step="10" oninput="updateWindow()"></div>
+        <!-- ПАНЕЛЬ 2: ВИЗУАЛЬНЫЙ SVG-ЧЕРТЕЖ -->
+        <div class="card canvas-card">
+          <div style="position: absolute; top: 15px; left: 15px; font-weight:600; font-size:0.85rem; color:var(--mu);">
+            Интерактивный чертеж (Кликните на секцию)
+          </div>
+          
+          <div class="svg-container">
+            <svg id="window-svg" viewBox="0 0 500 450" xmlns="http://www.w3.org/2000/svg">
+              <!-- SVG генерируется скриптом -->
+            </svg>
+          </div>
         </div>
 
-        <div class="fg">
-          <label>Количество секций (Импосты)</label>
-          <select id="section-count" class="fc" onchange="changeSectionCount()">
-            <option value="1">1 секция (Без импоста)</option>
-            <option value="2" selected>2 секции (1 Вертикальный импост)</option>
-            <option value="3">3 секции (2 Вертикальных импоста)</option>
-          </select>
+        <!-- ПАНЕЛЬ 3: АВТОМАТИЧЕСКАЯ ДЕТАЛИРОВКА (BOM) -->
+        <div class="card">
+          <div class="card-title">3. Спецификация и вычеты</div>
+          
+          <p style="font-size:0.8rem; font-weight:600; margin-bottom:6px;">Профили 1D (Длины под резку с уваркой):</p>
+          <div style="max-height: 160px; overflow-y:auto; margin-bottom: 12px;">
+            <table id="tbl-bom-1d">
+              <thead><tr><th>Деталь</th><th>Длина</th><th>Угол</th><th>Кол</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <p style="font-size:0.8rem; font-weight:600; margin-bottom:6px;">Стеклопакеты (Falz-logic вычеты):</p>
+          <div style="max-height: 160px; overflow-y:auto; margin-bottom: 15px;">
+            <table id="tbl-bom-glass">
+              <thead><tr><th>Секция</th><th>Размер (W×H)</th><th>Площадь</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <button class="btn btn-pri" style="width:100%; padding:10px;" onclick="alert('Конструкция успешно передана в модуль 1D-раскроя!')">
+            Передать в производство
+          </button>
         </div>
 
-        <hr style="border:0; border-top: 1px solid var(--bd); margin: 15px 0;">
-
-        <div class="card-title">2. Редактор выбранной секции</div>
-        <p style="font-size:0.75rem; color:var(--mu); margin-bottom:10px;">Нажмите на секцию на чертеже для изменения её типа:</p>
-        
-        <div class="fg">
-          <label>Выбранная секция: <b id="selected-pane-title">Секция №2</b></label>
-          <select id="pane-type" class="fc" onchange="setPaneType()">
-            <option value="FIXED">Глухое остекление (в раму)</option>
-            <option value="TILT_TURN_RIGHT">Створка Поворотно-Откидная (Правая)</option>
-            <option value="TILT_TURN_LEFT">Створка Поворотно-Откидная (Левая)</option>
-            <option value="CASEMENT_RIGHT">Створка Поворотная (Правая)</option>
-          </select>
-        </div>
-
-        <div class="fg">
-          <label>Формула стеклопакета секции</label>
-          <input type="text" id="pane-glass-formula" class="fc" value="4M1-14Ar-4i" oninput="updateWindow()">
-        </div>
       </div>
-
-      <!-- ПАНЕЛЬ 2: ВИЗУАЛЬНЫЙ SVG-ЧЕРТЕЖ -->
-      <div class="card canvas-card">
-        <div style="position: absolute; top: 15px; left: 15px; font-weight:600; font-size:0.85rem; color:var(--mu);">
-          Интерактивный чертеж (Кликните на секцию)
-        </div>
-        
-        <div class="svg-container">
-          <svg id="window-svg" viewBox="0 0 500 450" xmlns="http://www.w3.org/2000/svg">
-            <!-- SVG генерируется скриптом -->
-          </svg>
-        </div>
-      </div>
-
-      <!-- ПАНЕЛЬ 3: АВТОМАТИЧЕСКАЯ ДЕТАЛИРОВКА (BOM) -->
-      <div class="card">
-        <div class="card-title">3. Спецификация и вычеты</div>
-        
-        <p style="font-size:0.8rem; font-weight:600; margin-bottom:6px;">Профили 1D (Длины под резку с уваркой):</p>
-        <div style="max-height: 160px; overflow-y:auto; margin-bottom: 12px;">
-          <table id="tbl-bom-1d">
-            <thead><tr><th>Деталь</th><th>Длина</th><th>Угол</th><th>Кол</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-
-        <p style="font-size:0.8rem; font-weight:600; margin-bottom:6px;">Стеклопакеты (Falz-logic вычеты):</p>
-        <div style="max-height: 160px; overflow-y:auto; margin-bottom: 15px;">
-          <table id="tbl-bom-glass">
-            <thead><tr><th>Секция</th><th>Размер (W×H)</th><th>Площадь</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-
-        <button class="btn btn-pri" style="width:100%; padding:10px;" onclick="alert('Конструкция успешно передана в модуль 1D-раскроя!')">
-          Передать в производство
-        </button>
-      </div>
-
     </div>
+
+    <!-- ВКЛАДКА 2: 1D РАСКРОЙ ХЛЫСТОВ -->
+    <div id="tab-nesting" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>Карта 1D-раскроя (Профиль: Рама 70мм · Хлыст 6500 мм)</span>
+          <button class="btn btn-ok" onclick="alert('Карта резки сформирована и отправлена на пильный центр!')">Сформировать карту резки</button>
+        </div>
+        <p style="color: var(--mu); font-size: 0.85rem; margin-bottom: 12px;">Параметры: Пропил пилы = 5 мм, Уварка ПВХ = +6 мм на деталь, Торцовка хлыста = 15 мм.</p>
+        
+        <div id="nesting-results">
+          <div class="card" style="background: #f8fafc; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.85rem;">
+              <span>Хлыст №1 (6500 мм) — Рама 70мм</span>
+              <span style="color: var(--ok)">КИУ: 91.2%</span>
+            </div>
+            <div class="bar-container">
+              <div class="bar-segment" style="width: 22%; background: #2563eb;">1506 мм (Рама)</div>
+              <div class="bar-segment kerf"></div>
+              <div class="bar-segment" style="width: 22%; background: #2563eb;">1506 мм (Рама)</div>
+              <div class="bar-segment kerf"></div>
+              <div class="bar-segment" style="width: 20%; background: #2563eb;">1406 мм (Рама)</div>
+              <div class="bar-segment kerf"></div>
+              <div class="bar-segment" style="width: 20%; background: #2563eb;">1406 мм (Рама)</div>
+              <div class="bar-offcut">Обрезок: 646 мм (Деловой)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ВКЛАДКА 3: ЦЕХОВОЙ ТЕРМИНАЛ -->
+    <div id="tab-terminal" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Маршрутный лист сборки окон № WIN-2026-088</div>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+            <div style="padding: 10px; background: #e0f2fe; border-radius: 6px; font-weight: 600;">Этап 1: Раскрой профиля (Двухголовая пила) — <span style="color: var(--ok)">ВЫПОЛНЕНО</span></div>
+            <div style="padding: 10px; background: #fef3c7; border-radius: 6px; font-weight: 600;">Этап 2: Сварка & Зачистка углов — <span style="color: var(--warn)">В РАБОТЕ</span></div>
+            <div style="padding: 10px; background: #f1f5f9; border-radius: 6px; font-weight: 600; color: var(--mu);">Этап 3: Установка фурнитуры</div>
+            <div style="padding: 10px; background: #f1f5f9; border-radius: 6px; font-weight: 600; color: var(--mu);">Этап 4: Остекление и забивка штапика</div>
+          </div>
+          <button class="btn btn-pri" style="width: 100%; padding: 12px;" onclick="alert('Шаг «Сварка & Зачистка» завершен. Передано на фурнитуру.')">Подтвердить этап (Сканер)</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Комплектация фурнитуры под створку</div>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px;">
+            <li>• Привод основной П/О (FFH 1001-1600) — 1 шт</li>
+            <li>• Ножницы на раму/стк (FFW 601-1100) — 1 шт</li>
+            <li>• Петлевая группа ПВХ 100кг — 1 комплект</li>
+            <li>• Ответные планки прижима — 4 шт</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ВКЛАДКА 4: ЗАКАЗ СТЕКЛОПАКЕТОВ -->
+    <div id="tab-po" class="tab-content">
+      <div class="card">
+        <div class="card-title">Внешний заказ на завод стеклопакетов (Purchase Order)</div>
+        <p style="margin-bottom: 15px;">Позиции сформированы автоматически на основе Falz-logic вычетов профиля:</p>
+        <table id="tbl-po-glass">
+          <thead><tr><th>№</th><th>Маркировка проёма</th><th>Размер (W x H)</th><th>Формула</th><th>Статус заказа</th></tr></thead>
+          <tbody>
+            <!-- Динамически обновляется из BOM -->
+          </tbody>
+        </table>
+        <br>
+        <button class="btn btn-ok" onclick="alert('Заказ EDI/PDF успешно отправлен на завод стеклопакетов!')">Отправить заказ на стекольный завод</button>
+      </div>
+    </div>
+
   </div>
 </main>
 
 <script>
-// Состояние окна
+// Состояние окна для визуального конструктора
 let windowState = {
   w: 1500,
   h: 1400,
@@ -179,11 +270,35 @@ let windowState = {
   ]
 };
 
+// Логика переключения вкладок
+function switchTab(tabId, el) {
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+  
+  document.getElementById('tab-' + tabId).classList.add('active');
+  el.classList.add('active');
+
+  const titles = {
+    'calc': 'Визуальный Конструктор Оконной Конструкции',
+    'nesting': 'Оконный цех — 1D-Раскрой хлыстов профиля',
+    'terminal': 'Оконный цех — Терминал сборщика',
+    'po': 'Оконный цех — Внешний заказ стеклопакетов'
+  };
+  const badges = {
+    'calc': 'Режим: ПВХ / Алюминий (Параметрический)',
+    'nesting': 'Режим: 1D Оптимизация раскроя',
+    'terminal': 'Режим: Монитор цеха',
+    'po': 'Режим: EDI Заказ стеклопакетов'
+  };
+
+  document.getElementById('tab-title').textContent = titles[tabId];
+  document.getElementById('tab-badge').textContent = badges[tabId];
+}
+
 function changeSectionCount() {
   const count = parseInt(document.getElementById('section-count').value);
   windowState.sectionsCount = count;
   
-  // Корректируем массив секций
   while(windowState.panes.length < count) {
     windowState.panes.push({ type: 'FIXED', formula: '4M1-14Ar-4i' });
   }
@@ -225,8 +340,6 @@ function renderSVG() {
   const h = windowState.h;
   const n = windowState.sectionsCount;
 
-  // Масштабирование в SVG холст (400x320)
-  const margin = 40;
   const maxCanvasW = 420;
   const maxCanvasH = 340;
   
@@ -236,12 +349,12 @@ function renderSVG() {
   const startX = (500 - svgW) / 2;
   const startY = (400 - svgH) / 2;
 
-  const frameThick = 18 * Math.max(scale, 0.15); // Отрисовка ширины профиля рамы
-  const sashThick = 14 * Math.max(scale, 0.15);  // Отрисовка профиля створки
+  const frameThick = 18 * Math.max(scale, 0.15);
+  const sashThick = 14 * Math.max(scale, 0.15);
   const mullionThick = 14 * Math.max(scale, 0.15);
 
   let html = `
-    <!-- Размеры (Размерные линии) -->
+    <!-- Размерные линии -->
     <line x1="${startX}" y1="${startY - 15}" x2="${startX + svgW}" y2="${startY - 15}" stroke="#64748b" stroke-width="1.5" />
     <text x="${startX + svgW/2}" y="${startY - 20}" fill="#64748b" font-size="12" text-anchor="middle" font-weight="bold">${w} мм</text>
     
@@ -253,7 +366,6 @@ function renderSVG() {
     <rect x="${startX + frameThick}" y="${startY + frameThick}" width="${svgW - frameThick*2}" height="${svgH - frameThick*2}" fill="#ffffff" stroke="#475569" stroke-width="1" />
   `;
 
-  // Отрисовка секций
   const sectionW = (svgW - frameThick*2 - (n - 1) * mullionThick) / n;
   const sectionH = svgH - frameThick*2;
 
@@ -263,56 +375,44 @@ function renderSVG() {
     const pane = windowState.panes[i];
     const isSelected = (i === windowState.selectedPaneIndex);
 
-    // Если это не первая секция, рисуем Импост слева от неё
     if (i > 0) {
       const mulX = secX - mullionThick;
       html += `<rect x="${mulX}" y="${startY + frameThick}" width="${mullionThick}" height="${sectionH}" fill="#cbd5e1" stroke="#475569" stroke-width="1" />`;
     }
 
-    // Заполнение секции
     const selectedClass = isSelected ? 'selected' : '';
     html += `<rect class="section-pane ${selectedClass}" x="${secX}" y="${secY}" width="${sectionW}" height="${sectionH}" fill="${isSelected ? '#bae6fd' : '#f1f5f9'}" stroke="#94a3b8" stroke-width="1" onclick="selectPane(${i})" />`;
 
-    // Если Створка (Sash)
     if (pane.type !== 'FIXED') {
       const sashX = secX + 3;
       const sashY = secY + 3;
       const sashW = sectionW - 6;
       const sashH = sectionH - 6;
 
-      // Профиль створки
       html += `<rect x="${sashX}" y="${sashY}" width="${sashW}" height="${sashH}" fill="#ffffff" stroke="#2563eb" stroke-width="2" pointer-events="none" />`;
       html += `<rect x="${sashX + sashThick}" y="${sashY + sashThick}" width="${sashW - sashThick*2}" height="${sashH - sashThick*2}" fill="#e0f2fe" stroke="#60a5fa" stroke-width="1" pointer-events="none" />`;
 
-      // Линии открывания (Пунктиры треугольников)
       const innerX = sashX + sashThick;
       const innerY = sashY + sashThick;
       const innerW = sashW - sashThick*2;
       const innerH = sashH - sashThick*2;
 
       if (pane.type === 'TILT_TURN_RIGHT') {
-        // Поворотно-откидная правая (петли справа)
         html += `<path d="M ${innerX} ${innerY} L ${innerX + innerW} ${innerY + innerH/2} L ${innerX} ${innerY + innerH}" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4,3" pointer-events="none" />`;
         html += `<path d="M ${innerX} ${innerY + innerH} L ${innerX + innerW/2} ${innerY} L ${innerX + innerW} ${innerY + innerH}" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4,3" pointer-events="none" />`;
-        // Ручка слева
         html += `<rect x="${innerX + 2}" y="${innerY + innerH/2 - 8}" width="4" height="16" rx="2" fill="#0f172a" pointer-events="none"/>`;
       } else if (pane.type === 'TILT_TURN_LEFT') {
-        // Поворотно-откидная левая (петли слева)
         html += `<path d="M ${innerX + innerW} ${innerY} L ${innerX} ${innerY + innerH/2} L ${innerX + innerW} ${innerY + innerH}" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4,3" pointer-events="none" />`;
         html += `<path d="M ${innerX} ${innerY + innerH} L ${innerX + innerW/2} ${innerY} L ${innerX + innerW} ${innerY + innerH}" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4,3" pointer-events="none" />`;
-        // Ручка справа
         html += `<rect x="${innerX + innerW - 6}" y="${innerY + innerH/2 - 8}" width="4" height="16" rx="2" fill="#0f172a" pointer-events="none"/>`;
       } else if (pane.type === 'CASEMENT_RIGHT') {
-        // Поворотная правая
         html += `<path d="M ${innerX} ${innerY} L ${innerX + innerW} ${innerY + innerH/2} L ${innerX} ${innerY + innerH}" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4,3" pointer-events="none" />`;
         html += `<rect x="${innerX + 2}" y="${innerY + innerH/2 - 8}" width="4" height="16" rx="2" fill="#0f172a" pointer-events="none"/>`;
       }
     } else {
-      // Маркировка глухаря
       html += `<text x="${secX + sectionW/2}" y="${secY + sectionH/2}" fill="#64748b" font-size="11" text-anchor="middle" font-weight="500" pointer-events="none">FIX (Глухое)</text>`;
     }
 
-    // Номер секции
     html += `<text x="${secX + sectionW/2}" y="${secY + 18}" fill="#0284c7" font-size="10" text-anchor="middle" font-weight="bold" pointer-events="none">№${i+1}</text>`;
   }
 
@@ -323,10 +423,9 @@ function recalcBOM() {
   const w = windowState.w;
   const h = windowState.h;
   const n = windowState.sectionsCount;
-  const weld = 3; // +3мм уварка ПВХ
-  const falzClearance = 8; // -8мм вычет фальца под стеклопакет
+  const weld = 3;
+  const falzClearance = 8;
 
-  // 1D Профили
   const bom1D = [
     { name: 'Рама Горизонт', len: w + weld*2, angle: '45°/45°', qty: 2 },
     { name: 'Рама Вертикаль', len: h + weld*2, angle: '45°/45°', qty: 2 }
@@ -336,7 +435,6 @@ function recalcBOM() {
     bom1D.push({ name: 'Импост Вертикальный', len: h - 84, angle: '90°/90°', qty: n - 1 });
   }
 
-  // Расчёт створок и стеклопакетов по секциям
   const sectionPureW = (w - 88 - (n - 1) * 56) / n;
   const bomGlass = [];
 
@@ -346,36 +444,48 @@ function recalcBOM() {
       gw = Math.round(sectionPureW - falzClearance);
       gh = Math.round(h - 88 - falzClearance);
     } else {
-      // Створка уменьшает проем под стеклопакет
       const sashW = sectionPureW - 42;
       const sashH = h - 88 - 42;
       gw = Math.round(sashW - falzClearance);
       gh = Math.round(sashH - falzClearance);
 
-      // Добавляем профиль створки в BOM
       bom1D.push({ name: `Створка Г (Секция ${idx+1})`, len: Math.round(sashW + 84 + weld*2), angle: '45°/45°', qty: 2 });
       bom1D.push({ name: `Створка В (Секция ${idx+1})`, len: Math.round(sashH + 84 + weld*2), angle: '45°/45°', qty: 2 });
     }
 
     const area = ((gw * gh) / 1000000).toFixed(2);
-    bomGlass.push({ sec: `№${idx+1} (${pane.type === 'FIXED' ? 'Глухое' : 'Створка'})`, size: `${gw} × ${gh}`, area: `${area} м²` });
+    bomGlass.push({ sec: `№${idx+1} (${pane.type === 'FIXED' ? 'Глухое' : 'Створка'})`, size: `${gw} × ${gh}`, area: `${area} м²`, formula: pane.formula });
   });
 
-  // Заполнение таблиц
+  // Заполнение таблицы BOM 1D
   let html1D = '';
   bom1D.forEach(row => {
     html1D += `<tr><td><b>${row.name}</b></td><td class="mono"><b>${row.len}</b></td><td>${row.angle}</td><td>${row.qty}</td></tr>`;
   });
   document.querySelector('#tbl-bom-1d tbody').innerHTML = html1D;
 
+  // Заполнение таблицы BOM Стеклопакетов (Вкладка 1)
   let htmlGlass = '';
   bomGlass.forEach(row => {
     htmlGlass += `<tr><td><b>${row.sec}</b></td><td class="mono"><b>${row.size}</b></td><td class="mono">${row.area}</td></tr>`;
   });
   document.querySelector('#tbl-bom-glass tbody').innerHTML = htmlGlass;
+
+  // Синхронизация с Вкладкой 4 (Внешний заказ стеклопакетов)
+  let htmlPO = '';
+  bomGlass.forEach((row, idx) => {
+    htmlPO += `<tr>
+      <td class="mono">${idx + 1}</td>
+      <td>WIN-088-ПОЗ${idx + 1} (${row.sec})</td>
+      <td class="mono"><b>${row.size} мм</b></td>
+      <td class="mono">${row.formula}</td>
+      <td><span style="color:var(--pri); font-weight:600;">Сформирован в EDI</span></td>
+    </tr>`;
+  });
+  document.querySelector('#tbl-po-glass tbody').innerHTML = htmlPO;
 }
 
-// Первичная инициализация
+// Инициализация при загрузке
 updateWindow();
 </script>
 </body>
