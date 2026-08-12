@@ -285,7 +285,13 @@ tr.editing{background:var(--pri-soft)!important;box-shadow:inset 3px 0 0 var(--p
   font-family:var(--disp);text-transform:uppercase;white-space:nowrap}
 body.ro .no-edit,body.ro .b-ok,body.ro #spec-tbl .rowacts,body.ro .addbar,
 body.ro .shape-pick,body.ro .qty-in{display:none!important}
-body.ro .fc,body.ro input,body.ro select,body.ro textarea{pointer-events:none;background:#F5F6FB;color:var(--mu)}
+body.ro #t-shop .btn{display:inline-flex!important}
+body.ro .body .fc,body.ro .body input,body.ro .body select,body.ro .body textarea{
+  pointer-events:none;background:#F5F6FB;color:var(--mu)}
+/* терминал оператора и переключатель роли не блокируются */
+body.ro header *,body.ro .role-sel,body.ro .scanfield,body.ro .scanfield input,
+body.ro #t-shop input,body.ro #t-shop .btn{pointer-events:auto!important;background:''}
+body.ro .scanfield input{background:none;color:var(--tx)}
 .money.hidden-role{display:none!important}
 
 @media(max-width:768px){
