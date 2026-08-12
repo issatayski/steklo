@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GlassERP — Модуль «Оконный цех»</title>
+<style>
+  :root {
+    --bg: #f4f6f9; --card: #ffffff; --tx: #1e293b; --mu: #64748b;
+    --pri: #2563eb; --pri-h: #1d4ed8; --ok: #16a34a; --bad: #dc2626;
+    --warn: #d97706; --bd: #e2e8f0; --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { background: var(--bg); color: var(--tx); display: flex; height: 100vh; overflow: hidden; font-size: 14px; }
+  
+  /* Sidebar */
+  aside { width: 240px; background: #0f172a; color: #fff; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+  aside h2 { font-size: 1.1rem; color: #38bdf8; font-weight: 700; letter-spacing: 0.5px; }
+  .nav-group { display: flex; flex-direction: column; gap: 6px; }
+  .nav-item { padding: 10px 12px; border-radius: 8px; color: #94a3b8; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+  .nav-item:hover, .nav-item.active { background: #1e293b; color: #fff; }
+  .nav-item.active { border-left: 3px solid #38bdf8; }
+
+  /* Main Area */
+  main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  header { background: var(--card); padding: 16px 24px; border-bottom: 1px solid var(--bd); display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 1.25rem; font-weight: 600; }
+  .mode-badge { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
+
+  .content { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 24px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  
+  /* Cards */
+  .card { background: var(--card); border: 1px solid var(--bd); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+
+  /* Forms & Controls */
+  .fg { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .fg label { font-size: 0.8rem; font-weight: 600; color: var(--mu); }
+  .fc { padding: 8px 12px; border: 1px solid var(--bd); border-radius: 6px; font-size: 0.9rem; outline: none; }
+  .fc:focus { border-color: var(--pri); }
+  .btn { padding: 8px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; transition: background 0.2s; font-size: 0.85rem; }
+  .btn-pri { background: var(--pri); color: #fff; } .btn-pri:hover { background: var(--pri-h); }
+  .btn-ok { background: var(--ok); color: #fff; }
+  .btn-out { background: transparent; border: 1px solid var(--bd); color: var(--tx); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--bd); }
+  th { background: #f8fafc; color: var(--mu); font-weight: 600; }
+  .mono { font-family: var(--mono); }
+
+  /* 1D Visualizer Bar */
+  .bar-container { background: #e2e8f0; height: 36px; border-radius: 6px; overflow: hidden; display: flex; margin-top: 10px; position: relative; }
+  .bar-segment { height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.75rem; font-weight: bold; border-right: 2px solid #fff; position: relative; }
+  .bar-segment.kerf { background: #ef4444 !important; width: 4px !important; padding: 0 !important; }
+  .bar-offcut { background: #cbd5e1; color: #475569; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+
+  /* Tab View Logic */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<aside>
+  <h2>GlassERP</h2>
+  <div class="nav-group">
+    <div class="nav-item active" onclick="switchTab('calc')">📐 Конструктор окон</div>
+    <div class="nav-item" onclick="switchTab('nesting')">า 1D-Раскрой хлыстов</div>
+    <div class="nav-item" onclick="switchTab('terminal')">🖥️ Цеховой терминал</div>
+    <div class="nav-item" onclick="switchTab('po')">📦 Заказ стеклопакетов</div>
+  </div>
+</aside>
+
+<main>
+  <header>
+    <h1 id="tab-title">Оконный цех — Конструктор и расчёт</h1>
+    <span class="mode-badge">Режим: Оконная сборка (1D + Покупной пакет)</span>
+  </header>
+
+  <div class="content">
+
+    <!-- ТАБ 1: КОНСТРУКТОР ОКОН -->
+    <div id="tab-calc" class="tab-content active">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Параметры конструкции</div>
+          <div class="grid-2">
+            <div class="fg"><label>Ширина рамы (W), мм</label><input type="number" id="win-w" class="fc" value="1400" oninput="recalcWindow()"></div>
+            <div class="fg"><label>Высота рамы (H), мм</label><input type="number" id="win-h" class="fc" value="1400" oninput="recalcWindow()"></div>
+          </div>
+          <div class="fg">
+            <label>Профильная система</label>
+            <select id="prof-sys" class="fc" onchange="recalcWindow()">
+              <option value="PVC_70">ПВХ 70мм (Фальц 21мм, Нахлест 8мм)</option>
+              <option value="ALU_64">Алюминий Тёплый 64мм</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Тип конструкции</label>
+            <select id="win-type" class="fc" onchange="recalcWindow()">
+              <option value="2_SASH_FIX_TILT">2-створчатое: Глухое + Поворотно-Откидное</option>
+              <option value="1_SASH_TILT">1-створчатое: Поворотно-Откидное</option>
+            </select>
+          </div>
+          <div class="fg"><label>Формула заполнения</label><input type="text" id="glass-formula" class="fc" value="4M1-14Ar-4i"></div>
+          <button class="btn btn-pri" onclick="alert('Конструкция добавлена в спецификацию заказа')">Сохранить позицию</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Деталировка и Спецификация (BOM)</div>
+          <div style="margin-bottom: 15px;">
+            <p><strong>Детали профиля 1D (для резки):</strong></p>
+            <table id="tbl-bom-1d">
+              <thead><tr><th>Элемент</th><th>Артикул</th><th>Длина (мм)</th><th>Углы</th><th>Кол-во</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div>
+            <p><strong>Стеклопакеты (Авторасчет Falz-logic):</strong></p>
+            <table id="tbl-bom-glass">
+              <thead><tr><th>Поз</th><th>Размер (W x H), мм</th><th>Площадь</th><th>Формула</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ТАБ 2: 1D РАСКРОЙ ХЛЫСТОВ -->
+    <div id="tab-nesting" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>Карта 1D-раскроя (Профиль: Рама 70мм · Хлыст 6500 мм)</span>
+          <button class="btn btn-ok" onclick="runNesting()">Сформировать карту резки</button>
+        </div>
+        <p style="color: var(--mu); font-size: 0.85rem; margin-bottom: 12px;">Параметры: Пропил пилы = 5 мм, Уварка ПВХ = +6 мм на деталь, Торцовка хлыста = 15 мм.</p>
+        
+        <div id="nesting-results">
+          <div class="card" style="background: #f8fafc; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.85rem;">
+              <span>Хлыст №1 (6500 мм) — Рама 70мм</span>
+              <span style="color: var(--ok)">КИУ: 91.2%</span>
+            </div>
+            <div class="bar-container">
+              <div class="bar-segment" style="width: 22%; background: #2563eb;">1406 мм (Рама)</div>
+              <div class="bar-segment kerf"></div>
+              <div class="bar-segment" style="width: 22%; background: #2563eb;">1406 мм (Рама)</div>
+              <div class="bar-segment kerf"></div>
+              <div class="bar-segment" style="width: 22%; background: #2563eb;">1406 мм (Рама)</div>
+              <div class="bar-segment kerf"></div>
+              <div class="bar-segment" style="width: 22%; background: #2563eb;">1406 мм (Рама)</div>
+              <div class="bar-offcut">Обрезок: 846 мм (Деловой)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ТАБ 3: ЦЕХОВОЙ ТЕРМИНАЛ -->
+    <div id="tab-terminal" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Маршрутный лист сборки окон № WIN-2026-088</div>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+            <div style="padding: 10px; background: #e0f2fe; border-radius: 6px; font-weight: 600;">Этап 1: Раскрой профиля (Двухголовая пила) — <span style="color: var(--ok)">ВЫПОЛНЕНО</span></div>
+            <div style="padding: 10px; background: #fef3c7; border-radius: 6px; font-weight: 600;">Этап 2: Сварка & Зачистка углов — <span style="color: var(--warn)">В РАБОТЕ</span></div>
+            <div style="padding: 10px; background: #f1f5f9; border-radius: 6px; font-weight: 600; color: var(--mu);">Этап 3: Установка фурнитуры</div>
+            <div style="padding: 10px; background: #f1f5f9; border-radius: 6px; font-weight: 600; color: var(--mu);">Этап 4: Остекление и забивка штапика</div>
+          </div>
+          <button class="btn btn-pri" style="width: 100%; padding: 12px;" onclick="alert('Шаг «Сварка & Зачистка» завершен. Передано на фурнитуру.')">Подтвердить этап (Сканер)</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Комплектация фурнитуры под створку</div>
+          <ul>
+            <li>• Привод основной П/О (FFH 1001-1600) — 1 шт</li>
+            <li>• Ножницы на раму/стк (FFW 601-1100) — 1 шт</li>
+            <li>• Петлевая группа ПВХ 100кг — 1 комплект</li>
+            <li>• Ответные планки прижима — 4 шт</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ТАБ 4: ЗАКАЗ СТЕКЛОПАКЕТОВ -->
+    <div id="tab-po" class="tab-content">
+      <div class="card">
+        <div class="card-title">Внешний заказ на завод стеклопакетов (Purchase Order)</div>
+        <p style="margin-bottom: 15px;">Позиции сформированы автоматически на основе Falz-logic вычетов профиля:</p>
+        <table>
+          <thead><tr><th>№</th><th>Маркировка проёма</th><th>Размер (W x H)</th><th>Формула</th><th>Кол-во</th><th>Статус заказа</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">1</td><td>WIN-088-ПОЗ1 (Глухарь)</td><td class="mono">612 × 1312 мм</td><td class="mono">4M1-14Ar-4i</td><td>1 шт</td><td><span style="color:var(--pri); font-weight:600;">Отправлено поставщику</span></td></tr>
+            <tr><td class="mono">2</td><td>WIN-088-ПОЗ2 (Створка)</td><td class="mono">590 × 1220 мм</td><td class="mono">4M1-14Ar-4i</td><td>1 шт</td><td><span style="color:var(--pri); font-weight:600;">Отправлено поставщику</span></td></tr>
+          </tbody>
+        </table>
+        <br>
+        <button class="btn btn-ok" onclick="alert('Заказ EDI/PDF отправлен на завод стеклопакетов')">Отправить заказ на стекольный завод</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  
+  document.getElementById('tab-' + tabId).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  const titles = {
+    'calc': 'Оконный цех — Конструктор и расчёт',
+    'nesting': 'Оконный цех — 1D-Раскрой хлыстов профиля',
+    'terminal': 'Оконный цех — Терминал сборщика',
+    'po': 'Оконный цех — Внешний заказ стеклопакетов'
+  };
+  document.getElementById('tab-title').textContent = titles[tabId];
+}
+
+function recalcWindow() {
+  const w = parseFloat(document.getElementById('win-w').value) || 0;
+  const h = parseFloat(document.getElementById('win-h').value) || 0;
+  const formula = document.getElementById('glass-formula').value;
+
+  // Константы профиля ПВХ 70
+  const weldAllowance = 3; // +3 мм на каждый конец для сварки ПВХ
+  const falzClearance = 8; // -8 мм от размера фальца под зазор стеклопакета
+
+  // Расчет 1D элементов рамы (пильный размер = габарит + уварка*2)
+  const frameW = w + (weldAllowance * 2);
+  const frameH = h + (weldAllowance * 2);
+
+  const bom1d = [
+    { name: 'Рама Горизонт', art: 'FR-70', len: frameW, angle: '45° / 45°', qty: 2 },
+    { name: 'Рама Вертикаль', art: 'FR-70', len: frameH, angle: '45° / 45°', qty: 2 },
+    { name: 'Импост Вертикальный', art: 'MUL-70', len: h - 84, angle: '90° / 90°', qty: 1 }
+  ];
+
+  let html1d = '';
+  bom1d.forEach(item => {
+    html1d += `<tr><td><b>${item.name}</b></td><td class="mono">${item.art}</td><td class="mono"><b>${item.len}</b></td><td>${item.angle}</td><td>${item.qty} шт</td></tr>`;
+  });
+  document.querySelector('#tbl-bom-1d tbody').innerHTML = html1d;
+
+  // Авторасчет размеров стеклопакета (Falz-logic)
+  // Для 2-створчатого окна с импостом по центру:
+  const glassW1 = Math.round((w / 2) - 88 - falzClearance);
+  const glassH1 = Math.round(h - 88 - falzClearance);
+  
+  const glassW2 = Math.round((w / 2) - 110 - falzClearance); // для створки
+  const glassH2 = Math.round(h - 110 - falzClearance);
+
+  const area1 = ((glassW1 * glassH1) / 1000000).toFixed(2);
+  const area2 = ((glassW2 * glassH2) / 1000000).toFixed(2);
+
+  const bomGlass = [
+    { pos: '1 (Глухарь)', size: `${glassW1} × ${glassH1}`, area: area1, formula },
+    { pos: '2 (Створка)', size: `${glassW2} × ${glassH2}`, area: area2, formula }
+  ];
+
+  let htmlGlass = '';
+  bomGlass.forEach(item => {
+    htmlGlass += `<tr><td>${item.pos}</td><td class="mono"><b>${item.size}</b></td><td class="mono">${item.area} м²</td><td class="mono">${item.formula}</td></tr>`;
+  });
+  document.querySelector('#tbl-bom-glass tbody').innerHTML = htmlGlass;
+}
+
+// Первичный расчет при загрузке
+recalcWindow();
+</script>
+</body>
+</html>
