@@ -279,7 +279,14 @@ tr.editing{background:var(--pri-soft)!important;box-shadow:inset 3px 0 0 var(--p
 .bulk-prev{display:flex;flex-wrap:wrap;gap:6px;max-height:170px;overflow-y:auto}
 .bulk-prev span{background:#F1F3F9;border-radius:9px;padding:5px 11px;font-size:.79rem;
   font-family:var(--mono)}
-.money.hidden-role{filter:blur(5px);user-select:none}
+
+.rolebox{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:0 0 auto}
+.rolelbl{font-size:.68rem;color:var(--mu2);font-weight:700;letter-spacing:.03em;
+  font-family:var(--disp);text-transform:uppercase;white-space:nowrap}
+body.ro .no-edit,body.ro .b-ok,body.ro #spec-tbl .rowacts,body.ro .addbar,
+body.ro .shape-pick,body.ro .qty-in{display:none!important}
+body.ro .fc,body.ro input,body.ro select,body.ro textarea{pointer-events:none;background:#F5F6FB;color:var(--mu)}
+.money.hidden-role{display:none!important}
 
 @media(max-width:768px){
   aside{position:fixed;inset:0 auto 0 0;transform:translateX(-100%);box-shadow:0 0 40px rgba(30,35,64,.2)}
@@ -313,13 +320,13 @@ tr.editing{background:var(--pri-soft)!important;box-shadow:inset 3px 0 0 var(--p
     <button class="xbtn" onclick="toggleSb()" aria-label="Закрыть меню">&times;</button>
   </div>
   <ul class="nav">
-    <li class="ni active" onclick="go('dash',this)"><span>Дашборд</span></li>
-    <li class="ni" onclick="go('orders',this)"><span>Заказы и расчёт</span><span class="bdg" id="b-ord">3</span></li>
-    <li class="ni" onclick="go('cutting',this)"><span>Раскрой и склад стекла</span><span class="bdg" id="b-off">2</span></li>
-    <li class="ni" onclick="go('shop',this)"><span>Цеховой терминал</span><span class="bdg red" id="b-hot">1</span></li>
-    <li class="ni" onclick="go('quality',this)"><span>Брак и паспорт изделия</span></li>
-    <li class="ni" onclick="go('logi',this)"><span>Отгрузка и пирамиды</span><span class="bdg">4</span></li>
-    <li class="ni" onclick="go('settings',this)"><span>Нормативы и режимы</span></li>
+    <li class="ni active" data-nav="dash" onclick="go('dash',this)"><span>Дашборд</span></li>
+    <li class="ni" data-nav="orders" onclick="go('orders',this)"><span>Заказы и расчёт</span><span class="bdg" id="b-ord">3</span></li>
+    <li class="ni" data-nav="cutting" onclick="go('cutting',this)"><span>Раскрой и склад стекла</span><span class="bdg" id="b-off">2</span></li>
+    <li class="ni" data-nav="shop" onclick="go('shop',this)"><span>Цеховой терминал</span><span class="bdg red" id="b-hot">1</span></li>
+    <li class="ni" data-nav="quality" onclick="go('quality',this)"><span>Брак и паспорт изделия</span></li>
+    <li class="ni" data-nav="logi" onclick="go('logi',this)"><span>Отгрузка и пирамиды</span><span class="bdg">4</span></li>
+    <li class="ni" data-nav="settings" onclick="go('settings',this)"><span>Нормативы и режимы</span></li>
   </ul>
   <div class="sb-art"><svg viewBox="0 0 210 120" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="18" y="16" width="86" height="96" rx="8" fill="#E8F0FE"/>
@@ -339,26 +346,29 @@ tr.editing{background:var(--pri-soft)!important;box-shadow:inset 3px 0 0 var(--p
       <button class="mtg" onclick="toggleSb()" aria-label="Открыть меню">☰</button>
       <div class="hi"><h1 id="tt">Дашборд</h1><p id="ts">Что происходит в цехе прямо сейчас</p></div>
     </div>
-    <select class="role-sel" id="role" onchange="applyRole()">
-      <option value="admin">Директор / Админ</option>
-      <option value="manager">Менеджер по продажам</option>
-      <option value="tech">Технолог</option>
-      <option value="operator">Оператор цеха</option>
-    </select>
+    <div class="rolebox">
+      <span class="rolelbl" id="rolelbl">видит всё</span>
+      <select class="role-sel" id="role" onchange="applyRole(true)">
+        <option value="admin">Директор / Админ</option>
+        <option value="manager">Менеджер по продажам</option>
+        <option value="tech">Технолог</option>
+        <option value="operator">Оператор цеха</option>
+      </select>
+    </div>
   </header>
 
   <div class="body">
 
   <!-- ============ ДАШБОРД ============ -->
   <div id="t-dash" class="tab active">
-    <div class="g4" style="margin-bottom:18px">
+    <div class="g4" id="dash-kpi" style="margin-bottom:18px">
       <div class="card" style="margin:0"><div class="hint">В производстве</div><div class="kpi">284,5 м²</div><div class="hint">42 стеклопакета в суточной очереди</div></div>
       <div class="card" style="margin:0"><div class="hint">Горячая очередь (брак)</div><div class="kpi" id="k-hot">1 шт</div><div class="hint money">Потеря: <b id="k-hotcost">6 900 ₸</b> · счёт клиенту не меняется</div></div>
       <div class="card" style="margin:0"><div class="hint">Полезный раскрой за смену</div><div class="kpi">88,4 %</div><div class="hint">Норматив 88,0 % · отход 11,6 %</div></div>
       <div class="card" style="margin:0"><div class="hint">Пирамиды у клиентов</div><div class="kpi">4 шт</div><div class="hint money">Залог на руках: 320 000 ₸</div></div>
     </div>
 
-    <div class="card">
+    <div class="card" data-need="orders">
       <div class="ch"><span class="ct">Заказы в работе</span>
         <button class="btn b-out no-print" onclick="go('orders',document.querySelectorAll('.ni')[1])">+ Новый заказ</button></div>
       <div class="tw"><table>
@@ -780,7 +790,7 @@ const fmt = n => new Intl.NumberFormat('ru-RU').format(Math.round(n));
 const f2  = n => n.toFixed(2).replace('.',',');
 
 function toggleSb(){ $('sb').classList.toggle('open'); document.querySelector('.ovl').classList.toggle('active'); }
-const TITLES = {
+let TITLES = {
   dash:['Дашборд','Что происходит в цехе прямо сейчас'],
   orders:['Заказы и расчёт','От геометрии изделия до цены в КП'],
   cutting:['Раскрой и склад стекла','Карта резки, целые листы и деловой обрез'],
@@ -798,10 +808,69 @@ function go(tab,el){
   if(window.innerWidth<=768 && $('sb').classList.contains('open')) toggleSb();
   $('t-'+tab).parentElement.scrollTop=0;
 }
-function applyRole(){
-  const r=$('role').value;
-  const hide = (r==='operator'||r==='tech');
-  document.querySelectorAll('.money').forEach(e=>e.classList.toggle('hidden-role',hide));
+const ROLE = {
+  admin:{
+    tabs:['dash','orders','cutting','shop','quality','logi','settings'],
+    home:'dash', money:true, edit:true,
+    note:'видит всё', dashsub:'Что происходит в цехе прямо сейчас',
+    kpi:[['В производстве','284,5 м²','42 стеклопакета в суточной очереди'],
+         ['Горячая очередь (брак)','1 шт','Потеря: <b>15 840 ₸</b> · счёт клиенту не меняется'],
+         ['Полезный раскрой за смену','88,4 %','Норматив 88,0 % · отход 11,6 %'],
+         ['Пирамиды у клиентов','4 шт','Залог на руках: 320 000 ₸']]
+  },
+  manager:{
+    tabs:['dash','orders','logi'],
+    home:'orders', money:true, edit:true,
+    note:'заказы, цены, отгрузка', dashsub:'Заказы, деньги и сроки отгрузки',
+    kpi:[['Заказов в работе','3','На 869 773 ₸ · ближайшая отгрузка 12.08'],
+         ['Готово к отгрузке','11 шт','ИП Бейсенов · сегодня до 17:00'],
+         ['Под угрозой срока','1 заказ','Строймонтаж KZ — ждёт стекла 6Solar'],
+         ['Пирамиды у клиентов','4 шт','Залог на руках: 320 000 ₸']]
+  },
+  tech:{
+    tabs:['dash','orders','cutting','quality','settings'],
+    home:'cutting', money:false, edit:true,
+    note:'раскрой, нормативы, брак — без цен', dashsub:'Раскрой, качество и остатки стекла',
+    kpi:[['Полезный раскрой за смену','88,4 %','Норматив 88,0 % · отход 11,6 %'],
+         ['Брак за смену','1 шт','Царапина Low-E · мойка · третий случай за неделю'],
+         ['Листов в раскрое','6 шт','4M1 — по текущей спецификации заказа'],
+         ['Остаток под угрозой','6Solar','4 листа при потребности 7']]
+  },
+  operator:{
+    tabs:['shop','quality'],
+    home:'shop', money:false, edit:false,
+    note:'только своя смена', dashsub:'',
+    kpi:[]
+  }
+};
+
+function applyRole(jump){
+  const r=$('role').value, R=ROLE[r];
+  $('rolelbl').textContent=R.note;
+
+  document.querySelectorAll('.money').forEach(e=>e.classList.toggle('hidden-role',!R.money));
+  document.querySelectorAll('[data-need]').forEach(el=>{
+    el.style.display = R.tabs.includes(el.dataset.need) ? '' : 'none';
+  });
+  document.querySelectorAll('.ni[data-nav]').forEach(li=>{
+    li.style.display = R.tabs.includes(li.dataset.nav) ? '' : 'none';
+  });
+  document.body.classList.toggle('ro', !R.edit);
+
+  // дашборд под роль
+  if(R.dashsub) TITLES.dash[1]=R.dashsub;
+  if(document.querySelector('.tab.active')?.id==='t-dash') $('ts').textContent=TITLES.dash[1];
+  if(R.kpi.length){
+    $('dash-kpi').innerHTML = R.kpi.map(k=>
+      `<div class="card" style="margin:0"><div class="hint">${k[0]}</div><div class="kpi">${k[1]}</div><div class="hint">${k[2]}</div></div>`).join('');
+  }
+
+  // если текущий раздел роли недоступен — уводим на её домашний
+  const cur=document.querySelector('.tab.active')?.id.replace('t-','');
+  if(jump || !R.tabs.includes(cur)){
+    const t=R.tabs.includes(cur)&&!jump ? cur : R.home;
+    go(t, document.querySelector(`.ni[data-nav="${t}"]`));
+  }
 }
 
 /* ============================================================
