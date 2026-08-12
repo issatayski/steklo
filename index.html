@@ -264,6 +264,21 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
 .minibar{height:9px;background:#F1F3F9;border-radius:5px;overflow:hidden;margin-top:4px}
 .minibar div{height:100%;background:linear-gradient(90deg,#5B7CFF,#3B5BFE);border-radius:5px}
 @media(max-width:900px){.shopgrid{grid-template-columns:1fr}}
+
+.addbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;padding-top:16px;
+  border-top:1px solid var(--bdl)}
+.qty-in{width:62px;padding:6px 8px;border:1px solid var(--bd);border-radius:9px;background:#FAFBFE;
+  font-size:.84rem;text-align:center;color:var(--tx)}
+.qty-in:focus{outline:none;border-color:var(--pri);background:#fff}
+.rowacts{display:flex;gap:5px;justify-content:flex-end}
+.rowacts button{width:30px;height:30px;border:none;border-radius:9px;background:#F1F3F9;color:var(--mu);
+  cursor:pointer;font-size:.85rem;transition:.12s;line-height:1}
+.rowacts button:hover{background:var(--pri-soft);color:var(--pri)}
+.rowacts button.del:hover{background:var(--bad-bg);color:var(--bad)}
+tr.editing{background:var(--pri-soft)!important;box-shadow:inset 3px 0 0 var(--pri)}
+.bulk-prev{display:flex;flex-wrap:wrap;gap:6px;max-height:170px;overflow-y:auto}
+.bulk-prev span{background:#F1F3F9;border-radius:9px;padding:5px 11px;font-size:.79rem;
+  font-family:var(--mono)}
 .money.hidden-role{filter:blur(5px);user-select:none}
 
 @media(max-width:768px){
@@ -380,6 +395,11 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
             <div class="fg"><label>Кол-во, шт</label><input type="number" id="f-qty" class="fc" value="4" oninput="recalc()"></div>
           </div>
           <div class="hint" id="shape-note"></div>
+          <div class="addbar">
+            <button class="btn b-pri" onclick="addPos()">+ Добавить в спецификацию</button>
+            <button class="btn b-out" onclick="openBulk()">Вставить списком</button>
+            <span class="hint" id="editnote"></span>
+          </div>
         </div>
 
         <div class="card">
@@ -417,7 +437,7 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
           <div id="cost"></div>
           <div class="total"><div><div style="font-size:.75rem;opacity:.7">ИТОГО ЗА <span id="tot-qty">4</span> ШТ</div><div class="kpi" id="tot-sum">—</div></div>
             <div style="text-align:right;font-size:.8rem;opacity:.8">за 1 шт<br><b class="mono" id="tot-one">—</b><br>за м²<br><b class="mono" id="tot-m2">—</b></div></div>
-          <button class="btn b-pri no-print" style="width:100%;margin-top:12px" onclick="addPos()">Добавить позицию в заказ</button>
+          <button class="btn b-pri no-print" style="width:100%;margin-top:12px" onclick="addPos()">Добавить в спецификацию</button>
         </div>
       </div>
     </div>
@@ -427,7 +447,7 @@ input:checked+.sl{background:var(--pri)}input:checked+.sl:before{transform:trans
         <button class="btn b-ok no-print" onclick="alert('Заказ запущен. Позиции переданы в раскрой, статус: Ожидает резки.')">Запустить в производство</button></div>
       <div class="tw"><table>
         <thead><tr><th>№</th><th>Форма</th><th>Размер, мм</th><th>Формула</th><th>Кол-во</th><th>Площадь</th><th class="money">Цена, ₸</th><th class="money">Сумма, ₸</th><th class="no-print"></th></tr></thead>
-        <tbody id="spec-tbl"><tr><td colspan="9" class="hint" style="text-align:center;padding:22px">Позиций пока нет. Рассчитайте изделие выше и нажмите «Добавить позицию в заказ».</td></tr></tbody>
+        <tbody id="spec-tbl"><tr><td colspan="9" class="hint" style="text-align:center;padding:22px">Позиций пока нет. Введите размер выше и нажмите «Добавить в спецификацию» — или вставьте весь список клиента разом.</td></tr></tbody>
       </table></div>
       <div class="total money" id="spec-total" style="display:none"></div>
     </div>
@@ -945,36 +965,103 @@ function recalc(){
 }
 
 /* ---------- спецификация ---------- */
+let editIdx = null;
+
 function addPos(){
   if(!window._pos) return;
-  spec.push({...window._pos});
-  const tb=$('spec-tbl'); tb.innerHTML='';
-  let sum=0, m2=0;
-  spec.forEach((p,i)=>{
-    sum += p.price*p.qty; m2 += p.area*p.qty;
-    tb.innerHTML += `<tr><td>${i+1}</td><td>${p.shape}</td><td class="mono">${p.size}</td><td class="mono">${p.f}</td>
-      <td>${p.qty}</td><td class="mono">${f2(p.area*p.qty)} м²</td>
+  const p = {...window._pos};
+  if(editIdx!==null){ spec[editIdx]=p; editIdx=null; $('editnote').textContent=''; }
+  else spec.push(p);
+  renderSpec();
+}
+function dupPos(i){ spec.splice(i+1,0,{...spec[i]}); renderSpec(); }
+function delPos(i){ spec.splice(i,1); if(editIdx===i){editIdx=null;$('editnote').textContent='';} renderSpec(); }
+function editPos(i){
+  const p=spec[i];
+  const m=p.size.match(/(\d+)\s*×\s*(\d+)/);
+  if(m){ $('f-w').value=m[1]; $('f-h').value=m[2]; }
+  $('f-qty').value=p.qty; $('f-formula').value=p.f;
+  const sk=Object.keys(SHAPES).find(k=>SHAPES[k].name===p.shape)||'rect';
+  setShape(sk);
+  editIdx=i;
+  $('editnote').textContent='Правите позицию №'+(i+1)+' — «Добавить» её перезапишет.';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function setQty(i,v){ const n=Math.max(1,parseInt(v)||1); spec[i].qty=n; renderSpec(); }
+
+function renderSpec(){
+  const tb=$('spec-tbl');
+  if(!spec.length){
+    tb.innerHTML='<tr><td colspan="9" class="hint" style="text-align:center;padding:22px">Позиций пока нет. Введите размер выше и нажмите «Добавить в спецификацию» — или вставьте весь список клиента разом.</td></tr>';
+    $('spec-total').style.display='none'; $('b-ord').textContent='0'; buildCut(); return;
+  }
+  let sum=0,m2=0,pcs=0;
+  tb.innerHTML = spec.map((p,i)=>{
+    sum+=p.price*p.qty; m2+=p.area*p.qty; pcs+=p.qty;
+    return `<tr${editIdx===i?' class="editing"':''}>
+      <td>${i+1}</td><td>${p.shape}</td><td class="mono"><b>${p.size}</b></td><td class="mono" style="font-size:.78rem">${p.f}</td>
+      <td><input class="qty-in mono" type="number" min="1" value="${p.qty}" onchange="setQty(${i},this.value)"></td>
+      <td class="mono">${f2(p.area*p.qty)} м²</td>
       <td class="money mono">${fmt(p.price)}</td><td class="money mono"><b>${fmt(p.price*p.qty)}</b></td>
-      <td class="no-print"><button class="btn b-out" style="padding:3px 8px;font-size:.72rem" onclick="delPos(${i})">Убрать</button></td></tr>`;
-  });
+      <td class="no-print"><div class="rowacts">
+        <button title="Изменить" onclick="editPos(${i})">✎</button>
+        <button title="Дублировать" onclick="dupPos(${i})">⧉</button>
+        <button title="Убрать" class="del" onclick="delPos(${i})">✕</button>
+      </div></td></tr>`;
+  }).join('');
   const t=$('spec-total'); t.style.display='flex';
-  t.innerHTML=`<div><div style="font-size:.75rem;opacity:.7">ИТОГО ПО ЗАКАЗУ · ${f2(m2)} м²</div><div class="kpi">${fmt(sum)} ₸</div></div>
+  t.innerHTML=`<div><div style="font-size:.75rem;opacity:.7">ИТОГО ПО ЗАКАЗУ · ${spec.length} позиц. · ${pcs} шт · ${f2(m2)} м²</div>
+    <div class="kpi">${fmt(sum)} ₸</div></div>
     <div style="text-align:right;font-size:.8rem;opacity:.8">средняя цена м²<br><b class="mono">${fmt(sum/m2)} ₸</b></div>`;
   $('b-ord').textContent = spec.length;
+  buildCut();
 }
-function delPos(i){ spec.splice(i,1); const s=[...spec]; spec=[];
-  $('spec-tbl').innerHTML='<tr><td colspan="9" class="hint" style="text-align:center;padding:22px">Позиций пока нет.</td></tr>';
-  $('spec-total').style.display='none';
-  s.forEach(p=>{window._pos=p; addPos();}); recalc(); }
+
+/* ---------- массовый ввод ---------- */
+function openBulk(){
+  $('bulk-txt').value='';
+  $('bulk-out').innerHTML='<span class="hint">Каждая строка — одна позиция. Понимает: <code>1600x1100 4</code>, <code>1600*1100 - 4шт</code>, <code>1600 1100 4</code>.</span>';
+  $('bulk-bd').classList.add('open');
+  setTimeout(()=>$('bulk-txt').focus(),50);
+}
+function parseBulk(txt){
+  const out=[],bad=[];
+  txt.split(/\n+/).forEach(line=>{
+    const s=line.trim(); if(!s) return;
+    const m=s.match(/(\d{3,4})\s*[xх*×,\s]\s*(\d{3,4})(?:\D+(\d{1,3}))?/i);
+    if(m) out.push({w:+m[1],h:+m[2],q:m[3]?+m[3]:1});
+    else bad.push(s);
+  });
+  return {out,bad};
+}
+function previewBulk(){
+  const {out,bad}=parseBulk($('bulk-txt').value);
+  $('bulk-out').innerHTML = (out.length
+    ? `<div class="alert a-ok" style="margin-bottom:8px">Разобрано ${out.length} позиц., всего ${out.reduce((s,x)=>s+x.q,0)} шт.</div>
+       <div class="bulk-prev">${out.map(o=>`<span>${o.w} × ${o.h} · ${o.q} шт</span>`).join('')}</div>`
+    : '<div class="alert a-warn">Ничего не разобрал. Формат: 1600x1100 4</div>')
+    + (bad.length?`<div class="alert a-warn" style="margin-top:8px">Не понял строк: ${bad.length} — ${bad.slice(0,3).join(' / ')}</div>`:'');
+}
+function applyBulk(){
+  const {out}=parseBulk($('bulk-txt').value);
+  if(!out.length) return;
+  const keepW=$('f-w').value, keepH=$('f-h').value, keepQ=$('f-qty').value;
+  out.forEach(o=>{ $('f-w').value=o.w; $('f-h').value=o.h; $('f-qty').value=o.q; recalc(); spec.push({...window._pos}); });
+  $('f-w').value=keepW; $('f-h').value=keepH; $('f-qty').value=keepQ; recalc();
+  $('bulk-bd').classList.remove('open');
+  renderSpec();
+}
 
 function importDemo(){
-  $('f-formula').value='6Solar-14Ar-4M1'; $('f-w').value=1450; $('f-h').value=2100; $('f-qty').value=6;
-  setShape('rect'); recalc(); addPos();
-  $('f-w').value=1200; $('f-h').value=1600; $('f-h2').value=900; $('f-qty').value=2;
-  setShape('trap'); recalc(); addPos();
-  $('f-w').value=1000; $('f-h').value=1400; $('f-qty').value=1;
-  setShape('arch'); recalc(); addPos();
-  alert('Импортировано 3 позиции из файла оконщика. Цены пересчитаны по вашим нормативам — обратите внимание на коэффициенты формы у трапеции и арки.');
+  const rows=[['6Solar-14Ar-4M1','rect',1450,2100,null,6],
+              ['4i-14Ar-4M1-14Ar-4i','trap',1200,1600,900,2],
+              ['4i-14Ar-4M1-14Ar-4i','arch',1000,1400,null,1],
+              ['4M1-16-4M1','rect',900,600,null,8]];
+  rows.forEach(([f,s,w,h,h2,q])=>{
+    $('f-formula').value=f; $('f-w').value=w; $('f-h').value=h; if(h2)$('f-h2').value=h2; $('f-qty').value=q;
+    setShape(s); recalc(); spec.push({...window._pos});
+  });
+  renderSpec();
 }
 
 /* ---------- выбор формы ---------- */
@@ -1003,18 +1090,43 @@ function setShape(s){
    РАСКРОЙ (полосовая упаковка)
    ============================================================ */
 function piecesFor(mark){
-  const base = {
-    '4M1':   [[1600,1100,8],[1200,800,11],[900,1400,6],[1450,2100,4],[600,700,9]],
-    '4i':    [[1600,1100,16],[980,1350,7],[1200,700,5]],
-    '6Solar':[[1450,2100,6],[1200,1600,3],[900,900,4]]
-  }[mark]||[];
-  const out=[]; base.forEach(([w,h,n],gi)=>{ for(let i=0;i<n;i++) out.push({w,h,gi}); });
-  return out;
+  // детали берутся из спецификации заказа: каждый слой формулы своей марки
+  const out=[]; let gi=0;
+  spec.forEach(p=>{
+    const m=p.size.match(/(\d+)\s*×\s*(\d+)/); if(!m) return;
+    const w=+m[1], h=+m[2];
+    const layers=parseFormula(p.f).layers.filter(l=>l.t==='glass');
+    const n = layers.filter(l=>(l.th+l.mark)===mark).length;
+    if(n) out.push({w,h,q:p.qty*n,gi:gi});
+    gi++;
+  });
+  const flat=[]; out.forEach(o=>{ for(let i=0;i<o.q;i++) flat.push({w:o.w,h:o.h,gi:o.gi}); });
+  return flat;
+}
+function marksInSpec(){
+  const s=new Set();
+  spec.forEach(p=>parseFormula(p.f).layers.filter(l=>l.t==='glass').forEach(l=>s.add(l.th+l.mark)));
+  return [...s];
+}
+function syncMarks(){
+  const sel=$('cut-mark'), cur=sel.value, ms=marksInSpec();
+  if(!ms.length) return;
+  sel.innerHTML=ms.map(m=>`<option value="${m}">${m}</option>`).join('');
+  if(ms.includes(cur)) sel.value=cur;
 }
 function buildCut(){
   const mark = $('cut-mark').value;
+  syncMarks();
+  if(!spec.length){
+    $('cut-summary').innerHTML='<div class="alert a-info" style="grid-column:1/-1">Спецификация заказа пуста. Добавьте позиции в разделе «Заказы и расчёт» — раскрой считается сразу по всей партии, обрезок от одной позиции закрывает другую.</div>';
+    $('cut-map').innerHTML=''; return;
+  }
   const rotatable = GLASS[mark.replace(/^\d+(\.\d+)?/,'')||'M1']?.rotate ?? true;
   const pieces = piecesFor(mark).sort((a,b)=>b.h-a.h);
+  if(!pieces.length){
+    $('cut-summary').innerHTML='<div class="alert a-info" style="grid-column:1/-1">В спецификации нет стекла марки '+mark+'. Выберите другую марку из списка — там только те, что реально есть в заказе.</div>';
+    $('cut-map').innerHTML=''; return;
+  }
   const SW=SHEET.w-SHEET.trim*2, SH=SHEET.h-SHEET.trim*2, K=SHEET.kerf;
 
   const sheets=[]; let cur=null;
@@ -1185,5 +1297,16 @@ function readNorms(){ NORM_META.forEach(([k])=>{ const v=+$('n-'+k).value; if(!i
   renderSettings(); renderDefects(); renderHot(); setShape('rect'); buildCut(); applyRole();
 })();
 </script>
+
+<div class="modal-bd" id="bulk-bd" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="mh"><span class="mt">Вставить размеры списком</span>
+      <button class="btn b-out" onclick="$('bulk-bd').classList.remove('open')">Закрыть</button></div>
+    <p class="hint" style="margin-bottom:12px">Скопируйте размеры прямо из письма, WhatsApp или Excel. Формула, форма и зачистка кромки возьмутся текущие — их можно поправить в любой строке потом.</p>
+    <textarea id="bulk-txt" class="fc mono" rows="8" style="resize:vertical" placeholder="1600x1100 4&#10;900х2100 6&#10;1200*800 - 2шт&#10;1450 2100 3" oninput="previewBulk()"></textarea>
+    <div id="bulk-out" style="margin-top:12px"></div>
+    <button class="btn b-pri" style="width:100%;margin-top:14px" onclick="applyBulk()">Добавить в спецификацию</button>
+  </div>
+</div>
 </body>
 </html>
